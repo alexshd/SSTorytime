@@ -1,8 +1,8 @@
 {
   "name": "n4l-language-support",
-  "displayName": "N4L Language Support",
-  "description": "Syntax highlighting and language support for N4L (Notes for Learning) files",
-  "version": "1.0.3",
+  "displayName": "N4L & SST Language Support",
+  "description": "Syntax highlighting and language support for N4L (Notes for Learning) and SST config files",
+  "version": "1.0.4",
   "publisher": "local",
   "engines": {
     "vscode": "^1.74.0"
@@ -22,6 +22,17 @@
           ".n4l"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "sst",
+        "aliases": [
+          "SST",
+          "SST Config"
+        ],
+        "extensions": [
+          ".sst"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -29,12 +40,21 @@
         "language": "n4l",
         "scopeName": "source.n4l",
         "path": "./syntaxes/n4l.tmLanguage.json"
+      },
+      {
+        "language": "sst",
+        "scopeName": "source.sst",
+        "path": "./syntaxes/sst.tmLanguage.json"
       }
     ],
     "snippets": [
       {
         "language": "n4l",
         "path": "./snippets/n4l.json"
+      },
+      {
+        "language": "sst",
+        "path": "./snippets/sst.json"
       }
     ]
   },

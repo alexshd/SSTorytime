@@ -24,21 +24,21 @@ again, to improve them.
 When you write some text it can mean anything you like. If you want to related it
 to some other comment, you use arrows with "(..)". Parentheses that are not quoted
 are assumed to  be arrows.
-<pre>
+```
    Remark one ...  (arrow1)  another remark / thing / thought
-</pre>
+```
 If you want to add more arrow connections, use the "ditto" `"` symbol so you don't have to type
 the whole thing again:
-<pre>
+```
    Remark one ...  (arrow1)  another remark / thing / thought
 
         "          (arrow2)  yet another remark ...
 
-</pre>
+```
 The nodes in a graph do not have to be "things". Don't think of notes as:
-<pre>
+```
 nouns (verb) noun   #   XXX No..
-</pre>
+```
 This will lead to artificial and inexpressive text. They might look "logical" or "computer-like", but this
 is not what knowledge management is about. Knowledge is for you and me--for humans!
 Any ordinary database can turn meaningful text into data fragments that don't speak to you, but with N4L
@@ -71,7 +71,7 @@ Here are some examples to help:
 
 * Leadsto / affects / affected by / causes / caused by
 
-<pre>
+```
  	+ causes   (cf)           - is caused by (cb)
  	+ creates   (cr)          - is created by (crtd)
  	+ predicts  (predict)     - is predicted by (predicted)
@@ -89,21 +89,21 @@ Here are some examples to help:
         + redirects (redir)        - is redirected by (redirby)
         + provisions (prov)        - is provisioned by (provisionedby)
         + constrains (constrain)    - is constrained by (constrainby)
-</pre>
+```
 
 * Contains or has part / is contained by or is part of
 
-<pre>
+```
  + consists of (consists)  - is part of (pt)
  + uses word (useword)     - is a word used in (wordin)
  + contains (contain)      - belongs to (belong)
  + may contain (cancontain) - may be contained by (canbecontain)
- + should not contain / be excluded from (excludes) - shouldn't be contained in (excludedfrom) 
-</pre>
+ + should not contain / be excluded from (excludes) - shouldn't be contained in (excludedfrom)
+```
 
 * Expresses an idea or property / has feature / is a feature of
 
-<pre>
+```
  + discusses (disc) - is discussed in (isdisc)
  + obeys the rule (rule) - is a rule for (rule4)
  + has aspect (aspect) - is an aspect of (aspect of)
@@ -116,18 +116,18 @@ Here are some examples to help:
 
  + has resource/reference (resource) - is a resource for (isresource)
  + has feature (feat)        - is a feature of (isfeat)
-</pre>
+```
 
 * Is close to or similar to (mutual, has no direction)
-<pre>
+```
  terminates together with (termwith)
  https connection with    (https)
  is not                   (not)
  don't confuse with       (confuse)
  similar to           	  (sim)
-</pre>
+```
 
-<pre>
+```
 Kubernetes (short for) "K8s"
      "     (represents) a %container %orchestration system
      "     (foundedby) Google
@@ -139,7 +139,7 @@ Kubernetes (short for) "K8s"
   "   (contains) one or more %containers
   "   (runsin) a shared %execution context
   "   (managedby) %controllers
-</pre> 
+```
 
 ## Labelling "sections" as lookup context
 
@@ -147,9 +147,9 @@ The "context" section tags are terms you expect to use to look up
 what you are making notes on. Naively, they are like section headers in a book.
 More deeply, they are like index words that you will be able to filter searches with.
 
-<pre>
+```
  :: core concepts, tags, thoughts you have, index terms  ::
-</pre>
+```
 
 
 ## Adding annotations to text
@@ -158,17 +158,17 @@ We can use annotations like "%" and ">" to add sub-references to a string of tex
 but sometimes you might want to explicitly connect a sentence to one of its subjects.
 
 You can use quotes around parts of a sentence to collect words with spaces or special characters.
-<pre> 
+```
 Kubernetes (short for) "K8s"
            (represents) a %container %orchestration system
            (foundedby) %Google
            (maintainedby) %CNCF
            (enables) %declarative %automation of containerized workloads
-</pre>
+```
 There is no purpose to writing:
-<pre>
+```
  %Mark (loves) %Lynn
-</pre>
+```
 because Mark and Lynn are already defined as text just by writing them independently.
 But you might want to write:
 
@@ -178,7 +178,7 @@ But you might want to write:
 
 You can make text readable by adding more natural forms, and finding a balance between
 abbreviation and natural language:
-<pre>
+```
    # instead of #  container (managedby) containerd
 
    container(s) (managed) the %containerd process
@@ -186,54 +186,54 @@ abbreviation and natural language:
    # instead of # kubectl (usedto) interact with kubernetes via CLI
 
    kubectl (usefor) user interaction with kubernetes via CLI
-</pre>
- 
+```
+
 Avoid using our over-used verbs like "is a". These don't express anything useful.
 You can say something like "is an example of" or "is a type of" to add a meaningful
 description of the role.
- 
-<pre>
- 
+
+```
+
   # instead of # "One-container-per-pod" (is) the most common usage pattern
- 
+
   "One-container-per-pod" (example) usage pattern  // make this an example
- 
-</pre>
+
+```
 
 If you are trying to describe complicated behaviours
-<pre> 
+```
  init containers  (runs) during pod startup
         "         (runbefore) main application containers
         "         (usefor) setup tasks like config init or dependency checks
- 
+
 sidecar container (runswith) main application container
          "        (shares) the %pod’s network and storage context
          "        (usefor) %logging, %proxying, %service mesh, and other supportive tasks
          "        (enables) separation of concerns
          "        (termwith) the main container
-</pre>
+```
 
-If an idea is too hard to write as relations straight away, just write it 
+If an idea is too hard to write as relations straight away, just write it
 as a sentence, and you can annotate it. It's more important that the knowledge is
 understandable than logically perfect.
-<pre>
+```
 'Kubernetes uses a >"hub-and-spoke API pattern". All API usage terminates at the API server.'
-</pre>
+```
 Thinking in verbs tends to make us write this:
-<pre>
+```
 %service account (injects)   %bearer token and %root certificate into pods
 %kube-proxy      (redirects) service IPs to %API server HTTPS endpoints
 service account  (injects)   %bearer token and %root certificate into pods
 kube-proxy       (redirects) service IPs to %API server HTTPS endpoints
-</pre>
+```
 We should ask ourselves, will we ever reuse these arrows `(injects)`? Would it be simpler
 just to write the sentence without the arrows?
-<pre>
+```
  reconciliation (represents) %abductive reasoning
        "        (observes) reality
        "        (infers) steps needed to achieve promised state
 </pre
 You could also write this:
-<pre>
+```
 reconciliation (means) Observing the %"actual state" and compares to the %"desired state". It infers the steps needed to achieve promised state. (note) This is a kind of %abductive reasoning.
-</pre>
+```

@@ -1,0 +1,89 @@
+{
+  "name": "SST Config",
+  "scopeName": "source.sst",
+  "fileTypes": ["sst"],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#sections"
+    },
+    {
+      "include": "#contexts"
+    },
+    {
+      "include": "#relations"
+    },
+    {
+      "include": "#special-symbols"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.hash.sst",
+          "match": "^\\s*#.*$"
+        },
+        {
+          "name": "comment.line.double-slash.sst",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "sections": {
+      "name": "entity.name.section.sst",
+      "match": "^\\s*-\\s*(.+?)(?:\\s*#.*)?$",
+      "captures": {
+        "1": {
+          "name": "string.unquoted.section.sst"
+        }
+      }
+    },
+    "contexts": {
+      "name": "entity.name.tag.context.sst",
+      "match": "^\\s*(:{1,})\\s*(.+?)\\s*(:{1,})\\s*$",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.context.begin.sst"
+        },
+        "2": {
+          "name": "string.unquoted.context.content.sst"
+        },
+        "3": {
+          "name": "punctuation.definition.context.end.sst"
+        }
+      }
+    },
+    "relations": {
+      "name": "entity.name.function.relation.sst",
+      "match": "\\(([^)]+)\\)",
+      "captures": {
+        "0": {
+          "name": "punctuation.definition.relation.sst"
+        },
+        "1": {
+          "name": "entity.name.function.relation.name.sst"
+        }
+      }
+    },
+    "special-symbols": {
+      "patterns": [
+        {
+          "name": "keyword.operator.special.sst",
+          "match": "(?:^|\\s)(>>|%|=|\\*\\*|>|<)(?=\\s)"
+        },
+        {
+          "name": "string.unquoted.relation-description.sst",
+          "match": "^\\s*([^\\(\\)#/]+?)\\s+\\([^)]+\\)\\s*$",
+          "captures": {
+            "1": {
+              "name": "entity.name.type.relation-description.sst"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

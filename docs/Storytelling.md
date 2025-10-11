@@ -61,7 +61,7 @@ When we're familar with `knowledge' (which is the actual definition of
 it), we can communicate it to others by telling stories about it to people,
 machines, abstract processes, work in general. By communicating
 it to a process we're engaged in, we make use of it. It could be how to operate
-a cash register, or drive a car, when and how much to water a crop. 
+a cash register, or drive a car, when and how much to water a crop.
 Basically, it's about having the familiarity with cause and effect to trust
 ourselves to act appropriately in the appropriate circumstance or context.
 
@@ -104,7 +104,7 @@ the books. So engineering knowledge involves engineering habits and behaviour.
 We're talking about knowing how to acquire and retain knowledge.
 Technology can help, but it can also get us stuck doing the wrong
 thing. If we take away too much of the work from people, people will forget
-how to do the work. That's how knowledge works. 
+how to do the work. That's how knowledge works.
 
 Semantic knowledge representations have not evolved since the
 Semantic Web was proposed during the 1990s, at a time when the
@@ -253,7 +253,7 @@ that describe spacetime semantics:
 * * PROPERTY - a descriptive orexpressive property of a node
 
 *These classes make it easier and more meaningful to search the graph later,
-because their meanings are aligned with the processes of searching. 
+because their meanings are aligned with the processes of searching.
 The main problem with ontology and RDF is that they encourage you to model
 the world as a number of things of different types, rather than modelling what
 processes those things are involved in, i.e. the things we are interested in.
@@ -264,7 +264,7 @@ If we make data searchable by design, we avoid gettting into trouble later.*
 
 Everyone knows about flow charts. These can be rather trivial, or very complicated. They are the basis for finite state machines (FSM), as well as error and risk graphs too. In N4L, we might write:
 
-<pre>
+```
 
 - flow chart
 
@@ -280,7 +280,7 @@ Start (next) Find Door (next) $question.1
 
  $question.1 (next if no)  Get key (next) $question.1
 
-</pre>
+```
 
 The picture looks like this:
 
@@ -288,12 +288,12 @@ The picture looks like this:
 
 In this case, we defined the arrows in the `SSTconfig/*` files.
 
-<pre>
+```
 - leadsto
 
  	# Define arrow causal directions ... left to right
 
-        + is followed by (next) - is preceded by (prev)    
+        + is followed by (next) - is preceded by (prev)
         + then the next is (then) - previous (prior)
 
         // Flow charts / FSMs etc
@@ -301,7 +301,7 @@ In this case, we defined the arrows in the `SSTconfig/*` files.
 	+ next if yes (ifyes) - is a positive outcome of (bifyes)
 	+ next if no (if no)  - is anegitive outcome of (bifno)
 
-</pre>
+```
 
 ### Dial M for Murder
 
@@ -321,20 +321,20 @@ the picture below.
 ![A study or murder](https://github.com/markburgess/SSTorytime/blob/main/docs/figs/knowledge.png 'The large scale structure of a well-formed knowledge graph organizes knowledge into regions that lead from one to the other.')
 
 Data entry is generally on a low level, item by item, but certain similarities
-lead to groupings of things that are related only by inference. This is what we 
+lead to groupings of things that are related only by inference. This is what we
 mean by **scaling** of the graph.
 
 We enter data from the bottom-up, but we usually
 want to think about it and search it conceptually in a top-down way. That's a conundrum for
 logics, because logics do not have a natural notion of scale. Focusing
-on logical relationships can easily obscure *set information*. 
+on logical relationships can easily obscure *set information*.
 The SST principles help us to do that.
 
 ### Common structures in a graph
 
 The most important structure in any directed graph is a [*hub*](https://arxiv.org/abs/1702.04638).
 In Promise Theory, these imply so-called appointed roles to the nodes. If several arrows of the same
-type point to a node, then the node absorbs the property and it 
+type point to a node, then the node absorbs the property and it
 becomes a "target" or shared property of the links. Conversely, if a node emits many arrows of the same
 type, it is a kind of distributor of that property. In other words, these structures imply many-to-one
 groupings, in which the "one" matroidal node represents the group. Groups of the four meta-types each have
@@ -346,7 +346,7 @@ In a directed graph there are two major type of matroid for incoming and outgoin
 
 We can use these structures to good effect when walking through the graph and analysing it.
 For example, if we see a hub that connected a number of things together, it acts as a kind of group leader
-for those things. If the arrow is of type contains, then it's clearly the name of the container--and we have the 
+for those things. If the arrow is of type contains, then it's clearly the name of the container--and we have the
 name on the box the items belong to. On the other hand, if all arrows point to a certain item and the
 arrow is "depends on" (inverse leadsto), then we know that single node is a critical dependency, perhaps
 even a Single Point of Failure for the items! These are examples of how even sem--formal semantics provide simple insights.

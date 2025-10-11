@@ -18,7 +18,7 @@ The hardest part at the moment is installing the software. It's easiest of you h
 
 * Please *read* about the project to make sure you understand how it is special, don't assume it's like something else you already know!
 
-* Create examples of your own notes to try it out and to give everyone ideas. 
+* Create examples of your own notes to try it out and to give everyone ideas.
 
 * If you want to think about how to visualize information in a knowledge base in new and exciting way, then give it a try! If you have specific expertise in web programming, get in touch!
 

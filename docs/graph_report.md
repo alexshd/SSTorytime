@@ -23,7 +23,7 @@ processes and process histories.
 * * For "property expression" arrows, these structures are compositions of attributes or shared attributes common to several compositions
 * * For "near" arrows, these structures are synonym / alias / or density clusters
 
-* *Eigenvector centrality*: undirected graphs have a property by virtue of the 
+* *Eigenvector centrality*: undirected graphs have a property by virtue of the
 Frobenious-Perron theorem that every undirected graph has a non-negative principal
 eigenvector. It ranks the 'connectedness' of nodes, or their importance, by measuring
 the amount of 'weight' propagated to each node. We can even calculate this for a directed
@@ -39,7 +39,7 @@ reports the unbiased vector normalization of the principal eigenvector when remo
 directions but preserving their weights.
 
 For example, the report on the "demo_pocs/search_maze" example graph, for leadsto links:
-<pre>
+```
 go run graph_report.go  -chapter multi|more
 ----------------------------------------------------------------
 Analysing chapter "multi slit interference", context [] to path length 6
@@ -67,7 +67,7 @@ Analysing chapter "multi slit interference", context [] to path length 6
 
    - Acyclic
 
-* APPOINTED NODES (nodes pointed to by at least 2 others thus correlating them) 
+* APPOINTED NODES (nodes pointed to by at least 2 others thus correlating them)
 
    Appointer correlates -> 2 appointed nodes (gate ...) in chapter "multi slit interference"
 
@@ -92,7 +92,7 @@ Analysing chapter "multi slit interference", context [] to path length 6
      river --(comes from / arriving from : -comes from)--> port...   - in context []
      tram --(comes from / arriving from : -comes from)--> port...   - in context []
 
-* SYMMETRIZED EIGENVECTOR CENTRALITY = FLOW RESERVOIR CAPACITANCE AT EQUILIBRIUM = 
+* SYMMETRIZED EIGENVECTOR CENTRALITY = FLOW RESERVOIR CAPACITANCE AT EQUILIBRIUM =
 
    ( 0.993 ) <- 0 = tram
    ( 0.768 ) <- 1 = target 3
@@ -141,10 +141,10 @@ Analysing chapter "multi slit interference", context [] to path length 6
      - Path node 10 has local maximum at node * 4 *, hop distance 3 along [10 9 5 4]
      - Path node 11 has local maximum at node * 4 *, hop distance 2 along [11 5 4]
      - Path node 12 has local maximum at node * 4 *, hop distance 3 along [12 11 5 4]
-</pre>
+```
 
 Another example:
-<pre>
+```
 $ go run graph_report.go -chapter maze -sttype L
 ----------------------------------------------------------------
 Analysing chapter "maze", context [] to path length 6
@@ -175,7 +175,7 @@ Analysing chapter "maze", context [] to path length 6
   - Cycle of length 4 with members (33)(34)(35)(36)
   - Cycle of length 4 with members (37)(38)(39)(40)
 
-* SYMMETRIZED EIGENVECTOR CENTRALITY = FLOW RESERVOIR CAPACITANCE AT EQUILIBRIUM = 
+* SYMMETRIZED EIGENVECTOR CENTRALITY = FLOW RESERVOIR CAPACITANCE AT EQUILIBRIUM =
 
    ( 0.151 ) <- 0 = a7
    ( 0.284 ) <- 1 = b7
@@ -355,9 +355,9 @@ Analysing chapter "maze", context [] to path length 6
      - Path node 52 has local maximum at node * 49 *, hop distance 4 along [52 3 2 50 49]
      - Path node 53 has local maximum at node * 49 *, hop distance 5 along [53 52 3 2 50 49]
 
-</pre>
+```
 and the report on the "doors.n4l" graph, for leadsto links:
-<pre>
+```
 
 $ go run graph_report.go -chapter multi
 ----------------------------------------------------------------
@@ -389,7 +389,7 @@ Analysing chapter "multi slit interference", context [] to path length 6
 
    - Acyclic
 
-* SYMMETRIZED EIGENVECTOR CENTRALITY = FLOW RESERVOIR CAPACITANCE AT EQUILIBRIUM = 
+* SYMMETRIZED EIGENVECTOR CENTRALITY = FLOW RESERVOIR CAPACITANCE AT EQUILIBRIUM =
 
    ( 0.993 ) <- 0 = tram
    ( 0.768 ) <- 1 = target 3
@@ -440,4 +440,4 @@ Analysing chapter "multi slit interference", context [] to path length 6
      - Path node 11 has local maximum at node * 4 *, hop distance 2 along [11 5 4]
      - Path node 12 has local maximum at node * 4 *, hop distance 3 along [12 11 5 4]
 
-</pre>
+```

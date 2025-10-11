@@ -36,7 +36,7 @@ forming a relationship to material. You know something when you know it like a f
 You won't have go and look up details because access will be integrated into your
 conscious experience and awareness of environments you know about. This is what it
 means to have knowledge at your fingertips. We are designed to use our hands
-and fingers. 
+and fingers.
 
 Writing stuff down is useless if no one reads it. This is why Wikis,
 knowledge bases, and expert systems often fail. Most Wikis are
@@ -118,24 +118,24 @@ putting of things in boxes for an archive you never revisit.*
 
 Not all relation types are as obvious as we may think:
 Look at the example of friendship, which has inverse like this:
-<pre>
+```
 
  + has friend (fr) - is a friend of (isfriend)
 
-</pre>
+```
 What type is this? Is friendship a mutual property (friends with) or is it a
 personal judgement that might not be receiprocated (considers a friend)?
 If we don't assume mutual friendship, we have a more powerful abiility to
 encode individual beliefs:
-<pre>
+```
 - properties   # NOT similarity/proximity
 
  + has friend (fr) - is a friend of (isfriend)
 
-</pre>
+```
 If we want to enocde mutual friendship, we simply declare the relation
 both ways, but we don't have to assume that:
-<pre>
+```
 
 -friends
 
@@ -151,9 +151,9 @@ both ways, but we don't have to assume that:
  Team Wallace and Gromit (has member) Wallace
            "             (memb) Gromit
 
-</pre>
+```
 If we parse this, we now see
-<pre>
+```
 - including search pathway STtype Express -> has friend
    including inverse meaning is a friend of
     - row/col key [ 0 / 6 ] Shawn Little
@@ -190,47 +190,47 @@ If we parse this, we now see
                Shawn .. (   1.0)
                 Lamb .. (   0.1)
 
-</pre>
+```
 By computing both directed and undirected matrices automatically, N4L allows us to
 compare the effects of this modelling difference. In general, it's best not to assume
 mutual relationships, as these can easily be symmetrized but undoing mutuality is hard.
 
 When we say that A follows B, this may apply to things or actions.
-* Space travel came after aircraft. 
+* Space travel came after aircraft.
 * Shopping is done after work.
 * Hammering is done after assembly.
 Order applies to both processes and objects.
 
 We could imagine a supply-chain worker noting:
-<pre>
+```
  delivery 123 (damaged) 2 boxes
-</pre>
+```
 It's a fair thing to write in a moment of unexpected pressure. But which of the
 four relations is this? That's the same as asking: what could we use this note
 for later? The problem with it is that it's ambiguous.
 
 The left hand side "delivery 123" is clear enough. It represents some shipment
 and we could embellish this description like this
-<pre>
+```
  delivery 123 (contains) shoes
      "        (came from) Italy
      "        (received by) shift crew 12
-</pre>
+```
 and so on. So no problem here. The relation "damaged" becomes an issue however
-because it's referring to the condition or state of the delivery. 
+because it's referring to the condition or state of the delivery.
 A more flexible approach would be to rewrite this as
-<pre>
+```
  delivery 123 (condition) 2 boxes damaged
-</pre>
+```
 because now
 * condition is a generic and reusable relation, which is a propery attribute (type 3) of the delivery
 * "2 boxes damaged" is an event that can be explained easily
 For instance, now we can explain the event further:
-<pre>
+```
   2 boxes damaged (condition) water damage
          "        (contains) red stiletto box 1445
          "        (contains) black stiletto box 1446
-</pre>
+```
 
 
 
@@ -238,10 +238,10 @@ For instance, now we can explain the event further:
 
 ### Example: The "is a" fallacy
 
-During the OO-movement to sanctify Object Orientation as a software modelling approach, 
+During the OO-movement to sanctify Object Orientation as a software modelling approach,
 Object Orientation rubber stamped
-the idea that objects, i.e. "things" (rather than processes or activities) are the most important concept in a model, 
-leaving *processes* asking: what am I 
+the idea that objects, i.e. "things" (rather than processes or activities) are the most important concept in a model,
+leaving *processes* asking: what am I
 then? (The answer was usually that processes should be thought of as methods that affect
 objects, which is extremely limiting.)
 Classification of objects into types was the goal of OO, because this is a way to simply
@@ -249,20 +249,20 @@ map ideas into first order logic, and that makes programming easy to understand.
 Alas, squeezing processes into this isn't always easy.
 The answer commonly associated with this was to use the "is a" or "is an instance of" relation
 as the way of thinking about things.
-<pre>
+```
 Object X is an instance of a class Square
 A Square is a special case (inheriting) the class of Rectangle
 etc.
-</pre>
+```
 The trouble with this idea is that it attempts to assert an *static* or *invariant* truth
 about the role of something (the square). But squares, indeed any properties or
 roles, are typically context dependent. We use the same concept in different ways.
-<pre>
+```
 In DIY: A hammer is a tool.
 In music: A hammer is a musical instrument
 In DIY: a drill is a tool for making holes.
 In operations, a drill is a practice episode.
-</pre>
+```
 If we insist of having different types for each of these cases (a type polymorphic approach),
 we push the responsibilty of the technology back onto the person using it. Technology
 is supposed to work for humans, not the other way around.
@@ -283,9 +283,9 @@ That makes it precise, but also extremely fragile to variability.
 Some relationships can be tricky to fathom. The semantics of ownership,
 for example, are not completely unambiguous. Suppose you want to say
 
-<pre>
-The bracelet "belongs to" Martin 
-</pre> 
+```
+The bracelet "belongs to" Martin
+```
 
 Is the bracelet a property of Martin or a part of him?  As an object,
 we might choose to make this a part the "extended space of
@@ -311,9 +311,9 @@ a database.
 ### Example: space or time?
 
 Consider the use of a word in a sentence.
-<pre>
+```
 It was a happy accident (???) happy
-</pre>
+```
 What can we say about the relationship between these two?
 * You could say that it is a property of the string (PROPERTY/ATTRIBUTE)
 * Is it merely a part of the sentence (CONTAINS/PART OF).
@@ -360,12 +360,12 @@ This is a strategioc use of context. It says: my strategy was to put this here s
 find it, if you looked up these keywords.
 
 * **Scene description**: thanks to our senses, the context in which we think of something
-may depend on a complex web of happenings (of causality) that's ultimately summarized by a sort of 
+may depend on a complex web of happenings (of causality) that's ultimately summarized by a sort of
 snapshot of *the state the scene*
 that we think of as context.
 The fullest possible description of context is thus a background story for the moment.
 Think of forensic investigators solving a mystery. They assemble context as factual descriptors,
-causal motives and how all of the above come together. 
+causal motives and how all of the above come together.
 
 We might imagine a Scene Description Language
 to be the ultimate goal of context. Our hypothesis here is that this imaginary Scene Description Language
@@ -380,7 +380,7 @@ with the outcome and work backwards. We might hop back and forth atemporally in 
 to discuss the relevance of the parts to the whole. The context is not a spanning tree.
 
 By following trails of thought, we are assembling a trail of prerequisites that
-our brains, evolved for navigation in a landscape, can understand. If we 
+our brains, evolved for navigation in a landscape, can understand. If we
 fall prey to the conceits of perfect logic we will tend to over-constrain information
 so that it becomes impossible to find without the precise criteria used to store
 it. This probably the most common mistake in using tools like RDF with OWL (the web ontology language)
@@ -464,7 +464,7 @@ return can you cay that you know something about them.
 * You take notes, in little patches of things to remember, hoping to trigger a larger memory.
 
 * When you have enough notes, you start to put them in some kind of order, so that things that belong
-together can be found together. Neurons that fire together, wire together! 
+together can be found together. Neurons that fire together, wire together!
 
 * We find out quickly that there can't be a box for everything. If we try to be too precise, we'd
 package everything in its own box, because every situation is unique. Instead, we realize that
@@ -485,12 +485,12 @@ our affinity for pattern and motor skills.
 ## The goal
 
 We're looking to be able to recall information easily, and to understand what it means by building
-stories around the nuggets we collect. 
+stories around the nuggets we collect.
 
 We already have plain text search, as well as the trusty "index" to
 help us with random recall. An index offers a way into a body of tidy
 knowledge from a simple term. Good indices are made by people who try to think of
-all the things people might use to look for information, 
+all the things people might use to look for information,
 not just the words they used in their own writing. We can do the same.
 
 In a way, N4L is just a fancy index generator.
@@ -507,7 +507,7 @@ alphabetically, or by subject, etc, this is supposed to make it easier to find.
 The mistake bureaucrats make is the same one logicians make: they force the
 work of deciding where to put something onto the user
 at the wrong moment, i.e. at a time when they are most familiar with it. Finding
-it later, in a completely different state of mind, is a much more difficult task. 
+it later, in a completely different state of mind, is a much more difficult task.
 Forcing users to work too much at the beginning to make everything fit into a perfect box
 of someone else's making acts as a disincentive rather than an encouragement. So we want to take away the barriers
 of documentation, letting users write things down in scraps and notes as they like. Then we want to
@@ -521,7 +521,7 @@ Alphabets are collections of standard symbols. The Greek alphabet (from the firs
 two symbols A,B) were a turning point for script.
 What an alphabet does is to offer up a smallish `menu' of items for
 reconstructing intentional words. The words have meanings, and we
-remember the sounds well.  
+remember the sounds well.
 
 We can try to do the same thing for meaning. By creating a smaller palette
 of words and phrases (as one does in domain specific languages, or specialized
@@ -531,7 +531,7 @@ So expressivity makes extensibility important. If we are too restrictive,
 it works against meaning. If we have too many meanings, nothing has a certain meaning.
 There's a balance to be found between these cases.
 
-Words are also associated with sounds and other sensory experiences. 
+Words are also associated with sounds and other sensory experiences.
 Seeing the sounds (unless
 you're deaf) is possible with a phonetic encoding, and this is what an
 alphabet enables with only a small number of symbols. In symbolic

@@ -23,10 +23,10 @@ This is probably a result of certain words and phrases belonging to more than on
 * **Why doesn't pathsolve understan my search on the command line**
 
 Shell characters interfere with the syntax. We need to escape characters, e.g. using single quotes to avoid expansion:
-<pre>
+```
 $ ./pathsolve -begin '!a1!' -end s1
 $ ./searchN4L \\from '!a1!'
-</pre>
+```
 
 * **Why doesn't a path solution work?**
 
@@ -36,4 +36,4 @@ By default, SSTorytime will also try to search all possible path types. Narrativ
 
 * **Why are the results different each time?**
 
-Lookup in a database is not a deterministic process. The database may select different values on each search and return them in a different order. The default number of data returned is 10 items. If there are many possible matches, the probability of getting the same 10 will decrease with more possibilities. You can also increase the number of matches `mysearch limit 20`. The more you constrain your search the more likely you are to get the same answer each time. 
+Lookup in a database is not a deterministic process. The database may select different values on each search and return them in a different order. The default number of data returned is 10 items. If there are many possible matches, the probability of getting the same 10 will decrease with more possibilities. You can also increase the number of matches `mysearch limit 20`. The more you constrain your search the more likely you are to get the same answer each time.

@@ -13,7 +13,7 @@ SSTorytime takes information that you enter in the form of
 * Personal notes (written in a simple format called N4L).
 * Data entered by a computer program (using the API for creating Nodes and Links).
 
-It turns these data into a graph, which you can then browse and query with the ready-made tools here, or by writing your own programs using the API. 
+It turns these data into a graph, which you can then browse and query with the ready-made tools here, or by writing your own programs using the API.
 
 ## The tools
 
@@ -68,7 +68,7 @@ When you search, you typically get to see matching nodes and their orbits up to 
 
 How how can you compete with AI and with other people in the information age?
 It's a bit like going to the gym to get fit. No one can do it for you, but there
-are tools to help you. So here is a methodology with tools, to improve the user experience 
+are tools to help you. So here is a methodology with tools, to improve the user experience
 of learning.
 
 If you're here, you're likely a programmer or an IT person, so you're looking
@@ -130,7 +130,7 @@ and see how it looks when it comes out.
 
 You start with a simple text file, in your favourite editor. Somewhere you like to jot down notes, but
 as plain text (not a special format like Word or Open Office).
-<pre>
+```
 
 - my notes     # you give it a title
                # and you can leave comments to yourself.
@@ -146,30 +146,30 @@ IF YOU WRITE IN ALL CAPS, YOU WILL BE REMINDED OF THE NOTE LATER!
 
  Other symbols can be defined with your own meanings, like >"special meanings"
 
-</pre>
+```
 You can also refer to the previous line
-<pre>
+```
 
 @mylabel foot (note) important concept!  # will refer to this label below, defined with @
 
   # english  to  hanzi   to   pinyin  & back to (english)
 
-    hand    (eh)   手    (hp)  shǒu     (pe)     $THIS.1  
+    hand    (eh)   手    (hp)  shǒu     (pe)     $THIS.1
 
   # references are referred to with $name.position
 
   $PREV.3 (e.g.) nǐ de zuǒ shǒu  (hp) 你的左手 (he) your left hand
 
-  $mylabel.1  (eh) 脚 (hp) jiǎo (e.g.) nǐ de yòu jiǎo  (ph) 你的右脚 (he) your right foot 
-</pre>
+  $mylabel.1  (eh) 脚 (hp) jiǎo (e.g.) nǐ de yòu jiǎo  (ph) 你的右脚 (he) your right foot
+```
 You can save this as a text file. It's helpful, but not necessary, to use a suffix `.n4l`.
 This file is already available in the distribution:
-<pre>
+```
 $ cd SSTorytime
 $ make
 $ cd example
 $ ../src/N4L tutorial.n4l
-</pre>
+```
 When you run this, you'll see something like this:
 
 ![A Flow Chart is a knowledge representation](https://github.com/markburgess/SSTorytime/blob/main/docs/figs/nooptions.png 'Without options, you only see your note to self.')
@@ -191,42 +191,42 @@ That already covers a lot of possibilities!
 
 To upload notes to the database, you use the `N4L` version of the tool. To get
 started, you can try some of the examples:
-<pre>
+```
 $ cd examples
-$ make 
-</pre>
+$ make
+```
 You see this runs the following command:
-<pre>
-../src/N4L -u -wipe doors.n4l Mary.n4l chinese*n4l branches.n4l doubleslit.n4l ConstructionProcesses.n4l wardleymap.n4l 
+```
+../src/N4L -u -wipe doors.n4l Mary.n4l chinese*n4l branches.n4l doubleslit.n4l ConstructionProcesses.n4l wardleymap.n4l
 brains.n4l kubernetes.n4l SSTorytime.n4l integral.n4l reasoning.n4l
-</pre>
+```
 The `-u` option tells the program to upload to the database. The `-wipe` option, tells it to override
 whatever is already in the database and start again. If you want to append new data, you can simply
 omit the `-wipe` option:
-<pre>
+```
 $ ../src/N4L -u LoopyLoo.n4l
-</pre>
+```
 The examples in the documentation assume you set up from the start with these uploads:
-<pre>
+```
 $ cd examples
-$ make 
+$ make
 $ ../src/N4L -u LoopyLoo.n4l
-</pre>
+```
 
 ## Searching
 
 You can search the SSTorytime knowledge graph with (hopefully intuitive) phrases like these:
-<pre>
+```
 from a1
 notes about chinese context restaurant
 notes chapter brain
 please in chinese
 paths from a1 to s1
-</pre>
+```
 You can either use the `searchN4L` tool, or the web browser by running the web server `http_server` and connecting to `localhost:8080` or an address, e.g.`192.168.0.5:8080`.
 
 On the command line:
-<pre>
+```
 
 $ ./searchN4L please in chinese
 $ ./searchN4L "(zai chengshi)"
@@ -237,7 +237,7 @@ $ ./searchN4L chapter brain
 $ ./searchN4L from a1
 $ ./searchN4L from a1 to b5
 $ ./searchN4L to "target 3"
-</pre>
+```
 Notice that, if you want to match accented characters using unaccented substitutes (like 'o' for 'ø'), then you write the word in parentheses).
 
 You can also types these directly into the web browser:
@@ -270,47 +270,47 @@ directory under src/demo_poc.  But as the project progresses, you can
 use the `notes` and `searchN4L` tool to play around with the result.
 The simplest way to see what you entered (which is like a cleaned up version of `more`)
 is to use:
-<pre>
+```
 $ src/notes fox and crow
 
 
 Title: chinese story about fox and crow
-Context: 
+Context:
 
-Wūyā Hé Húli (pinyin for hanzi) 乌鸦和狐狸 (hanzi for english) The Crow and the Fox 
+Wūyā Hé Húli (pinyin for hanzi) 乌鸦和狐狸 (hanzi for english) The Crow and the Fox
 
 Title: chinese story about fox and crow
-Context: _sequence_ 
+Context: _sequence_
 
-Húli zài shùlín lĭ zhăo chī de.  Tā lái dào yì kē dà shù xià, 
-狐狸   在   树林   里  找   吃  的。  他  来  到  一 棵 大  树  下, (pinyin for english) The fox was in the woods looking for food. He came to a tree, 
+Húli zài shùlín lĭ zhăo chī de.  Tā lái dào yì kē dà shù xià,
+狐狸   在   树林   里  找   吃  的。  他  来  到  一 棵 大  树  下, (pinyin for english) The fox was in the woods looking for food. He came to a tree,
 
 ...
 
-</pre>
+```
 This take only a page number as an argument for controlling long note sets:
-<pre>
+```
 $ src/notes -page 2 brain
 
-</pre>
+```
 
 
 
 ## What's the point?
 
 When you make notes, you should think about what you want to see when you look back at your notes.
-For example, suppose you are learning French. 
+For example, suppose you are learning French.
 
-<pre>
+```
 - French phrases
 
  petit-déjeuner (means) breakfast
 
     "  (e.g.) Je voudrais commander le petit-déjeuner (means) I would like to order breakfast
     "  (note) Don't forget to say please!
-</pre>
+```
 
-* Notice that you can use accents and Unicode characters freely. 
+* Notice that you can use accents and Unicode characters freely.
 * Notice that you can make intuitive short names for arrows like (e.g.). You can define what these mean in the configuration. More on that later.
 * Notice you can define many different kind of arrows with different meanings, e.g. (e.g.), (note).
 
@@ -337,7 +337,7 @@ you can still find things quickly, even when you're not sitting in front of your
 From here, it's up to you how you want to proceed. If you're feeling perverse, you could add
 more languages:
 
-<pre>
+```
 - French phrases, and other languages
 
  petit-déjeuner (means) breakfast
@@ -350,9 +350,9 @@ more languages:
     "  (betyr på norsk) Jeg vil bestille frokost
 
       # let's add Mandarin
-    "  (中文意思是) 我想订早餐 
+    "  (中文意思是) 我想订早餐
 
-</pre>
+```
 
 
 
@@ -365,10 +365,10 @@ On the other hand, it's only when you do make time to sit and study that you act
 
 Once again, the message is: writing it down is nice, putting it into a database is cool, but it's all
 wasted effort if you don't look at it yourself regularly. No one learned French by writing in their school
-book, or even by cramming for the exam. You only learn by using knowledge. It isn't knowledge if you don't know it. 
+book, or even by cramming for the exam. You only learn by using knowledge. It isn't knowledge if you don't know it.
 
 It's not rocket science, unless of course it is rocket science.
-<pre>
+```
 
 --rocket science
 
@@ -379,7 +379,7 @@ It's not rocket science, unless of course it is rocket science.
  HOW TO SPELL VONBRAUNS NAME???
 
  Werner Von Braun (developed) V2 aircraft
-         "        (developed) NASA early rockets  
+         "        (developed) NASA early rockets
 
  ASK FRIEND AT NASA...
 
@@ -389,7 +389,7 @@ It's not rocket science, unless of course it is rocket science.
 
  Space Camp movie ..
 
-</pre>
+```
 
 ## Tracking Your Progress
 

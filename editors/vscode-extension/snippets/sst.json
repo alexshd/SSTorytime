@@ -1,0 +1,33 @@
+{
+  "relation-with-code": {
+    "prefix": "rel",
+    "body": ["${1:description}                      (${2:code})"],
+    "description": "Relation definition with code"
+  },
+  "context-block": {
+    "prefix": "ctx",
+    "body": [
+      "",
+      " :: ${1:context description} ::",
+      " ",
+      " ${2:relation}                      (${3:code})",
+      ""
+    ],
+    "description": "Context block with relation"
+  },
+  "section-header": {
+    "prefix": "sec",
+    "body": ["", "- ${1:section name} # ${2:description}", ""],
+    "description": "Section header"
+  },
+  "comment-block": {
+    "prefix": "com",
+    "body": ["", " // ${1:comment text}", ""],
+    "description": "Comment line"
+  },
+  "special-operator": {
+    "prefix": "op",
+    "body": [" ${1|>>,>,<,%,=,**|} (${2:description})"],
+    "description": "Special operator with description"
+  }
+}

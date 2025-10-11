@@ -1,4 +1,3 @@
-
 # searchN4L
 
 This is a tool for querying the database. This is redesigned to avoid having to use command line options.
@@ -18,8 +17,8 @@ to protect them.
 - `\note` or `\page`
 
 - `\path` or `\seq`
-- -  `\from`
-- -  `\to`
+- - `\from`
+- - `\to`
 
 - `\context` or `\ctx`
 - `\as`
@@ -30,7 +29,6 @@ to protect them.
 
 - `\limit` or `\depth` or `\range` or `\distance`
 
-
 SSToryline allows you to use node addresses, called NPtr-s, which are coordinates looking like `(a,b)`. These are shown in searches
 in case you want to go quickly to a specific dode.
 
@@ -38,32 +36,33 @@ Text searches are otherwise based on substring matches, unless you mark a string
 e.g. `search !a1!` which matches the full precise string 'a1'. This can be a problem for short strings, e.g. suppose
 you have notes
 
-<pre>
+```n4l
 - alphabet
 
   A (comes from) Greek letter Alpha
   B
   C
+```
 
-</pre>
 The chances that 'A' is a substring of another string is very high! So if you want to access that, without knowing
 its actual coordinate NPtr, you can write `!A!` to find it uniquely.
 
 ## Examples
 
-<pre>
+```
 topic
 from mytopic
 notes about chinese context restaurant
 notes chapter brain
 please in chinese
 paths from a1 to s1
-</pre>
+```
 
 Using the pre-loaded examples, you can try:
 
 ## Search for nodes and their close neighbour orbits matching a name
-<pre>
+
+```
 $ ./searchN4L Mark
 ------------------------------------------------------------------
 
@@ -87,14 +86,15 @@ $ ./searchN4L Mark
       -    (has name) - PLpgSQL
       -    (is a note or remark about) - stored procedures/functions in postgres
 
-</pre>
+```
 
 ## Searching when you can't type unicode accents
 
 If you can only get English characters on your keyboard, you can still search for accented
 words by placing parentheses around them "(...)":
-<pre>
-% ./searchN4L  "(fangzi)" \\chapter "chinese" 
+
+```
+% ./searchN4L  "(fangzi)" \\chapter "chinese"
 ------------------------------------------------------------------
 
 0: fángzi
@@ -112,11 +112,11 @@ words by placing parentheses around them "(...)":
       -    (pinyin has hanzi) - 我的车在房子旁边
            -    (hanzi has english) - my car is next to the house  .. configuration, directions,
      from, layout, position, toward
-</pre>
+```
 
 ## Searching for anything in a given context
 
-<pre>
+```
 $ ./searchN4L %% \\context smalltalk brain wave \\limit 3
 ------------------------------------------------------------------
  Limiting to maximum of 3 results
@@ -141,14 +141,15 @@ $ ./searchN4L %% \\context smalltalk brain wave \\limit 3
            -    (has frequency) - 4-8 Hz        .. in the context of oscillations, waves
 
 
-</pre>
+```
 
 ## Searching by direct NodePtr references
 
 If you know about the database internals, you can look up node pointers directly
 as long as you quote the parentheses for the shell.
 Notice how the indentation shows you the distance from the starting node.
-<pre>
+
+```
 ./searchN4L "(1,1)"
 ------------------------------------------------------------------
 
@@ -165,12 +166,13 @@ Notice how the indentation shows you the distance from the starting node.
       -    (comes from / arriving from) - start
            -    (english has hanzi) - 开始  .. common verbs, doing, look, see, using, wanting
 
-</pre>
+```
 
 ## Searching for related contexts
 
 Context strings are clustered into groups. If you don't remember, you can search:
-<pre>
+
+```
 % ./searchN4L context restaurant
   0. "buildings"
   1. "come"
@@ -182,14 +184,14 @@ Context strings are clustered into groups. If you don't remember, you can search
   7. "rooms"
   8. "transport"
   9. "vehicles"
-</pre>
-
+```
 
 ## Searching for arrows
 
 You can look up arrow definitions too, by name, number, or spacetime type.
 The output format is `arrowptr, sttype, long name`:
-<pre>
+
+```
 $ ./searchN4L \\arrow ph,pe
 192. (3) ph -> pinyin has hanzi
 190. (3) pe -> pinyin has english
@@ -209,26 +211,30 @@ $ ./searchN4L \\arrow -2
  99. (-2) pt -> is part of
 101. (-2) wordin -> is a word used in
 
-</pre>
+```
 
 ## Searching for paths
 
 You can search for paths from one location to another:
-<pre>
+
+```
  ./searchN4L \\from start \\to "target 1"
 ------------------------------------------------------------------
 
      - story path:  start  -(leads to)->  door  -(leads to)->  passage  -(debug)->  target 1
      -  [ Link STTypes: -(+leads to)->  -(+leads to)->  -(+leads to)-> . ]
-</pre>
+```
+
 The default path length limtis to 5 hops. There might be longer paths, so you can add a depth
 to force a larger search:
 
-<pre>
+```
 $ ./searchN4L \\paths \\from a7 \\to i6 \\depth 16
-</pre>
+```
+
 or simply
-<pre>
+
+```
 $ ./searchN4L a7 \\to i6 \\depth 16
 ------------------------------------------------------------------
 
@@ -243,11 +249,11 @@ $ ./searchN4L a7 \\to i6 \\depth 16
       -(debug)->  maze_h5  -(debug)->  maze_h6  -(debug)->  maze_i6
      -  [ Link STTypes: -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)->  -(+leads to)-> . ]
 
-</pre>
+```
 
 ## Searching for story sequences
 
-<pre>
+```
 ./searchN4L sequence "Mary had"
 The following story/sequence (standalone trail without title anchor) "..."
 
@@ -256,43 +262,45 @@ The following story/sequence (standalone trail without title anchor) "..."
 
   1. Whose fleece was dull and grey
 
-  2. And when it reached a certain age 
+  2. And when it reached a certain age
 
   3. She'd serve it on a tray
 
-</pre>
+```
+
 ## Searching in note form
 
 Sometimes you want to see your full notes, the way you ordered them:
-<pre>
+
+```
 $ ./searchN4L \\notes brain
 
 ---------------------------------------------
 
 Title: neuroscience brain
-Context: oscillations waves 
+Context: oscillations waves
 ---------------------------------------------
 
 
-alpha waves (has frequency) 5-15 Hz 
-alpha waves (is characterized by) very relaxed, light or passive attention 
-beta waves (has frequency) 12-35 Hz 
-beta waves (is characterized by) medium attention,anxiety dominant, active, external attention 
-gamma waves (has frequency) 32-100 Hz 
-gamma waves (note/remark) 40 Hz of special interest 
-gamma waves (is characterized by) concentration 
-gamma waves (occurs in) premotor cortex 
-gamma waves (occurs in) parietal cortex 
-gamma waves (occurs in) temporal cortex 
-gamma waves (occurs in) frontal cortex 
+alpha waves (has frequency) 5-15 Hz
+alpha waves (is characterized by) very relaxed, light or passive attention
+beta waves (has frequency) 12-35 Hz
+beta waves (is characterized by) medium attention,anxiety dominant, active, external attention
+gamma waves (has frequency) 32-100 Hz
+gamma waves (note/remark) 40 Hz of special interest
+gamma waves (is characterized by) concentration
+gamma waves (occurs in) premotor cortex
+gamma waves (occurs in) parietal cortex
+gamma waves (occurs in) temporal cortex
+gamma waves (occurs in) frontal cortex
 
-</pre>
+```
 
 ## Searching for chapters
 
 To get a table of contents, with embedded contexts:
 
-<pre>
+```
 ./searchN4L \\chapter any \\limit 4
 ------------------------------------------------------------------
  Limiting to maximum of 4 results
@@ -327,13 +335,13 @@ To get a table of contents, with embedded contexts:
 
      1.) vocab
 
-</pre>
+```
 
 ## Searching for context descriptors
 
 To get a list of phrases you've used to label contexts:
 
-<pre>
+```
 $ ./searchN4L \\context any
 
 ------------------------------------------------------------------
@@ -346,18 +354,20 @@ $ ./searchN4L \\context any
       "roles", "terminology", "2024-06-12 delivery", "meeting
      1", "people", "terms"
 
-   Common context terms: 
+   Common context terms:
 ------------------------------------------------------------------
 
    Chapter context: chinese story about fox and crow
 
    Exceptional context terms: "_title_ Wūyā Hé Húli", "vocab"
 
-   Common context terms: 
+   Common context terms:
 ...
-</pre>
+```
+
 To find tokens related to a particular match:
-<pre>
+
+```
 $ ./searchN4L.go \\context direct keyi |more
 
 ------------------------------------------------------------------
@@ -370,7 +380,7 @@ $ ./searchN4L.go \\context direct keyi |more
       "similar sounds", "directions", "interest", "common verbs"
       "look", "biggest", "better", "compass", "caring"
 
-   Common context terms: 
+   Common context terms:
 ------------------------------------------------------------------
 
    Chapter context: notes on chinese
@@ -380,4 +390,4 @@ $ ./searchN4L.go \\context direct keyi |more
       "relative position", "work", "think", "caring", "common
      verbs", "where", "layout", "compass"
 
-</pre>
+```

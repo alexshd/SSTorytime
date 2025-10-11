@@ -1,4 +1,3 @@
-
 # Web JSON queries
 
 Query data returned by searches are addressed to the `http_server.go`
@@ -13,52 +12,54 @@ orbitals, which model a single node at a time with a cloud of arrow
 paths up to two arrows in length, and corresponding to satellites of
 the original node (see the figure below to see the geometry).
 
-![Alpha interface](https://github.com/markburgess/SSTorytime/blob/main/docs/figs/geometry.png 'Testing a web interface')
+![Alpha interface](https://github.com/markburgess/SSTorytime/blob/main/docs/figs/geometry.png "Testing a web interface")
 
 Data are returned in JSON packages by the `PackageResponse()` function, which
 wraps data in a structure:
-<pre>
+
+```json
 {
  "Response" : SWITCHCASE,
  "Content"  : data,
  "Time"     : <internal>,
- "Intent"   : <internal>, 
- "Ambient"  : <internal> 
+ "Intent"   : <internal>,
+ "Ambient"  : <internal>
 }
-</pre>
+```
+
 where the `data` are returned in one of a number of formats (below).
 The `SWITCHCASE` is handled in the web javascript parser as follows:
-<pre>
-  switch (SWITCHCASE) 
-     {
-     case "Orbits":
-          DoOrbitPanel(resp);
-          break;
-     case "ConePaths":
-          DoEntireConePanel(resp);
-          break;
-     case "PathSolve":
-          DoEntireConePanel(resp);
-          break;
-     case "Sequence":
-          DoSeqPanel(resp);
-          break;
-     case "PageMap":
-          DoPageMapPanel(resp);
-          break;
-     case "TOC":
-          DoTOCPanel(resp);
-          break;
-     case "Arrows":
-          DoArrowsPanel(resp);
-          break;
-     case "STAT":
-          DoStatsPanel(resp);
-          break;
-     }
-</pre>
-So each of these functions basically renders a fixed type JSON structure, in a manner appropriate to its purpose.
 
+```javascript
+switch (SWITCHCASE) {
+  case "Orbits":
+    DoOrbitPanel(resp);
+    break;
+  case "ConePaths":
+    DoEntireConePanel(resp);
+    break;
+  case "PathSolve":
+    DoEntireConePanel(resp);
+    break;
+  case "Sequence":
+    DoSeqPanel(resp);
+    break;
+  case "PageMap":
+    DoPageMapPanel(resp);
+    break;
+  case "TOC":
+    DoTOCPanel(resp);
+    break;
+  case "Arrows":
+    DoArrowsPanel(resp);
+    break;
+  case "STAT":
+    DoStatsPanel(resp);
+    break;
+}
+```
+
+So each of these functions basically renders a fixed type JSON structure, in a manner appropriate to its purpose.
 
 ### NodeEvents and their Orbits
 
@@ -74,7 +75,7 @@ It refers to `Orbits` which are precompiled paths reaching out from the Node
 to a depth of two hops. Coordinates `XYZ` are pre-calculated by the server based on the
 semantics of the search.
 
-<pre>
+```go
 type NodeEvent struct {
 
 	Text    string
@@ -85,7 +86,7 @@ type NodeEvent struct {
 	XYZ     Coords
 	Orbits  [ST_TOP][]Orbit
 }
-</pre>
+```
 
 The orbital references are listed as a set of arrays much like the
 STtype collection of `Link` arrays in the server and database's
@@ -93,25 +94,30 @@ internal Node representation. There are 7 lists indicating the arrow
 name, it's spacetime time and the destination Node Ptr and its text
 along with relative coordinates. `OOO` is the origin coordinate of the
 body a satellite orbits, (i.e. radius one orbits the original search
-node, radius 2 orbits one of the radius one satellites).  There is
+node, radius 2 orbits one of the radius one satellites). There is
 sufficient information in this to collate all the satellites of a
-particular STtype into a single list.  <pre> type Orbit struct {
+particular STtype into a single list.
 
-	Radius  int
-	Arrow   string
-	STindex int
-	Dst     NodePtr
-	Ctx     string
-	Text    string
-	XYZ     Coords  // coords
-	OOO     Coords  // origin
+```go
+type Orbit struct {
+
+    Radius  int
+    Arrow   string
+    STindex int
+    Dst     NodePtr
+    Ctx     string
+    Text    string
+    XYZ     Coords  // coords
+    OOO     Coords  // origin
+
 }
-</pre>
+```
 
 ### WebPath
 
 Go internal `Link` arrays are transformed into `WebPath` objects that have all pointers expanded.
-<pre>
+
+```go
 type WebPath struct {
 	NPtr    NodePtr
 	Arr     ArrowPtr
@@ -122,19 +128,19 @@ type WebPath struct {
 	Ctx     string
 	XYZ     Coords
 }
-</pre>
+```
 
 ### Story
 
 Story searches are a simple wrapping of a `NodeEvent` array, with encapsulating Chapter.
-<pre>
+
+```go
 type Story struct {
 
 	Chapter   string
 	Axis      []NodeEvent
 }
-</pre>
-
+```
 
 ### WebConePaths
 
@@ -147,7 +153,7 @@ array of supernode sets that are calculated by the server based on
 path
 [symmetries](https://mark-burgess-oslo-mb.medium.com/semantic-spacetime-1-the-shape-of-knowledge-86daced424a5).
 
-<pre>
+```go
 type WebConePaths struct {
 
 	RootNode   NodePtr
@@ -156,4 +162,4 @@ type WebConePaths struct {
 	Paths      [][]WebPath
 	SuperNodes []string
 }
-</pre>
+```

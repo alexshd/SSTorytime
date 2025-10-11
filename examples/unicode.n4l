@@ -54,6 +54,7 @@ The compatibility normal forms, NFKC and NFKD, will map many visually nearly ide
      $PREV.2  (e.g.) "RETURN translate($1, 'éçàêè...', 'ecaee...') ;"
 	"     (e.g.)   "select S from Node where translate(S,'ǎáà','aaa') like '%shang%';
 
-  introduction to database issues (url) "https://www.enterprisedb.com/blog/unicode-normalization-postgresql-13"
+  introduction to database issues
+                  "               (url) "https://www.enterprisedb.com/blog/unicode-normalization-postgresql-13"
 
                    "              (url) "https://tapoueh.org/blog/2017/07/playing-with-unicode/"

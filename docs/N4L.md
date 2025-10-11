@@ -2,9 +2,9 @@
 
 ## A simple knowledge management language
 
-_Notes for learning_<br>
-_Narrative for loading_<br>
-_Network for logical inference_<br>
+_Notes for learning_
+_Narrative for loading_
+_Network for logical inference_
 _Nourishment for life_
 
 N4L is an intentionally simple language, for keeping notes and
@@ -68,15 +68,15 @@ N4L chinese.in Mary.in kubernetes.in
 Any errors will be flagged for correction. Using verbose mode gives extensive
 commentary on the file, line by line:
 
-<pre>
+```
 $ N4L -v chinese.in
-</pre>
+```
 
 The final goal will normally be to upload the contents of the file to a database:
 
-<pre>
+```
 $ N4L -u chinese.in
-</pre>
+```
 
 However, before that, there are several operations than can be performed more efficiently
 just from the command line for many data sets. This is because most knowledge input
@@ -88,15 +88,15 @@ a certain kind of relation, using abbreviated labels for relations.
 For example, to look for items linked by relation "(pe)" (which stands
 for Pinyin to Hanzi translation) in a file of Chinese language, we could write:
 
-<pre>
+```
 $ N4L -v -s -adj="pe" chinese.in
-</pre>
+```
 
 We can add other kinds of relation too to expand the set:
 
-<pre>
+```
 $ N4L -v -s -adj="pe,he" chinese.in
-</pre>
+```
 
 This extracts a sub-graph from the total graph. It can be quite effective,
 because most knowledge graphs are only sparsely linked (which is why logical
@@ -267,9 +267,9 @@ where [=,*,..]A                        # implicit relation marker
 
 Here A,B,C,D,E stand for unicode strings. Reserved symbols:
 
-<pre>
-(), +, -, @, $, and # 
-</pre>
+```
+(), +, -, @, $, and #
+```
 
 Literal parentheses can be quoted. There should be no whitespace after the initial quote
 of a quoted string.
@@ -279,7 +279,7 @@ of a quoted string.
 For the purpose of automating sequence capture and rendering of multimedia objects,
 the following relation types are reserved:
 
-<pre>
+```
    leadsto:
       + then (then) - prior
 
@@ -287,14 +287,14 @@ the following relation types are reserved:
       + has url   (url) - is a URL for (isurl)
       + has image (img) - is an image for (isimg)
 
-</pre>
+```
 
 ## Sequence mode
 
 Sometimes it's useful to link items together into a chain or sequence.
 By adding the sequence directive to a context. From the example of the Mary had a little lamb above:
 
-<pre>
+```
 
 $ more Mary.in
 
@@ -318,13 +318,13 @@ $ more Mary.in
 
  $title.1 (example of) Nursery rhyme
 
-</pre>
+```
 
 This results is a sequence of lines linked by `then' arrows, until the context is removed.
 
-<pre>
+```
 Mary had a little lamb (then) Whose fleece was white as snow (then) ...
-</pre>
+```
 
 Then is a pre-defined and effectively reserved association.
 
@@ -337,7 +337,7 @@ Assocations have explanatory power, so we want to take advantage of that.
 On the other hand, we don't want to type a lot when making notes, so
 it's sensible to make extensive use of abbreviations.
 
-<pre>
+```
 -chinese notes
 
 ::food::
@@ -347,7 +347,7 @@ it's sensible to make extensive use of abbreviations.
 
   # more realistic with abbreviations ...
 
- 菜 (hp) Cài (pe) vegetable 
+ 菜 (hp) Cài (pe) vegetable
  meat (eh) 肉 (hp) Ròu
  beef  (eh) 牛肉  (hp) Niúròu
  lamb  (eh) 羊肉  (hp) Yángròu
@@ -361,12 +361,12 @@ it's sensible to make extensive use of abbreviations.
 
 jīqìrén (pe) robot (example) $robot.1
 
-</pre>
+```
 
 Notice how the implicit "arrows" in relations like
 
-<pre>(is english for the pinyin)</pre> or its short form
-<pre>(pe)</pre> effectively define the `types' of thing they are
+`(is english for the pinyin)` or its short form
+`(pe)` effectively define the `types' of thing they are
 
 attached to at either end. So we don't need to define the ontology for things
 because it emerges automatically from the names
@@ -386,30 +386,30 @@ learn first on the line, because your eye will tend to favour the first thing on
 brain will immediately kick in and try to process it, whereas it will easily skip over the later things
 on the line. So, for example, if you're trying to learn Chinese, as in the example above, don't write
 
-<pre>
+```
  meat (eh) 肉 (hp) Ròu
  beef  (eh) 牛肉  (hp) Niúròu
  lamb  (eh) 羊肉  (hp) Yángròu
  chicken (eh)  鸡肉 (hp)  Jīròu
-</pre>
+```
 
 Write this:
 
-<pre>
+```
  THING TO LEARN  (relation)   WHAT IT MEANS
 
  ròu     (ph)  肉   (he)  meat
- niúròu  (ph)  牛肉  (he)  beef 
- yángròu (ph)  羊肉  (he)  lamb  
+ niúròu  (ph)  牛肉  (he)  beef
+ yángròu (ph)  羊肉  (he)  lamb
  jīròu   (ph)  鸡肉  (he)  chicken
-</pre>
+```
 
 Now you will immediately see the left hand words that you're trying to learn, and it takes an effort to
 look to the right when you've tried to remember and want the answer.
 
 In this order, you can also easily add other annotations like examples and related notes:
 
-<pre>
+```
 -notes on chinese
 
 :: please, thank you, thankyou ::
@@ -423,13 +423,13 @@ In this order, you can also easily add other annotations like examples and relat
    " (e.g.) qǐng děng yīxià      (ph) 请等一下 (he) please wait a bit
    " (e.g.) qǐng zuò             (ph) 请坐    (he) please sit
 
-:: yes, no, negative :: 
+:: yes, no, negative ::
 
  yes       (eh) 是的 (hp) Shì de
   "        (note) There is no simple one to one translation for yes and no
  yes/right (eh) 对   (hp) Duì
 
-</pre>
+```
 
 ## How relationships work
 
@@ -493,13 +493,13 @@ in the way language semantics rely almost entirely on metaphors to express
 ideas. We frequently speak of "nouning verbs" and "verbing nouns", e.g.
 in Silicon Valley speak:
 
-<pre>
+```
  The company's spend is ...   (vs)    I need to spend .. an expenditure
  I have a big ask ...         (vs)    I need to ask you .. a question
 
  I question your use of language ... with a question
  I expensed by trip ... as an expense
-</pre>
+```
 
 Spend is a verb (expenditure or budget are nouns. Ask is a verb, question is
 a noun, but we now use both for both!
@@ -530,13 +530,13 @@ The way context is used is still an area of development, but there are two thing
 
 That said, you are free to write collections of contexts either with commas or "OR" bars, as you like:
 
-<pre>
+```
 
 :: position, location , directions | orientation | configuration ::
 
  compass (has direction) north
    "     (has direction) south
-</pre>
+```
 
 _Technical note: N4L's context model is based on the contextual decision-making from the software called CFEngine,
 which is an agent based language for describing maintenance policy in computers.
@@ -557,20 +557,20 @@ Arrows for use in notes are defined in a number of files under the `SSTconfig/` 
 The N4L compilers will look for such a directory under `./` and `../` etc, or you can set an environment
 variable
 
-<pre>
+```
 setenv SST_CONFIG_PATH mypath
 export SST_CONFIG_PATH = my_path
-</pre>
+```
 
 There is now a separate file for each of the arrow STtypes:
 
-<pre>
+```
 arrows-LT-1.sst
 arrows-NR-0.sst
 arrows-CN-2.sst
 arrows-EP-3.sst
 annotations.sst
-</pre>
+```
 
 so that everyone can share a set of standard definitions. Since it can be difficult to figure
 out how to register arrows, it seems a more sustainable way of proceeding than expecting everyone
@@ -580,12 +580,12 @@ The structure of this file is similar to the basic language, but the sections
 are used to define the four types of arrows and their meanings.
 The syntax takes the following form for the first three kinds of arrow:
 
-<pre>
+```
 - [leadsto | contains | properties ]
 
     + forward reading (forward alias) - reverse reading (backward alias)
     ...
-</pre>
+```
 
 For the fourth or zeroth type, there is only one direction for the meaning,
 since the arrow reads the same both forwards and backwards. Note, this does not
@@ -597,7 +597,7 @@ has the same meaning!
 Arrows that express relationships putting items in a certain order
 are called "leads to" arrows:
 
-<pre>
+```
 - leadsto
 
  	# Define arrow causal directions ... left to right
@@ -623,7 +623,7 @@ are called "leads to" arrows:
         + proposed (prop)    - proposed by (propby)
         + decided (decide)    - decided by (decidby)
         + spoke to (spoke)    - was spoken to by (talked)
-        + implements (impl) - was implemented by (implorg)        
+        + implements (impl) - was implemented by (implorg)
         + named after (named) - inspired the name (inspname)
 
  	# these next two are mutually complementary interpretations
@@ -635,7 +635,7 @@ are called "leads to" arrows:
         + wrote (wrote) - written by (written)
         + invented (invent) - invented by (inventby)
 
-        # Numbers can be interpreted either as set order (value) 
+        # Numbers can be interpreted either as set order (value)
         # or by set containment (count), so be careful with semantics!
 
         # succeeds is more accurate in terms of order
@@ -652,20 +652,20 @@ are called "leads to" arrows:
 
      :: chinese language ::
 
- 	+ english for pinyin (ep) - pinyin for english (pe)  
+ 	+ english for pinyin (ep) - pinyin for english (pe)
  	+ pinyin for hanzi (ph) - hanzi for pinyin (hp)
  	+ hanzi for english (he) - english for hanzi (eh)
  	+ english for Norwegian (en) - Norwegian for english (ne)
  	+ english to norsk (en) - norsk to english (ne)
 
-</pre>
+```
 
 ### Contains arrows (membership)
 
 Belonging to a group or a container is also a directed relationship
 so we read it differently in either direction.
 
-<pre>
+```
 - contains
 
  + has component (has) - is component of (part)
@@ -694,11 +694,11 @@ so we read it differently in either direction.
 
  + right word? (word?) - right usage? (usage?)
 
-</pre>
+```
 
 ### Properties arrows (attributes)
 
-<pre>
+```
 - properties
 
  # properties are more type-centric in a logical sense
@@ -733,7 +733,7 @@ so we read it differently in either direction.
 
  + likes (lk) - is liked by (lkby)
 
-</pre>
+```
 
 ### Similarity or proximty
 
@@ -744,7 +744,7 @@ there is no other reading of it. However A next to B doesn't mean that
 B must be next to A: what if there is the equivalent a one-way street or one-way glass
 connecting things.
 
-<pre>
+```
 - similarity # nearness, proximity
 
  looks like         	(ll)
@@ -763,7 +763,7 @@ connecting things.
  met with               (met) // a mutual coincidence
 
  comes together with    (and)
-</pre>
+```
 
 ### Annotations
 
@@ -771,22 +771,22 @@ Annotations are special characters used to mark up a longer text, i.e. to pick o
 certain words within a body of text. A word that is prefixed by such a character will
 be linked to the whole text using the relationship declared in this list, e.g.
 
-<pre>
+```
   in a sentence %specialword can be marked ...
-</pre>
+```
 
 The `% sign` generates an implicit link:
 
-<pre>
+```
   in a sentence +specialword can be marked ...   (discusses) specialword
-</pre>
+```
 
 _Languages that do not use spaces are not supported here, so one must introduce
 an artificial space separator in those cases._
 
 The declarations are as follows:
 
-<pre>
+```
  - annotations
 
  // for marking up a text body: body (relation) annotation
@@ -796,6 +796,6 @@ The declarations are as follows:
  = (depends on)
  * (is a special case of)
  > (has subject)
-</pre>
+```
 
 the symbols + and - are reserved.
