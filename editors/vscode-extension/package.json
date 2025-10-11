@@ -1,0 +1,61 @@
+{
+  "name": "n4l-language-support",
+  "displayName": "N4L Language Support",
+  "description": "Syntax highlighting and language support for N4L (Notes for Learning) files",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "n4l",
+        "aliases": [
+          "N4L",
+          "Notes for Learning"
+        ],
+        "extensions": [
+          ".n4l"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "n4l",
+        "scopeName": "source.n4l",
+        "path": "./syntaxes/n4l.tmLanguage.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "N4L Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/n4l-dark.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "n4l",
+        "path": "./snippets/n4l.json"
+      }
+    ]
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:n4l"
+  ],
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  }
+}

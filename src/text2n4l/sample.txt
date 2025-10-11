@@ -1,0 +1,8 @@
+This is a sample text file for testing the text2N4L program.
+The program analyzes text and extracts sentences with high intentionality.
+This sentence contains some important keywords about artificial intelligence and machine learning.
+Another regular sentence without much significance.
+Deep learning algorithms are revolutionizing the field of natural language processing.
+This is just a normal sentence.
+The future of computational linguistics depends on advanced neural networks.
+Simple text without special meaning.

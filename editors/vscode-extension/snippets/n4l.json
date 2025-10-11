@@ -1,0 +1,87 @@
+{
+  "section": {
+    "prefix": "section",
+    "body": ["-${1:section name}", "", "$0"],
+    "description": "Create a new section"
+  },
+  "context": {
+    "prefix": "ctx",
+    "body": [":: ${1:context, words} ::", "", "$0"],
+    "description": "Create a context declaration"
+  },
+  "extendContext": {
+    "prefix": "+ctx",
+    "body": ["+:: ${1:extend, context} ::", "", "$0"],
+    "description": "Extend existing context"
+  },
+  "sequence": {
+    "prefix": "seq",
+    "body": ["+:: _sequence_ , ${1:context} ::", "", "$0", "", "-:: _sequence_ ::"],
+    "description": "Create a sequence block"
+  },
+  "relationship": {
+    "prefix": "rel",
+    "body": ["${1:item} (${2:relation}) ${3:target}$0"],
+    "description": "Create a relationship"
+  },
+  "example": {
+    "prefix": "eg",
+    "body": ["$1 (e.g.) $0"],
+    "description": "Add an example relationship"
+  },
+  "note": {
+    "prefix": "note",
+    "body": ["$1 (note) $0"],
+    "description": "Add a note relationship"
+  },
+  "rule": {
+    "prefix": "rule",
+    "body": ["$1 (rule) $0"],
+    "description": "Add a rule relationship"
+  },
+  "alias": {
+    "prefix": "alias",
+    "body": ["@${1:aliasname} $0"],
+    "description": "Create an alias"
+  },
+  "reference": {
+    "prefix": "ref",
+    "body": ["\\$${1:alias}.${2:1}$0"],
+    "description": "Reference an alias"
+  },
+  "continuation": {
+    "prefix": "cont",
+    "body": ["\" (${1:relation}) ${2:target}$0"],
+    "description": "Continue from previous item"
+  },
+  "concept": {
+    "prefix": "concept",
+    "body": ["%${1:concept}$0"],
+    "description": "Mark a concept"
+  },
+  "quoted": {
+    "prefix": "q",
+    "body": ["\"${1:quoted text}\"$0"],
+    "description": "Create quoted text"
+  },
+  "url": {
+    "prefix": "url",
+    "body": ["$1 (url) \"${2:https://example.com}\"$0"],
+    "description": "Add URL relationship"
+  },
+  "image": {
+    "prefix": "img",
+    "body": ["$1 (img) \"${2:https://example.com/image.jpg}\"$0"],
+    "description": "Add image relationship"
+  },
+  "todo": {
+    "prefix": "todo",
+    "body": ["${1:TODO ITEM IN ALL CAPS}$0"],
+    "description": "Create a TODO item"
+  },
+  "chain": {
+    "prefix": "chain",
+    "body": ["${1:first} (${2:relation1}) ${3:second} (${4:relation2}) ${5:third}$0"],
+    "description": "Create a relationship chain"
+  }
+}

@@ -32,16 +32,16 @@ const (
 
         HAVE_PLUS = 11
         HAVE_MINUS = 22
-	ROLE_ABBR = 33
+	ROLE_ABBR = 33 // UNUSED: const ROLE_ABBR (0 refs)
 
 	ROLE_EVENT = 1
-	ROLE_RELATION = 2
+	ROLE_RELATION = 2 // UNUSED: const ROLE_RELATION (0 refs)
 	ROLE_SECTION = 3
 	ROLE_CONTEXT = 4
 	ROLE_CONTEXT_ADD = 5
 	ROLE_CONTEXT_SUBTRACT = 6
 	ROLE_BLANK_LINE = 7
-	ROLE_LINE_ALIAS = 8
+	ROLE_LINE_ALIAS = 8 // UNUSED: const ROLE_LINE_ALIAS (0 refs)
 	ROLE_LOOKUP = 9
 
 	N_GRAM_MAX = 5
@@ -181,7 +181,7 @@ func main() {
 
 //**************************************************************
 
-func Analyze(s string) []Match {
+func Analyze(s string) []Match { // UNUSED: func Analyze (0 refs)
 
 	var matches []Match
 
@@ -679,7 +679,7 @@ func CheckArrow(alias,name string) {
 
 //**************************************************************
 
-func GetLinkArrowByName(token string) SST.Link {
+func GetLinkArrowByName(token string) SST.Link { // UNUSED: func GetLinkArrowByName (0 refs)
 
 	// Return a preregistered link/arrow ptr bythe name of a link
 
@@ -1015,7 +1015,7 @@ func IsWhiteSpace(r,rn rune) bool {
 
 //**************************************************************
 
-func ExtractWord(fulltext string,offset int) string {
+func ExtractWord(fulltext string,offset int) string { // UNUSED: func ExtractWord (0 refs)
 
 	var protected bool = false
 	var word string
@@ -1088,7 +1088,7 @@ func Usage() {
 
 //**************************************************************
 
-func Verbose(a ...interface{}) {
+func Verbose(a ...interface{}) { // UNUSED: func Verbose (0 refs)
 
 	line := fmt.Sprintln(a...)
 	

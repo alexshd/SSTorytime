@@ -1,0 +1,190 @@
+{
+  "name": "N4L",
+  "scopeName": "source.n4l",
+  "fileTypes": ["n4l"],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#sections"
+    },
+    {
+      "include": "#contexts"
+    },
+    {
+      "include": "#todos"
+    },
+    {
+      "include": "#aliases"
+    },
+    {
+      "include": "#references"
+    },
+    {
+      "include": "#relationships"
+    },
+    {
+      "include": "#special-markers"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#urls"
+    },
+    {
+      "include": "#continuation"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.hash.n4l",
+          "match": "^\\s*#.*$"
+        },
+        {
+          "name": "comment.line.double-slash.n4l",
+          "match": "^\\s*//.*$"
+        }
+      ]
+    },
+    "sections": {
+      "name": "entity.name.section.n4l",
+      "match": "^\\s*-\\s*(.+)$",
+      "captures": {
+        "1": {
+          "name": "string.unquoted.section.n4l"
+        }
+      }
+    },
+    "contexts": {
+      "name": "entity.name.tag.context.n4l",
+      "match": "^\\s*([+\\-]?)(:{1,})\\s*(.+?)\\s*(:{1,})\\s*(#.*)?$",
+      "captures": {
+        "1": {
+          "name": "keyword.operator.context.modifier.n4l"
+        },
+        "2": {
+          "name": "punctuation.definition.context.begin.n4l"
+        },
+        "3": {
+          "name": "string.unquoted.context.content.n4l"
+        },
+        "4": {
+          "name": "punctuation.definition.context.end.n4l"
+        },
+        "5": {
+          "name": "comment.line.hash.n4l"
+        }
+      }
+    },
+    "todos": {
+      "name": "markup.bold.todo.n4l",
+      "match": "^\\s*[A-Z][A-Z0-9\\s]+[A-Z0-9]\\s*$"
+    },
+    "aliases": {
+      "name": "entity.name.constant.alias.n4l",
+      "match": "@([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": {
+          "name": "variable.other.constant.alias.n4l"
+        }
+      }
+    },
+    "references": {
+      "patterns": [
+        {
+          "name": "variable.other.reference.prev.n4l",
+          "match": "\\$(PREV\\.[0-9]+)"
+        },
+        {
+          "name": "variable.other.reference.numbered.n4l",
+          "match": "\\$([0-9]+)"
+        },
+        {
+          "name": "variable.other.reference.alias.n4l",
+          "match": "\\$([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[0-9]+)?)"
+        }
+      ]
+    },
+    "relationships": {
+      "name": "entity.name.function.relation.n4l",
+      "match": "\\(([^)]+)\\)",
+      "captures": {
+        "0": {
+          "name": "punctuation.definition.relation.n4l"
+        },
+        "1": {
+          "name": "entity.name.function.relation.name.n4l"
+        }
+      }
+    },
+    "special-markers": {
+      "patterns": [
+        {
+          "name": "entity.name.type.concept.n4l",
+          "match": "%([a-zA-Z_][a-zA-Z0-9_\"\\s]*)",
+          "captures": {
+            "1": {
+              "name": "variable.other.concept.n4l"
+            }
+          }
+        },
+        {
+          "name": "markup.bold.special.n4l",
+          "match": "=([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "variable.other.special.n4l"
+            }
+          }
+        },
+        {
+          "name": "markup.italic.emphasis.n4l",
+          "match": "\\*([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "variable.other.emphasis.n4l"
+            }
+          }
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.n4l",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.n4l",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.n4l",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.n4l",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "urls": {
+      "name": "markup.underline.link.n4l",
+      "match": "https?://[^\\s\"')}]+"
+    },
+    "continuation": {
+      "name": "keyword.operator.continuation.n4l",
+      "match": "^\\s*\"\\s*(?=\\()"
+    }
+  }
+}

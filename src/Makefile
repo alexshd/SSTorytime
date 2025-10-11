@@ -1,6 +1,6 @@
 #
 
-OBJ=text2N4L N4L searchN4L removeN4L http_server pathsolve notes graph_report API_EXAMPLE_1 API_EXAMPLE_2 API_EXAMPLE_3 API_EXAMPLE_4
+OBJ = text2N4L N4L searchN4L removeN4L http_server pathsolve notes graph_report API_EXAMPLE_1 API_EXAMPLE_2 API_EXAMPLE_3 API_EXAMPLE_4
 
 all: $(OBJ)
 
@@ -44,5 +44,5 @@ clean:
 	rm -f $(OBJ)
 	rm -f *~ demo_pocs/*~
 
-% : %.go
+%: %.go
 	go build $<

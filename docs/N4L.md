@@ -1,30 +1,30 @@
-
 # N4L - Notes for Learning
+
 ## A simple knowledge management language
 
-*Notes for learning*<br>
-*Narrative for loading*<br>
-*Network for logical inference*<br>
-*Nourishment for life*
+_Notes for learning_<br>
+_Narrative for loading_<br>
+_Network for logical inference_<br>
+_Nourishment for life_
 
 N4L is an intentionally simple language, for keeping notes and
 scanning into a structured format for uploading into a database or for
-use with other tools.  The language is designed to encourage you to
+use with other tools. The language is designed to encourage you to
 think about how you express and structure notes. That, in turn,
 encourages you to revisit, tidy and organize the notes again and again, while
 being able to quickly turn them into a searchable graphical database, from which
 and can reason through stories.
 
-*One of the important ways we make notes is to draw pictures and place concepts
+_One of the important ways we make notes is to draw pictures and place concepts
 on maps, in which things are close together or laid out in a logical manner,
 In the future, N4L should be able to support simple sketches too, but that's
-for future development.*
+for future development._
 
 ## Why do we need a language?
 
 These days there are too many software engineers and we tend to make
 systems for them. So people are simply expected to learn how to use
-computer code, and "APIs" do enter data.  This is not intuitive
+computer code, and "APIs" do enter data. This is not intuitive
 (actually to anyone). Computers are a tool, and tools are supposed to
 do the work for humans, not the other way around! So we want to try to make data entry easy.
 
@@ -42,11 +42,13 @@ familiar editor to write notes in pure text (Unicode).
 
 The N4L tool ingests a file of "notes" written in a simple language
 and turns it into a machine representation in the form of a "Semantic Spacetime" graph
- (a form of knowledge graph). This format is only tangentially related to the
- usual Resource Description Framework (RDF)), so we shall not use of
- refer to RDF in what follows, except to occasionally clarify the distinction. 
+(a form of knowledge graph). This format is only tangentially related to the
+usual Resource Description Framework (RDF), so we shall not use of
+refer to RDF in what follows, except to occasionally clarify the distinction.
 The command options currently include:
-<pre>
+
+```bash
+$ N4L -h
 usage: N4L [-v] [-u] [-s] [file].dat
   -adj string
         a quoted, comma-separated list of short link names (default "none")
@@ -54,44 +56,56 @@ usage: N4L [-v] [-u] [-s] [file].dat
   -s    summary (node,links...)
   -u    upload
   -v    verbose
-</pre>
+```
+
 For example, to parse and validate a file of notes, one can simply type:
-<pre>
-$ N4L chinese.in
-$ N4L chinese.in Mary.in kubernetes.in
-</pre>
+
+```
+N4L chinese.in
+N4L chinese.in Mary.in kubernetes.in
+```
+
 Any errors will be flagged for correction. Using verbose mode gives extensive
 commentary on the file, line by line:
+
 <pre>
 $ N4L -v chinese.in
 </pre>
+
 The final goal will normally be to upload the contents of the file to a database:
+
 <pre>
 $ N4L -u chinese.in
 </pre>
+
 However, before that, there are several operations than can be performed more efficiently
 just from the command line for many data sets. This is because most knowledge input
 is quite small in size, and quick feedback is very useful for ironing out flaws
 and improving your source note material.
 
 We can look at the subset of notes that are related by
-a certain kind of relation, using abbreviated labels for relations. 
+a certain kind of relation, using abbreviated labels for relations.
 For example, to look for items linked by relation "(pe)" (which stands
 for Pinyin to Hanzi translation) in a file of Chinese language, we could write:
+
 <pre>
 $ N4L -v -s -adj="pe" chinese.in
 </pre>
+
 We can add other kinds of relation too to expand the set:
+
 <pre>
 $ N4L -v -s -adj="pe,he" chinese.in
 </pre>
+
 This extracts a sub-graph from the total graph. It can be quite effective,
 because most knowledge graphs are only sparsely linked (which is why logical
 searches tend to yield nothing of interest).
 
 In verbose mode, the standard output shows a summary of the text (events or items, etc)
 and an excerpt of the adjacency matrix.
-<pre>
+
+```
 
 $ N4L -v -s -adj="" Mary.in
 
@@ -175,11 +189,13 @@ Total links 7 sparseness (fraction of completeness) 0.125
      And everywhere  .. (   0.5)
           Mary's mum .. (   0.7)
 
-</pre>
-A useful ranking of nodes (known as EVC, or Eigenvector Centrality, which is something like Google's PageRank) 
+```
+
+A useful ranking of nodes (known as EVC, or Eigenvector Centrality, which is something like Google's PageRank)
 can be calculated from the weighted graph matrix (see below). The higher the score number, the more
 interconnected or "important" a term of text is, e.g.
-<pre>
+
+```
 $ ../src/N4L -v -s -adj="" chinese.in
 
   ...
@@ -202,17 +218,17 @@ $ ../src/N4L -v -s -adj="" chinese.in
                 room .. (   0.2)
               Dìfāng .. (   0.3)
 
-</pre>
+```
 
 ## Language syntax
 
 The N4L language has only a small number of features. It's power hopefully lies in its simplicity.
 It consists of text, small or larger (but pragmatically not huge), and relationships between them
 (in parentheses). The vocabulary of parenthetic relations is defined separately in a set of
-files in the configuration directory called `SSTconfig/` 
+files in the configuration directory called `SSTconfig/`
 (see below).
 
-<pre>
+```
 
 #  a comment for the rest of the line
 // also a comment for the rest of the line
@@ -247,11 +263,14 @@ paragraph paragraph paragraph paragraphparagraph"
 
 where [=,*,..]A                        # implicit relation marker
 
-</pre>
+```
+
 Here A,B,C,D,E stand for unicode strings. Reserved symbols:
+
 <pre>
 (), +, -, @, $, and # 
 </pre>
+
 Literal parentheses can be quoted. There should be no whitespace after the initial quote
 of a quoted string.
 
@@ -274,6 +293,7 @@ the following relation types are reserved:
 
 Sometimes it's useful to link items together into a chain or sequence.
 By adding the sequence directive to a context. From the example of the Mary had a little lamb above:
+
 <pre>
 
 $ more Mary.in
@@ -299,14 +319,17 @@ $ more Mary.in
  $title.1 (example of) Nursery rhyme
 
 </pre>
+
 This results is a sequence of lines linked by `then' arrows, until the context is removed.
+
 <pre>
 Mary had a little lamb (then) Whose fleece was white as snow (then) ...
 </pre>
+
 Then is a pre-defined and effectively reserved association.
 
-* Only the first items on a line are linked. 
-* Only new items are linked, so the use of a " or variable reference will not trigger a new item.
+- Only the first items on a line are linked.
+- Only new items are linked, so the use of a " or variable reference will not trigger a new item.
 
 ## Example
 
@@ -340,9 +363,11 @@ jīqìrén (pe) robot (example) $robot.1
 
 </pre>
 
-Notice how the implicit "arrows" in relations like 
+Notice how the implicit "arrows" in relations like
+
 <pre>(is english for the pinyin)</pre> or its short form
-<pre>(pe)</pre> effectively define the `types' of thing they are 
+<pre>(pe)</pre> effectively define the `types' of thing they are
+
 attached to at either end. So we don't need to define the ontology for things
 because it emerges automatically from the names
 we've given to relationships.
@@ -360,13 +385,16 @@ When you are interested in learning something, say a foreign language, put the t
 learn first on the line, because your eye will tend to favour the first thing on the line, and your
 brain will immediately kick in and try to process it, whereas it will easily skip over the later things
 on the line. So, for example, if you're trying to learn Chinese, as in the example above, don't write
+
 <pre>
  meat (eh) 肉 (hp) Ròu
  beef  (eh) 牛肉  (hp) Niúròu
  lamb  (eh) 羊肉  (hp) Yángròu
  chicken (eh)  鸡肉 (hp)  Jīròu
 </pre>
+
 Write this:
+
 <pre>
  THING TO LEARN  (relation)   WHAT IT MEANS
 
@@ -375,6 +403,7 @@ Write this:
  yángròu (ph)  羊肉  (he)  lamb  
  jīròu   (ph)  鸡肉  (he)  chicken
 </pre>
+
 Now you will immediately see the left hand words that you're trying to learn, and it takes an effort to
 look to the right when you've tried to remember and want the answer.
 
@@ -407,7 +436,7 @@ In this order, you can also easily add other annotations like examples and relat
 A piece of text can be thought of as an item or an event.
 Relationships between items or events are written inside parentheses, as in the
 examples above. They are designed to be highly
-abbreviated for note taking. 
+abbreviated for note taking.
 
 As written, the examples above look a bit like any old RDF (Resource
 Description Framework) triplets. However, with the underlying
@@ -425,20 +454,22 @@ to some predefined relation.
 It turns out that every relationship basically falls into one of
 four basic types that help you to imagine sketching the items on a map.
 Here are the four types:
-* 0 **similarity / near, alike** something is close to something else (proximity,closeness)
-* 1 **leadsto    / affects, causes** one thing follows from the other (sequences)
-* 2 **contains   / contains** something is a part of something else (boxes in boxes)
-* 3 **properties / express** something just has a name or an attribute (descriptive)
+
+- 0 **similarity / near, alike** something is close to something else (proximity,closeness)
+- 1 **leadsto / affects, causes** one thing follows from the other (sequences)
+- 2 **contains / contains** something is a part of something else (boxes in boxes)
+- 3 **properties / express** something just has a name or an attribute (descriptive)
 
 For example:
-* 0 - A **(sounds like)** B, or B **(sounds like)** A
-* 1 - A **(causes)** B , or B **(is caused by)** A
-* 2 - A **(is the boss of)** B, or B **(has boss)** A
-* 3 - A **(has a degree in)** B, B **(is a qualification of)** A
 
-*(Technical note the use of integers allows us to use signs for orientation.
+- 0 - A **(sounds like)** B, or B **(sounds like)** A
+- 1 - A **(causes)** B , or B **(is caused by)** A
+- 2 - A **(is the boss of)** B, or B **(has boss)** A
+- 3 - A **(has a degree in)** B, B **(is a qualification of)** A
+
+_(Technical note the use of integers allows us to use signs for orientation.
 Similarity is directionless 0 = -0; for the others there is a difference between
-positive and negative inverses.)*
+positive and negative inverses.)_
 
 ** When naming relations, stick to one tense (e.g. present tense) and for the short form use
 something that would easiy match any occurrence of the meaning of the arrow. This will make
@@ -449,11 +480,11 @@ These four classes of association can be literal or metaphorical (all language
 is an outgrowth of [metaphors for space and time](https://www.amazon.com/Smart-Spacetime-information-challenges-process/dp/B091F18Q8K/ref=tmm_hrd_swatch_0)).
 behave like placing items around
 each other in a mind-map on paper. Things that belong close together
-because they are aliases for one another are *similar*.  If one thing
+because they are aliases for one another are _similar_. If one thing
 leads to another, e.g. because it causes it or because it precedes it
-in a history then we use *leadsto*. Some items are parts of other items,
-so we use *contains*. Finally, something that's purely descriptive
-or is expressed by an item, e.g. "is blue" or 
+in a history then we use _leadsto_. Some items are parts of other items,
+so we use _contains_. Finally, something that's purely descriptive
+or is expressed by an item, e.g. "is blue" or
 
 Some authors who write about semantic networks have suggested that the
 way to think about arrows and nodes is as "nouns" (things) and "verbs"
@@ -461,6 +492,7 @@ way to think about arrows and nodes is as "nouns" (things) and "verbs"
 in the way language semantics rely almost entirely on metaphors to express
 ideas. We frequently speak of "nouning verbs" and "verbing nouns", e.g.
 in Silicon Valley speak:
+
 <pre>
  The company's spend is ...   (vs)    I need to spend .. an expenditure
  I have a big ask ...         (vs)    I need to ask you .. a question
@@ -468,11 +500,11 @@ in Silicon Valley speak:
  I question your use of language ... with a question
  I expensed by trip ... as an expense
 </pre>
+
 Spend is a verb (expenditure or budget are nouns. Ask is a verb, question is
 a noun, but we now use both for both!
 We see that language is used and abused in fluid ways, so we need more
 discipline in thinking about what the functions of terms are.
-
 
 ## Context - what is it?
 
@@ -488,15 +520,16 @@ for phrasse in a foreign language that have to do with a restaurant visit, you w
 organize and tag certain phrases with `restaurant, eating, cafe, pay the bill', etc.
 The way context is used is still an area of development, but there are two things to remember:
 
-* The keywords are something like a sensory stream, describing what might be
-going on in the mind of the user when they are looking for the relevant information: is it hot, cold, are
-you busy, relaxed, angry, in a restaurant, on the bus, etc. You imagine classifying things you want to remember or know about
-according to these `states of being'.
-* Contexts are 'lookup' keys, acting like an index or table of contents.
-* Although we will later show how to apply logical thinking to focus and sharpen searches, you should
-not think of context as logical (Boolean) variables.
+- The keywords are something like a sensory stream, describing what might be
+  going on in the mind of the user when they are looking for the relevant information: is it hot, cold, are
+  you busy, relaxed, angry, in a restaurant, on the bus, etc. You imagine classifying things you want to remember or know about
+  according to these `states of being'.
+- Contexts are 'lookup' keys, acting like an index or table of contents.
+- Although we will later show how to apply logical thinking to focus and sharpen searches, you should
+  not think of context as logical (Boolean) variables.
 
 That said, you are free to write collections of contexts either with commas or "OR" bars, as you like:
+
 <pre>
 
 :: position, location , directions | orientation | configuration ::
@@ -504,7 +537,8 @@ That said, you are free to write collections of contexts either with commas or "
  compass (has direction) north
    "     (has direction) south
 </pre>
-*Technical note: N4L's context model is based on the contextual decision-making from the software called CFEngine,
+
+_Technical note: N4L's context model is based on the contextual decision-making from the software called CFEngine,
 which is an agent based language for describing maintenance policy in computers.
 If you know CFEngine, you might be confused about how to use context in N4L--that's because it's logically
 'backwards' compared to the CFEngine policy language. In CFEngine, the sensory feed from a computer comes
@@ -513,7 +547,7 @@ in the CFEngine language are effectively search criteria to select when to activ
 states or classes observed. In N4L the computer under observation is the set of notes you read into it.
 So the contexts are terms that provide the sensory data, not the selection criteria. The user will later
 be the `policy engine', deciding what is relevant. So, you will never need to type logical expressions in
-your notes, except for highly skilled and specialized notes that we'll come back to later.*
+your notes, except for highly skilled and specialized notes that we'll come back to later._
 
 ## The `SSTconfig` directory
 
@@ -522,11 +556,14 @@ your notes, except for highly skilled and specialized notes that we'll come back
 Arrows for use in notes are defined in a number of files under the `SSTconfig/` directory.
 The N4L compilers will look for such a directory under `./` and `../` etc, or you can set an environment
 variable
+
 <pre>
 setenv SST_CONFIG_PATH mypath
 export SST_CONFIG_PATH = my_path
 </pre>
+
 There is now a separate file for each of the arrow STtypes:
+
 <pre>
 arrows-LT-1.sst
 arrows-NR-0.sst
@@ -534,6 +571,7 @@ arrows-CN-2.sst
 arrows-EP-3.sst
 annotations.sst
 </pre>
+
 so that everyone can share a set of standard definitions. Since it can be difficult to figure
 out how to register arrows, it seems a more sustainable way of proceeding than expecting everyone
 to define their own arrows.
@@ -541,21 +579,24 @@ to define their own arrows.
 The structure of this file is similar to the basic language, but the sections
 are used to define the four types of arrows and their meanings.
 The syntax takes the following form for the first three kinds of arrow:
+
 <pre>
 - [leadsto | contains | properties ]
 
     + forward reading (forward alias) - reverse reading (backward alias)
     ...
 </pre>
+
 For the fourth or zeroth type, there is only one direction for the meaning,
 since the arrow reads the same both forwards and backwards. Note, this does not
 mean the arrow is directionless, only that the reading of the arrow against its flow
-has the same meaning! 
+has the same meaning!
 
 ### Leads to arrows (causality and order)
 
 Arrows that express relationships putting items in a certain order
 are called "leads to" arrows:
+
 <pre>
 - leadsto
 
@@ -623,6 +664,7 @@ are called "leads to" arrows:
 
 Belonging to a group or a container is also a directed relationship
 so we read it differently in either direction.
+
 <pre>
 - contains
 
@@ -653,7 +695,6 @@ so we read it differently in either direction.
  + right word? (word?) - right usage? (usage?)
 
 </pre>
-
 
 ### Properties arrows (attributes)
 
@@ -702,6 +743,7 @@ applicability. For example, A is next to B implies that B is next to A,
 there is no other reading of it. However A next to B doesn't mean that
 B must be next to A: what if there is the equivalent a one-way street or one-way glass
 connecting things.
+
 <pre>
 - similarity # nearness, proximity
 
@@ -728,17 +770,22 @@ connecting things.
 Annotations are special characters used to mark up a longer text, i.e. to pick out
 certain words within a body of text. A word that is prefixed by such a character will
 be linked to the whole text using the relationship declared in this list, e.g.
+
 <pre>
   in a sentence %specialword can be marked ...
 </pre>
+
 The `% sign` generates an implicit link:
+
 <pre>
   in a sentence +specialword can be marked ...   (discusses) specialword
 </pre>
-*Languages that do not use spaces are not supported here, so one must introduce
-an artificial space separator in those cases.*
+
+_Languages that do not use spaces are not supported here, so one must introduce
+an artificial space separator in those cases._
 
 The declarations are as follows:
+
 <pre>
  - annotations
 
@@ -750,21 +797,5 @@ The declarations are as follows:
  * (is a special case of)
  > (has subject)
 </pre>
+
 the symbols + and - are reserved.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -127,7 +127,7 @@ var (
 	CURRENT_FILE string
 	TEST_DIAG_FILE string
 
-	RELN_BY_SST [4][]SST.ArrowPtr // From an EventItemNode
+	RELN_BY_SST [4][]SST.ArrowPtr // From an EventItemNode // UNUSED: var RELN_BY_SST (0 refs)
 )
 
 //**************************************************************
@@ -664,7 +664,7 @@ func ResolveAliasedItem(token string) string {
 
 //**************************************************************
 
-func SummarizeAndTestConfig() {
+func SummarizeAndTestConfig() { // UNUSED: func SummarizeAndTestConfig (0 refs)
 
 	Box("Raw Summary")
 	fmt.Println("..\n")
@@ -2445,7 +2445,7 @@ func ParseError(message string) {
 
 //**************************************************************
 
-func ReadUTF8File(filename string) []rune {
+func ReadUTF8File(filename string) []rune { // UNUSED: func ReadUTF8File (0 refs)
 	
 	content,err := ioutil.ReadFile(filename)
 	

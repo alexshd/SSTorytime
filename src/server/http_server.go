@@ -126,7 +126,7 @@ func EnableCORS(next http.Handler) http.Handler {
 // Handlers
 // *********************************************************************
 
-func SignalHandler() {
+func SignalHandler() { // UNUSED: func SignalHandler (0 refs)
 
 	signal_chan := make(chan os.Signal, 1)
 
@@ -891,7 +891,7 @@ func JSONStoryNodeEvent(en SST.NodeEvent) string {
 
 // *********************************************************************
 
-func GenHeader(w http.ResponseWriter, r *http.Request) {
+func GenHeader(w http.ResponseWriter, r *http.Request) { // UNUSED: func GenHeader (0 refs)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	origin := r.Header.Get("Origin")
 	w.Header().Set("Access-Control-Allow-Origin", origin)
@@ -901,7 +901,7 @@ func GenHeader(w http.ResponseWriter, r *http.Request) {
 
 // *********************************************************************
 
-func CleanText(c string) string {
+func CleanText(c string) string { // UNUSED: func CleanText (0 refs)
 
 	c = strings.Replace(c, "{", "", -1)
 	c = strings.Replace(c, "}", "", -1)
@@ -912,7 +912,7 @@ func CleanText(c string) string {
 
 // **********************************************************
 
-func ShowNode(ctx SST.PoSST, nptr []SST.NodePtr) string {
+func ShowNode(ctx SST.PoSST, nptr []SST.NodePtr) string { // UNUSED: func ShowNode (0 refs)
 
 	var ret string
 

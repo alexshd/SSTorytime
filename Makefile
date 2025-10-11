@@ -14,4 +14,3 @@ clean:
 	(cd src; make clean)
 	(cd examples; make clean)
 	(cd src/demo_pocs; make clean)
-
