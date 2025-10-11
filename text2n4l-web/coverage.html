@@ -1,0 +1,1203 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>cli: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">text2n4l-web/cmd/cli/main.go (0.0%)</option>
+				
+				<option value="file1">text2n4l-web/cmd/web/main.go (0.0%)</option>
+				
+				<option value="file2">text2n4l-web/internal/analyzer/converter.go (91.5%)</option>
+				
+				<option value="file3">text2n4l-web/internal/analyzer/types.go (88.5%)</option>
+				
+				<option value="file4">text2n4l-web/internal/web/handlers.go (47.8%)</option>
+				
+				<option value="file5">text2n4l-web/internal/web/profiling.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "fmt"
+        "io"
+        "os"
+
+        "text2n4l-web/internal/analyzer"
+)
+
+func main() <span class="cov0" title="0">{
+        if len(os.Args) &lt; 2 </span><span class="cov0" title="0">{
+                fmt.Fprintf(os.Stderr, "Usage: %s &lt;input-file&gt;\n", os.Args[0])
+                fmt.Fprintf(os.Stderr, "       %s -  (read from stdin)\n", os.Args[0])
+                os.Exit(1)
+        }</span>
+
+        <span class="cov0" title="0">var content []byte
+        var err error
+
+        if os.Args[1] == "-" </span><span class="cov0" title="0">{
+                // Read from stdin
+                content, err = io.ReadAll(os.Stdin)
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Fprintf(os.Stderr, "Error reading from stdin: %v\n", err)
+                        os.Exit(1)
+                }</span>
+        } else<span class="cov0" title="0"> {
+                // Read from file
+                content, err = os.ReadFile(os.Args[1])
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Fprintf(os.Stderr, "Error reading file %s: %v\n", os.Args[1], err)
+                        os.Exit(1)
+                }</span>
+        }
+
+        // Convert to N4L
+        <span class="cov0" title="0">result := analyzer.ConvertTextToN4LWithResult(string(content))
+
+        if result.Error != nil </span><span class="cov0" title="0">{
+                fmt.Fprintf(os.Stderr, "Conversion error: %v\n", result.Error)
+                os.Exit(1)
+        }</span>
+
+        // Output results
+        <span class="cov0" title="0">fmt.Print(result.N4LOutput)
+
+        // Print statistics to stderr
+        fmt.Fprintf(os.Stderr, "\n--- Conversion Statistics ---\n")
+        fmt.Fprintf(os.Stderr, "Total fragments: %d\n", result.TotalFragments)
+        fmt.Fprintf(os.Stderr, "Selected fragments: %d\n", result.SelectedFragments)
+        fmt.Fprintf(os.Stderr, "Ambiguous lines: %d\n", len(result.AmbiguousIndices))
+
+        if len(result.AmbiguousIndices) &gt; 0 </span><span class="cov0" title="0">{
+                fmt.Fprintf(os.Stderr, "Ambiguous line indices: %v\n", result.AmbiguousIndices)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "fmt"
+        "log"
+        "net/http"
+        "os"
+        "time"
+
+        "text2n4l-web/internal/web"
+)
+
+func main() <span class="cov0" title="0">{
+        // Create server instance
+        server := web.NewServer()
+
+        // Setup routes
+        mux := http.NewServeMux()
+        mux.HandleFunc("/", server.HomeHandler)
+        mux.HandleFunc("/upload", server.UploadHandler)
+        mux.HandleFunc("/convert", server.ConvertHandler)
+        mux.HandleFunc("/batch/", server.BatchHandler)
+
+        // Serve static files (CSS, JS, etc.)
+        mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+
+        // Setup profiling endpoints (development only)
+        web.SetupProfiling(mux)
+
+        // Touch reload.txt for browser auto-refresh
+        reloadFile := "tmp/reload.txt"
+        f, err := os.OpenFile(reloadFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
+        if err == nil </span><span class="cov0" title="0">{
+                f.WriteString(time.Now().Format(time.RFC3339Nano))
+                f.Close()
+        }</span>
+
+        // Start server
+        <span class="cov0" title="0">port := ":8080"
+        fmt.Printf("N4L Text Converter server starting on http://localhost%s\n", port)
+        fmt.Println("Features:")
+        fmt.Println("- Interactive text to N4L conversion")
+        fmt.Println("- File upload with batch processing")
+        fmt.Println("- Real-time ambiguous line highlighting")
+        fmt.Println("- Dual-pane editor view")
+        fmt.Println("- Performance profiling at /debug/info")
+
+        log.Fatal(http.ListenAndServe(port, mux))</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package analyzer
+
+import (
+        "fmt"
+        "path/filepath"
+        "regexp"
+        "sort"
+        "strings"
+)
+
+// N4LSkeletonOutput generates the _edit_me.n4l skeleton DSL output, matching the CLI
+func N4LSkeletonOutput(filename string, content string, percentage float64) string <span class="cov8" title="1">{
+        MemoryInit()
+        // Pre-sanitize to strip HTML/Markdown noise before fractionation
+        content = Sanitize(content)
+        // For web, fractionate content directly
+        fragments := FractionateTextFile(content)
+        L := len(fragments)
+        if L == 0 </span><span class="cov0" title="0">{
+                return "# No processable text found\n"
+        }</span>
+
+        // Simulate partitioning as in CLI (single partition for now)
+        // psf := [][]string{fragments}
+
+        // Select by running and static intent
+        <span class="cov8" title="1">running := make([]TextRank, 0, L)
+        static := make([]TextRank, 0, L)
+        for i, frag := range fragments </span><span class="cov8" title="1">{
+                running = append(running, TextRank{
+                        Fragment:     frag,
+                        Significance: RunningIntentionality(i, frag),
+                        Order:        i,
+                        Partition:    0,
+                })
+                static = append(static, TextRank{
+                        Fragment:     frag,
+                        Significance: AssessStaticIntent(frag, L, ExtractIntentionalTokens(fragments), 1),
+                        Order:        i,
+                        Partition:    0,
+                })
+        }</span>
+        <span class="cov8" title="1">selection := mergeSelections(running, static)
+
+        // Build ambient phrase frequencies for context arrows
+        freqs := ExtractIntentionalTokens(fragments)
+        // Derive top context phrases (n=2,3 preferred, then 1-grams)
+        topBigrams := topN(freqs[N2GRAM], 8)
+        topTrigrams := topN(freqs[N3GRAM], 8)
+        topUnigrams := topN(freqs[N1GRAM], 8)
+        // Compose context keywords list for "with ..."
+        contextWith := pickContextForWith(topTrigrams, topBigrams, topUnigrams, 2)
+        // Compose a longer list for "appears close to"
+        appearsClose := mergeAndDedup(append(topTrigrams, append(topBigrams, topUnigrams...)...), 18)
+
+        // Output in _edit_me.n4l style
+        var sb strings.Builder
+        base := filename
+        sb.WriteString(" - Samples from " + base + "\n\n# (begin) ************\n")
+        // Optional context header similar to CLI if context exists
+        if len(contextWith) &gt; 0 </span><span class="cov8" title="1">{
+                sb.WriteString("\n :: " + strings.Join(contextWith, ", ") + " ::\n")
+        }</span>
+        <span class="cov8" title="1">for _, sel := range selection </span><span class="cov8" title="1">{
+                // Sentence line
+                sb.WriteString(fmt.Sprintf("\n@sen%d   %s\n", sel.Order, Sanitize(sel.Fragment)))
+                // Arrow lines: extract/quote from part and appears close to keywords
+                part := fmt.Sprintf("part %d of %s", 0, fileAlias(base))
+                if len(contextWith) &gt; 0 </span><span class="cov8" title="1">{
+                        sb.WriteString("              \" (extract/quote from) " + part + " with " + strings.Join(contextWith, ", ") + "\n")
+                }</span> else<span class="cov0" title="0"> {
+                        sb.WriteString("              \" (extract/quote from) " + part + "\n")
+                }</span>
+                <span class="cov8" title="1">for _, kw := range appearsClose </span><span class="cov8" title="1">{
+                        sb.WriteString("              \" (appears close to) " + kw + "\n")
+                }</span>
+        }
+        <span class="cov8" title="1">sb.WriteString("\n# (end) ************\n")
+        sb.WriteString(fmt.Sprintf("\n# Final fraction %.2f of requested %.2f\n", float64(len(selection)*100)/float64(L), percentage))
+        sb.WriteString(fmt.Sprintf("\n# Selected %d samples of %d: ", len(selection), L))
+        for _, sel := range selection </span><span class="cov8" title="1">{
+                sb.WriteString(fmt.Sprintf("%d ", sel.Order))
+        }</span>
+        <span class="cov8" title="1">sb.WriteString("\n#\n")
+        return sb.String()</span>
+}
+
+// Sanitize strips HTML/Markdown noise and replaces parentheses with brackets for N4L output
+func Sanitize(s string) string <span class="cov8" title="1">{
+        // Remove HTML tags
+        tagRE := regexp.MustCompile(`&lt;[^&gt;]+&gt;`) // simple tag stripper
+        s = tagRE.ReplaceAllString(s, " ")
+        // Markdown: images ![alt](url) -&gt; alt
+        imgRE := regexp.MustCompile(`!\[([^\]]*)\]\([^)]*\)`) // capture alt text
+        s = imgRE.ReplaceAllString(s, "$1")
+        // Markdown: links [text](url) -&gt; text
+        linkRE := regexp.MustCompile(`\[([^\]]+)\]\([^)]*\)`)
+        s = linkRE.ReplaceAllString(s, "$1")
+        // Inline code backticks -&gt; plain
+        btRE := regexp.MustCompile("`+")
+        s = btRE.ReplaceAllString(s, "")
+        // Emphasis markers
+        s = strings.ReplaceAll(s, "**", "")
+        s = strings.ReplaceAll(s, "__", "")
+        s = strings.ReplaceAll(s, "*", "")
+        s = strings.ReplaceAll(s, "_", "")
+        // Strip leading markdown headings and blockquote markers
+        s = strings.TrimLeft(s, "#&gt; ")
+        // Normalize whitespace
+        spaceRE := regexp.MustCompile(`\s+`)
+        s = spaceRE.ReplaceAllString(s, " ")
+        s = strings.TrimSpace(s)
+        // Replace parentheses with brackets to avoid N4L parse conflicts inside content
+        replacer := strings.NewReplacer("(", "[", ")", "]")
+        return replacer.Replace(s)
+}</span>
+
+// FractionateTextFile splits text into processable fragments (sentences)
+func FractionateTextFile(content string) []string <span class="cov8" title="1">{
+        // Split by common sentence endings
+        separators := []string{". ", "! ", "? ", "\n", "\r\n"}
+
+        fragments := []string{content}
+
+        for _, sep := range separators </span><span class="cov8" title="1">{
+                var newFragments []string
+                for _, frag := range fragments </span><span class="cov8" title="1">{
+                        parts := strings.Split(frag, sep)
+                        for i, part := range parts </span><span class="cov8" title="1">{
+                                part = strings.TrimSpace(part)
+                                if part != "" </span><span class="cov8" title="1">{
+                                        // Add separator back except for last part
+                                        if i &lt; len(parts)-1 &amp;&amp; sep != "\n" &amp;&amp; sep != "\r\n" </span><span class="cov8" title="1">{
+                                                part += strings.TrimSpace(sep)
+                                        }</span>
+                                        <span class="cov8" title="1">newFragments = append(newFragments, part)</span>
+                                }
+                        }
+                }
+                <span class="cov8" title="1">fragments = newFragments</span>
+        }
+
+        // Filter out very short fragments
+        <span class="cov8" title="1">var result []string
+        for _, frag := range fragments </span><span class="cov8" title="1">{
+                frag = strings.TrimSpace(frag)
+                if len(frag) &gt; 3 </span><span class="cov8" title="1">{
+                        result = append(result, frag)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return result</span>
+}
+
+// fileAlias returns the filename without extension
+func fileAlias(path string) string <span class="cov8" title="1">{
+        base := filepath.Base(path)
+        ext := filepath.Ext(base)
+        return strings.TrimSuffix(base, ext)
+}</span>
+
+// topN returns the top n keys from a frequency map, ordered by descending count
+func topN(m map[string]float64, n int) []string <span class="cov8" title="1">{
+        type kv struct {
+                K string
+                V float64
+        }
+        list := make([]kv, 0, len(m))
+        for k, v := range m </span><span class="cov8" title="1">{
+                if k == "" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">list = append(list, kv{K: k, V: v})</span>
+        }
+        <span class="cov8" title="1">sort.Slice(list, func(i, j int) bool </span><span class="cov8" title="1">{
+                if list[i].V == list[j].V </span><span class="cov8" title="1">{
+                        return list[i].K &lt; list[j].K
+                }</span>
+                <span class="cov8" title="1">return list[i].V &gt; list[j].V</span>
+        })
+        <span class="cov8" title="1">if n &gt; len(list) </span><span class="cov0" title="0">{
+                n = len(list)
+        }</span>
+        <span class="cov8" title="1">out := make([]string, 0, n)
+        for i := 0; i &lt; n; i++ </span><span class="cov8" title="1">{
+                out = append(out, list[i].K)
+        }</span>
+        <span class="cov8" title="1">return out</span>
+}
+
+// pickContextForWith chooses a small set of phrases to include in the "with ..." clause
+func pickContextForWith(tris, bis, uns []string, want int) []string <span class="cov8" title="1">{
+        var ctx []string
+        for _, s := range tris </span><span class="cov8" title="1">{
+                if len(ctx) &gt;= want </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov8" title="1">ctx = append(ctx, s)</span>
+        }
+        <span class="cov8" title="1">for _, s := range bis </span><span class="cov8" title="1">{
+                if len(ctx) &gt;= want </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov0" title="0">if !contains(ctx, s) </span><span class="cov0" title="0">{
+                        ctx = append(ctx, s)
+                }</span>
+        }
+        <span class="cov8" title="1">for _, s := range uns </span><span class="cov8" title="1">{
+                if len(ctx) &gt;= want </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov0" title="0">if !contains(ctx, s) </span><span class="cov0" title="0">{
+                        ctx = append(ctx, s)
+                }</span>
+        }
+        <span class="cov8" title="1">return ctx</span>
+}
+
+// mergeAndDedup merges slices and returns the first k unique strings
+func mergeAndDedup(in []string, k int) []string <span class="cov8" title="1">{
+        seen := make(map[string]bool)
+        var out []string
+        for _, s := range in </span><span class="cov8" title="1">{
+                if s == "" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">if !seen[s] </span><span class="cov8" title="1">{
+                        seen[s] = true
+                        out = append(out, s)
+                        if len(out) &gt;= k </span><span class="cov8" title="1">{
+                                break</span>
+                        }
+                }
+        }
+        <span class="cov8" title="1">return out</span>
+}
+
+func contains(list []string, s string) bool <span class="cov0" title="0">{
+        for _, x := range list </span><span class="cov0" title="0">{
+                if x == s </span><span class="cov0" title="0">{
+                        return true
+                }</span>
+        }
+        <span class="cov0" title="0">return false</span>
+}
+
+// ExtractIntentionalTokens tokenizes text and tracks n-gram frequencies
+func ExtractIntentionalTokens(fragments []string) [N_GRAM_MAX]map[string]float64 <span class="cov8" title="1">{
+        var frequencies [N_GRAM_MAX]map[string]float64
+
+        // Initialize frequency maps
+        for i := N_GRAM_MIN; i &lt; N_GRAM_MAX; i++ </span><span class="cov8" title="1">{
+                frequencies[i] = make(map[string]float64)
+        }</span>
+
+        <span class="cov8" title="1">for _, fragment := range fragments </span><span class="cov8" title="1">{
+                words := strings.Fields(strings.ToLower(fragment))
+
+                // Count unigrams
+                for _, word := range words </span><span class="cov8" title="1">{
+                        // Clean word of punctuation
+                        word = cleanWord(word)
+                        if word != "" </span><span class="cov8" title="1">{
+                                frequencies[N1GRAM][word]++
+                        }</span>
+                }
+
+                // Count bigrams
+                <span class="cov8" title="1">for i := 0; i &lt; len(words)-1; i++ </span><span class="cov8" title="1">{
+                        word1 := cleanWord(words[i])
+                        word2 := cleanWord(words[i+1])
+                        if word1 != "" &amp;&amp; word2 != "" </span><span class="cov8" title="1">{
+                                bigram := word1 + " " + word2
+                                frequencies[N2GRAM][bigram]++
+                        }</span>
+                }
+
+                // Count trigrams
+                <span class="cov8" title="1">for i := 0; i &lt; len(words)-2; i++ </span><span class="cov8" title="1">{
+                        word1 := cleanWord(words[i])
+                        word2 := cleanWord(words[i+1])
+                        word3 := cleanWord(words[i+2])
+                        if word1 != "" &amp;&amp; word2 != "" &amp;&amp; word3 != "" </span><span class="cov8" title="1">{
+                                trigram := word1 + " " + word2 + " " + word3
+                                frequencies[N3GRAM][trigram]++
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return frequencies</span>
+}
+
+// cleanWord removes punctuation and normalizes words
+func cleanWord(word string) string <span class="cov8" title="1">{
+        // Remove common punctuation
+        word = strings.Trim(word, ".,!?;:()[]{}\"'")
+        return strings.ToLower(word)
+}</span>
+
+// ConvertTextToN4L performs the main conversion from text to N4L format
+func ConvertTextToN4L(content string) (string, []int, error) <span class="cov8" title="1">{
+        if content == "" </span><span class="cov8" title="1">{
+                return "", nil, nil
+        }</span>
+
+        // Initialize memory structures
+        <span class="cov8" title="1">MemoryInit()
+
+        // Fractionate text into sentences
+        fragments := FractionateTextFile(content)
+        if len(fragments) == 0 </span><span class="cov0" title="0">{
+                return "# No processable text found\n", nil, nil
+        }</span>
+
+        // Extract n-gram frequencies
+        <span class="cov8" title="1">frequencies := ExtractIntentionalTokens(fragments)
+        L := len(fragments)
+
+        // Calculate intentionality scores for each fragment
+        rankings := make([]TextRank, len(fragments))
+        for i, fragment := range fragments </span><span class="cov8" title="1">{
+                runningScore := RunningIntentionality(i, fragment)
+                staticScore := AssessStaticIntent(fragment, L, frequencies, 1)
+
+                rankings[i] = TextRank{
+                        Significance: runningScore + staticScore,
+                        Fragment:     fragment,
+                        Order:        i,
+                        Partition:    i / DUNBAR_30, // Simple partitioning
+                }
+        }</span>
+
+        // Select most significant fragments using both methods
+        <span class="cov8" title="1">runningSelection := selectByRunningIntent(rankings, L)
+        staticSelection := selectByStaticIntent(rankings, L)
+
+        // Merge selections
+        merged := mergeSelections(runningSelection, staticSelection)
+
+        // Convert to N4L format
+        n4lOutput, ambiguousIndices := formatAsN4L(merged, fragments)
+
+        return n4lOutput, ambiguousIndices, nil</span>
+}
+
+// selectByRunningIntent selects fragments based on running intentionality
+func selectByRunningIntent(rankings []TextRank, totalLength int) []TextRank <span class="cov8" title="1">{
+        var selected []TextRank
+
+        // Select top fragments based on running intentionality
+        threshold := 0.5 // Adjustable threshold
+
+        for _, rank := range rankings </span><span class="cov8" title="1">{
+                if rank.Significance &gt; threshold </span><span class="cov8" title="1">{
+                        selected = append(selected, rank)
+                }</span>
+        }
+
+        // Ensure we have at least some fragments
+        <span class="cov8" title="1">if len(selected) == 0 &amp;&amp; len(rankings) &gt; 0 </span><span class="cov8" title="1">{
+                // Take the top fragment if nothing meets threshold
+                best := rankings[0]
+                for _, rank := range rankings </span><span class="cov8" title="1">{
+                        if rank.Significance &gt; best.Significance </span><span class="cov0" title="0">{
+                                best = rank
+                        }</span>
+                }
+                <span class="cov8" title="1">selected = append(selected, best)</span>
+        }
+
+        <span class="cov8" title="1">return selected</span>
+}
+
+// selectByStaticIntent selects fragments based on static intentionality
+func selectByStaticIntent(rankings []TextRank, totalLength int) []TextRank <span class="cov8" title="1">{
+        var selected []TextRank
+
+        // Select fragments with above-average significance
+        totalSignificance := 0.0
+        for _, rank := range rankings </span><span class="cov8" title="1">{
+                totalSignificance += rank.Significance
+        }</span>
+
+        <span class="cov8" title="1">if len(rankings) &gt; 0 </span><span class="cov8" title="1">{
+                avgSignificance := totalSignificance / float64(len(rankings))
+
+                for _, rank := range rankings </span><span class="cov8" title="1">{
+                        if rank.Significance &gt;= avgSignificance </span><span class="cov8" title="1">{
+                                selected = append(selected, rank)
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return selected</span>
+}
+
+// mergeSelections combines running and static selections
+func mergeSelections(running, static []TextRank) []TextRank <span class="cov8" title="1">{
+        // Create a map to track selected fragments by order
+        selected := make(map[int]TextRank)
+
+        // Add running selections
+        for _, rank := range running </span><span class="cov8" title="1">{
+                selected[rank.Order] = rank
+        }</span>
+
+        // Add static selections (may override with higher scores)
+        <span class="cov8" title="1">for _, rank := range static </span><span class="cov8" title="1">{
+                if existing, exists := selected[rank.Order]; exists </span><span class="cov8" title="1">{
+                        // Keep the one with higher significance
+                        if rank.Significance &gt; existing.Significance </span><span class="cov8" title="1">{
+                                selected[rank.Order] = rank
+                        }</span>
+                } else<span class="cov0" title="0"> {
+                        selected[rank.Order] = rank
+                }</span>
+        }
+
+        // Convert back to slice and sort by order
+        <span class="cov8" title="1">var result []TextRank
+        for _, rank := range selected </span><span class="cov8" title="1">{
+                result = append(result, rank)
+        }</span>
+
+        // Sort by original order
+        <span class="cov8" title="1">for i := 0; i &lt; len(result)-1; i++ </span><span class="cov8" title="1">{
+                for j := i + 1; j &lt; len(result); j++ </span><span class="cov8" title="1">{
+                        if result[i].Order &gt; result[j].Order </span><span class="cov8" title="1">{
+                                result[i], result[j] = result[j], result[i]
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return result</span>
+}
+
+// formatAsN4L converts selected rankings to N4L format
+func formatAsN4L(rankings []TextRank, allFragments []string) (string, []int) <span class="cov8" title="1">{
+        if len(rankings) == 0 </span><span class="cov0" title="0">{
+                return "# No significant content found\n", nil
+        }</span>
+
+        <span class="cov8" title="1">var n4l strings.Builder
+        var ambiguousIndices []int
+
+        // Write header
+        n4l.WriteString("# N4L Narrative Analysis\n\n")
+
+        // Group by partitions
+        partitions := make(map[int][]TextRank)
+        for _, rank := range rankings </span><span class="cov8" title="1">{
+                partitions[rank.Partition] = append(partitions[rank.Partition], rank)
+        }</span>
+
+        // Write each partition
+        <span class="cov8" title="1">for partition := 0; partition &lt; len(partitions); partition++ </span><span class="cov8" title="1">{
+                ranks, exists := partitions[partition]
+                if !exists </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">n4l.WriteString(fmt.Sprintf("## Context %d\n\n", partition+1))
+
+                for _, rank := range ranks </span><span class="cov8" title="1">{
+                        // Mark ambiguous lines (low significance)
+                        if rank.Significance &lt; 1.0 </span><span class="cov8" title="1">{
+                                ambiguousIndices = append(ambiguousIndices, rank.Order)
+                                n4l.WriteString("? ")
+                        }</span> else<span class="cov0" title="0"> {
+                                n4l.WriteString("+ ")
+                        }</span>
+
+                        <span class="cov8" title="1">n4l.WriteString(rank.Fragment)
+                        n4l.WriteString(fmt.Sprintf(" [sig: %.2f]\n", rank.Significance))</span>
+                }
+
+                <span class="cov8" title="1">n4l.WriteString("\n")</span>
+        }
+
+        // Add metadata
+        <span class="cov8" title="1">n4l.WriteString("---\n")
+        n4l.WriteString(fmt.Sprintf("Total fragments: %d\n", len(allFragments)))
+        n4l.WriteString(fmt.Sprintf("Selected: %d\n", len(rankings)))
+        n4l.WriteString(fmt.Sprintf("Ambiguous: %d\n", len(ambiguousIndices)))
+
+        return n4l.String(), ambiguousIndices</span>
+}
+
+// ReadFile is a simple file reader function
+func ReadFile(filename string) (string, error) <span class="cov0" title="0">{
+        // This would normally read from file system
+        // For web app, content is provided directly
+        return "", fmt.Errorf("ReadFile not implemented in web context")
+}</span>
+
+// ConvertTextToN4LResult represents the result of N4L conversion
+type ConvertTextToN4LResult struct {
+        N4LOutput         string
+        AmbiguousIndices  []int
+        Error             error
+        TotalFragments    int
+        SelectedFragments int
+}
+
+// ConvertTextToN4LWithResult returns a structured result
+func ConvertTextToN4LWithResult(content string) ConvertTextToN4LResult <span class="cov8" title="1">{
+        n4lOutput, ambiguousIndices, err := ConvertTextToN4L(content)
+
+        fragments := FractionateTextFile(content)
+
+        return ConvertTextToN4LResult{
+                N4LOutput:         n4lOutput,
+                AmbiguousIndices:  ambiguousIndices,
+                Error:             err,
+                TotalFragments:    len(fragments),
+                SelectedFragments: strings.Count(n4lOutput, "+ ") + strings.Count(n4lOutput, "? "),
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">// Package analyzer provides text analysis and N4L conversion functionality.package analyzer
+
+// This is a clean refactor of the core analysis logic extracted from the monolithic SSTorytime package.
+package analyzer
+
+import (
+        "math"
+        "strings"
+)
+
+// Constants extracted from the original SSTorytime package
+const (
+        DUNBAR_30  = 45 // Approximate narrative range or sentences before new point/topic
+        DUNBAR_150 = 150
+        DUNBAR_15  = 15
+
+        N_GRAM_MIN = 1
+        N_GRAM_MAX = 6
+
+        // Text classification types
+        N1GRAM = 1
+        N2GRAM = 2
+        N3GRAM = 3
+        LT128  = 4
+        LT1024 = 5
+        GT1024 = 6
+)
+
+// TextRank represents a ranked text fragment with significance and metadata
+type TextRank struct {
+        Significance float64 // Intentionality score
+        Fragment     string  // The text fragment
+        Order        int     // Original order in document
+        Partition    int     // Coherence partition index
+}
+
+// Global variables for n-gram analysis (simplified from original)
+var (
+        STM_NGRAM_FREQ [N_GRAM_MAX]map[string]float64
+        STM_NGRAM_LOCA [N_GRAM_MAX]map[string][]int
+        STM_NGRAM_LAST [N_GRAM_MAX]map[string]int
+)
+
+// MemoryInit initializes the global n-gram tracking structures
+func MemoryInit() <span class="cov8" title="1">{
+        for i := N_GRAM_MIN; i &lt; N_GRAM_MAX; i++ </span><span class="cov8" title="1">{
+                STM_NGRAM_FREQ[i] = make(map[string]float64)
+                STM_NGRAM_LOCA[i] = make(map[string][]int)
+                STM_NGRAM_LAST[i] = make(map[string]int)
+        }</span>
+}
+
+// RunningIntentionality calculates the running intentionality score for a text fragment
+// This is a simplified version of the original algorithm
+func RunningIntentionality(t int, frag string) float64 <span class="cov8" title="1">{
+        // Simplified scoring based on fragment length and position
+        decayrate := float64(DUNBAR_30)
+        words := strings.Fields(frag)
+        if len(words) == 0 </span><span class="cov0" title="0">{
+                return 0.0
+        }</span>
+
+        // Basic intentionality heuristics
+        <span class="cov8" title="1">score := float64(len(words)) * 0.1
+
+        // Decay over time/position
+        if t &gt; 0 </span><span class="cov8" title="1">{
+                score *= math.Exp(-float64(t) / decayrate)
+        }</span>
+
+        <span class="cov8" title="1">return score</span>
+}
+
+// AssessStaticIntent calculates static intentionality based on n-gram frequencies
+func AssessStaticIntent(frag string, L int, frequencies [N_GRAM_MAX]map[string]float64, min int) float64 <span class="cov8" title="1">{
+        words := strings.Fields(frag)
+        if len(words) == 0 </span><span class="cov0" title="0">{
+                return 0.0
+        }</span>
+
+        <span class="cov8" title="1">score := 0.0
+        for _, word := range words </span><span class="cov8" title="1">{
+                // Simple frequency-based scoring
+                if freq, exists := frequencies[1][strings.ToLower(word)]; exists </span><span class="cov8" title="1">{
+                        score += StaticIntentionality(L, word, freq)
+                }</span> else<span class="cov8" title="1"> {
+                        score += 0.1 // Default score for unknown words
+                }</span>
+        }
+
+        <span class="cov8" title="1">return score</span>
+}
+
+// StaticIntentionality calculates the intentionality of a term based on its frequency
+func StaticIntentionality(L int, term string, frequency float64) float64 <span class="cov8" title="1">{
+        if L == 0 || frequency == 0 </span><span class="cov0" title="0">{
+                return 0.0
+        }</span>
+
+        // Simple TF-IDF like calculation
+        <span class="cov8" title="1">tf := frequency / float64(L)
+        idf := math.Log(float64(L) / (frequency + 1))
+
+        return tf * idf</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package web
+
+import (
+        "fmt"
+        "html/template"
+        "io"
+        "net/http"
+        "strconv"
+        "strings"
+
+        "text2n4l-web/internal/analyzer"
+)
+
+// Server holds the web server configuration and handlers
+type Server struct {
+        BatchSize int
+        templates *template.Template
+}
+
+// NewServer creates a new web server instance
+func NewServer() *Server <span class="cov0" title="0">{
+        // Load templates
+        templates := template.New("").Funcs(template.FuncMap{
+                "add": func(a, b int) int </span><span class="cov0" title="0">{
+                        return a + b
+                }</span>,
+                "sub": func(a, b int) int <span class="cov0" title="0">{
+                        return a - b
+                }</span>,
+                "splitLines": func(text string) []string <span class="cov0" title="0">{
+                        if text == "" </span><span class="cov0" title="0">{
+                                return []string{}
+                        }</span>
+                        <span class="cov0" title="0">lines := strings.Split(text, "\n")
+                        var result []string
+                        for _, line := range lines </span><span class="cov0" title="0">{
+                                if strings.TrimSpace(line) != "" </span><span class="cov0" title="0">{
+                                        result = append(result, line)
+                                }</span>
+                        }
+                        <span class="cov0" title="0">return result</span>
+                },
+                "contains": func(slice []int, item int) bool <span class="cov0" title="0">{
+                        for _, s := range slice </span><span class="cov0" title="0">{
+                                if s == item </span><span class="cov0" title="0">{
+                                        return true
+                                }</span>
+                        }
+                        <span class="cov0" title="0">return false</span>
+                },
+        })
+
+        // Parse template files
+        <span class="cov0" title="0">templates = template.Must(templates.ParseGlob("templates/*.tmpl"))
+
+        return &amp;Server{
+                BatchSize: 50,
+                templates: templates,
+        }</span>
+}
+
+// FileUploadData represents uploaded file data
+type FileUploadData struct {
+        Filename string
+        Content  string
+        Batches  []Batch
+}
+
+// Batch represents a batch of text for processing
+type Batch struct {
+        Index            int
+        Content          string
+        StartLine        int
+        EndLine          int
+        AmbiguousIndices []int
+}
+
+// TemplateData holds data for rendering templates
+type TemplateData struct {
+        Title            string
+        OriginalText     string
+        N4LOutput        string
+        Filename         string
+        CurrentBatch     int
+        TotalBatches     int
+        HasFile          bool
+        AmbiguousIndices []int
+}
+
+// Global storage for uploaded file (in production, use proper session storage)
+var currentFile *FileUploadData
+
+// HomeHandler serves the main page
+func (s *Server) HomeHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        data := TemplateData{
+                Title:   "N4L Text Converter",
+                HasFile: currentFile != nil,
+        }
+
+        if currentFile != nil </span><span class="cov0" title="0">{
+                data.Filename = currentFile.Filename
+                data.TotalBatches = len(currentFile.Batches)
+        }</span>
+
+        <span class="cov8" title="1">s.renderTemplate(w, "index", data)</span>
+}
+
+// UploadHandler handles file uploads
+func (s *Server) UploadHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        if r.Method != http.MethodPost </span><span class="cov8" title="1">{
+                http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                return
+        }</span>
+
+        // Parse multipart form
+        <span class="cov8" title="1">err := r.ParseMultipartForm(32 &lt;&lt; 20) // 32MB max
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Failed to parse form", http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov8" title="1">file, header, err := r.FormFile("file")
+        if err != nil </span><span class="cov8" title="1">{
+                http.Error(w, "Failed to get file", http.StatusBadRequest)
+                return
+        }</span>
+        // Read file content
+        <span class="cov8" title="1">content, err := io.ReadAll(file)
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Failed to read file", http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">if err := file.Close(); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Failed to close file", http.StatusInternalServerError)
+                fmt.Printf("error closing file: %v\n", err)
+                return
+        }</span>
+
+        // Create batches
+        <span class="cov8" title="1">batches := s.createBatches(string(content))
+
+        // Store file data
+        currentFile = &amp;FileUploadData{
+                Filename: header.Filename,
+                Content:  string(content),
+                Batches:  batches,
+        }
+
+        // Return HTMX response
+        w.Header().Set("Content-Type", "text/html")
+        if _, err := fmt.Fprintf(w, `
+               &lt;div class="alert alert-success"&gt;
+                       File uploaded: %s (%d batches)
+                       &lt;button hx-get="/batch/0" hx-target="#editor-container" class="btn btn-primary btn-sm ms-2"&gt;
+                               Start Processing
+                       &lt;/button&gt;
+               &lt;/div&gt;
+       `, header.Filename, len(batches)); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Failed to write upload response", http.StatusInternalServerError)
+                fmt.Printf("error writing upload response: %v\n", err)
+                return
+        }</span>
+}
+
+// BatchHandler serves a specific batch for editing
+func (s *Server) BatchHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        if currentFile == nil </span><span class="cov0" title="0">{
+                http.Error(w, "No file uploaded", http.StatusBadRequest)
+                return
+        }</span>
+
+        // Get batch index from URL
+        <span class="cov0" title="0">batchStr := strings.TrimPrefix(r.URL.Path, "/batch/")
+        batchIndex, err := strconv.Atoi(batchStr)
+        if err != nil || batchIndex &lt; 0 || batchIndex &gt;= len(currentFile.Batches) </span><span class="cov0" title="0">{
+                http.Error(w, "Invalid batch index", http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov0" title="0">batch := currentFile.Batches[batchIndex]
+
+        // Convert batch content to N4L DSL skeleton (_edit_me.n4l style)
+        n4lOutput := analyzer.N4LSkeletonOutput(currentFile.Filename, batch.Content, 50.0)
+
+        data := TemplateData{
+                OriginalText:     batch.Content,
+                N4LOutput:        n4lOutput,
+                CurrentBatch:     batchIndex,
+                TotalBatches:     len(currentFile.Batches),
+                AmbiguousIndices: nil, // not used for now
+        }
+
+        s.renderTemplate(w, "dual-editor", data)</span>
+}
+
+// ConvertHandler handles text conversion requests
+func (s *Server) ConvertHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        if r.Method != http.MethodPost </span><span class="cov8" title="1">{
+                http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                return
+        }</span>
+
+        // Get text from form
+        <span class="cov8" title="1">text := r.FormValue("text")
+        if text == "" </span><span class="cov8" title="1">{
+                http.Error(w, "No text provided", http.StatusBadRequest)
+                return
+        }</span>
+
+        // Convert to N4L DSL skeleton
+        <span class="cov8" title="1">filename := "uploaded.txt"
+        if currentFile != nil &amp;&amp; currentFile.Filename != "" </span><span class="cov0" title="0">{
+                filename = currentFile.Filename
+        }</span>
+        <span class="cov8" title="1">n4lOut := analyzer.N4LSkeletonOutput(filename, text, 50.0)
+
+        // Return N4L output
+        w.Header().Set("Content-Type", "text/plain")
+        if _, err := w.Write([]byte(n4lOut)); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Failed to write response", http.StatusInternalServerError)
+                fmt.Printf("error writing N4L output: %v\n", err)
+                return
+        }</span>
+}
+
+// createBatches splits content into manageable batches
+func (s *Server) createBatches(content string) []Batch <span class="cov8" title="1">{
+        lines := strings.Split(content, "\n")
+        var batches []Batch
+
+        for i := 0; i &lt; len(lines); i += s.BatchSize </span><span class="cov8" title="1">{
+                end := i + s.BatchSize
+                if end &gt; len(lines) </span><span class="cov8" title="1">{
+                        end = len(lines)
+                }</span>
+
+                <span class="cov8" title="1">batchContent := strings.Join(lines[i:end], "\n")
+                if strings.TrimSpace(batchContent) == "" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">batch := Batch{
+                        Index:     len(batches),
+                        Content:   batchContent,
+                        StartLine: i + 1,
+                        EndLine:   end,
+                }
+
+                batches = append(batches, batch)</span>
+        }
+
+        <span class="cov8" title="1">return batches</span>
+}
+
+// renderTemplate renders HTML templates from files
+func (s *Server) renderTemplate(w http.ResponseWriter, templateName string, data TemplateData) <span class="cov8" title="1">{
+        w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+        // Execute template
+        if err := s.templates.ExecuteTemplate(w, templateName+".tmpl", data); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Template execution error: "+err.Error(), http.StatusInternalServerError)
+                fmt.Printf("Template error: %v\n", err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package web
+
+import (
+        "net/http"
+        _ "net/http/pprof"
+)
+
+// SetupProfiling adds pprof endpoints for performance profiling
+func SetupProfiling(mux *http.ServeMux) <span class="cov0" title="0">{
+        // pprof endpoints are automatically registered when importing net/http/pprof
+        // Available at:
+        // /debug/pprof/
+        // /debug/pprof/heap
+        // /debug/pprof/goroutine
+        // /debug/pprof/allocs
+        // /debug/pprof/block
+        // /debug/pprof/mutex
+        // /debug/pprof/cmdline
+        // /debug/pprof/profile (30-second CPU profile)
+        // /debug/pprof/symbol
+        // /debug/pprof/trace
+
+        // Add custom profile endpoint info
+        mux.HandleFunc("/debug/info", func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                w.Header().Set("Content-Type", "text/html")
+                w.Write([]byte(`
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Profiling Endpoints&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: system-ui, sans-serif; margin: 2rem; }
+        .endpoint { margin: 1rem 0; padding: 1rem; background: #f5f5f5; border-radius: 8px; }
+        code { background: #e5e5e5; padding: 2px 6px; border-radius: 4px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Performance Profiling Endpoints&lt;/h1&gt;
+    
+    &lt;div class="endpoint"&gt;
+        &lt;h3&gt;CPU Profile&lt;/h3&gt;
+        &lt;p&gt;30-second CPU profile: &lt;code&gt;&lt;a href="/debug/pprof/profile"&gt;/debug/pprof/profile&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+        &lt;p&gt;Custom duration: &lt;code&gt;/debug/pprof/profile?seconds=60&lt;/code&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="endpoint"&gt;
+        &lt;h3&gt;Memory Profiles&lt;/h3&gt;
+        &lt;p&gt;Heap profile: &lt;code&gt;&lt;a href="/debug/pprof/heap"&gt;/debug/pprof/heap&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+        &lt;p&gt;Allocation profile: &lt;code&gt;&lt;a href="/debug/pprof/allocs"&gt;/debug/pprof/allocs&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="endpoint"&gt;
+        &lt;h3&gt;Goroutine Analysis&lt;/h3&gt;
+        &lt;p&gt;Goroutine dump: &lt;code&gt;&lt;a href="/debug/pprof/goroutine"&gt;/debug/pprof/goroutine&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+        &lt;p&gt;Block profile: &lt;code&gt;&lt;a href="/debug/pprof/block"&gt;/debug/pprof/block&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+        &lt;p&gt;Mutex profile: &lt;code&gt;&lt;a href="/debug/pprof/mutex"&gt;/debug/pprof/mutex&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="endpoint"&gt;
+        &lt;h3&gt;Trace Analysis&lt;/h3&gt;
+        &lt;p&gt;Execution trace: &lt;code&gt;&lt;a href="/debug/pprof/trace?seconds=5"&gt;/debug/pprof/trace?seconds=5&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="endpoint"&gt;
+        &lt;h3&gt;General Info&lt;/h3&gt;
+        &lt;p&gt;All profiles: &lt;code&gt;&lt;a href="/debug/pprof/"&gt;/debug/pprof/&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+        &lt;p&gt;Command line: &lt;code&gt;&lt;a href="/debug/pprof/cmdline"&gt;/debug/pprof/cmdline&lt;/a&gt;&lt;/code&gt;&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;h2&gt;Usage Examples&lt;/h2&gt;
+    &lt;p&gt;To analyze with go tool pprof:&lt;/p&gt;
+    &lt;pre&gt;&lt;code&gt;
+# CPU profile
+go tool pprof http://localhost:8080/debug/pprof/profile
+
+# Memory profile
+go tool pprof http://localhost:8080/debug/pprof/heap
+
+# Save profile to file
+curl -o cpu.prof http://localhost:8080/debug/pprof/profile
+go tool pprof cpu.prof
+    &lt;/code&gt;&lt;/pre&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        `))
+        }</span>)
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

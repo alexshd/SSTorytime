@@ -1,0 +1,180 @@
+ - Samples from testdata/sample.txt
+
+# (begin) ************
+
+ :: might be more, sentences might be ::
+
+@sen0   This is a simple test document.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+@sen1   It contains several sentences for testing the N4L conversion process.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+@sen2   The analyzer should be able to fractionate this text into meaningful segments.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+@sen3   Each sentence represents a potential unit of analysis.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+@sen4   Some sentences might be more significant than others based on their content and context.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+@sen5   For example, this sentence contains technical terms like "analyzer" and "fractionate" which might score higher in intentionality metrics.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+@sen6   Other sentences might be more mundane and score lower.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+@sen7   The goal is to test various aspects of the conversion: - Text fractionation and sentence splitting - N-gram extraction and frequency analysis - Intentionality scoring algorithms - HTML and Markdown sanitization - Arrow definition generation This document should provide sufficient content for comprehensive testing while remaining manageable in size.
+              " (extract/quote from) part 0 of sample with might be more, sentences might be
+              " (appears close to) might be more
+              " (appears close to) sentences might be
+              " (appears close to) - arrow definition
+              " (appears close to) - html and
+              " (appears close to) - intentionality scoring
+              " (appears close to) - n-gram extraction
+              " (appears close to) - text fractionation
+              " (appears close to) a potential unit
+              " (appears close to) be more
+              " (appears close to) might be
+              " (appears close to) sentences might
+              " (appears close to) - arrow
+              " (appears close to) - html
+              " (appears close to) - intentionality
+              " (appears close to) - n-gram
+              " (appears close to) - text
+              " (appears close to) and
+              " (appears close to) -
+
+# (end) ************
+
+# Final fraction 100.00 of requested 0.80
+
+# Selected 8 samples of 8: 0 1 2 3 4 5 6 7 
+#

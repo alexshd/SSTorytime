@@ -15,13 +15,17 @@ func main() {
 	server := web.NewServer()
 
 	// Setup routes
-	http.HandleFunc("/", server.HomeHandler)
-	http.HandleFunc("/upload", server.UploadHandler)
-	http.HandleFunc("/convert", server.ConvertHandler)
-	http.HandleFunc("/batch/", server.BatchHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", server.HomeHandler)
+	mux.HandleFunc("/upload", server.UploadHandler)
+	mux.HandleFunc("/convert", server.ConvertHandler)
+	mux.HandleFunc("/batch/", server.BatchHandler)
 
 	// Serve static files (CSS, JS, etc.)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static/"))))
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+
+	// Setup profiling endpoints (development only)
+	web.SetupProfiling(mux)
 
 	// Touch reload.txt for browser auto-refresh
 	reloadFile := "tmp/reload.txt"
@@ -39,6 +43,7 @@ func main() {
 	fmt.Println("- File upload with batch processing")
 	fmt.Println("- Real-time ambiguous line highlighting")
 	fmt.Println("- Dual-pane editor view")
+	fmt.Println("- Performance profiling at /debug/info")
 
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(port, mux))
 }
