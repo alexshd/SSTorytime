@@ -164,17 +164,6 @@
               "match": "\\\\."
             }
           ]
-        },
-        {
-          "name": "string.quoted.single.n4l",
-          "begin": "'",
-          "end": "'",
-          "patterns": [
-            {
-              "name": "constant.character.escape.n4l",
-              "match": "\\\\."
-            }
-          ]
         }
       ]
     },

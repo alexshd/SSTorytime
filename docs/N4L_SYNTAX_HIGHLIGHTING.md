@@ -40,7 +40,7 @@ N4L is a simple knowledge management language for creating structured notes that
 ```n4l
 Simple item
 "Quoted item with spaces"
-'Single quoted item with "internal quotes"'
+# Note: single quotes are treated as plain punctuation (to avoid apostrophe issues)
 ```
 
 ### Relationships
@@ -112,9 +112,10 @@ item (img) "https://example.com/image.jpg"
 
 #### Quoted Strings
 
-- **Pattern**: `"([^"]*)"`, `'([^']*)'`
+- **Pattern**: `"([^"]*)"`
+- Only double quotes are treated as strings to avoid conflicts with apostrophes in normal words (e.g., Man's)
 - **Style**: Standard string color (green)
-- **Scope**: `string.quoted.double.n4l`, `string.quoted.single.n4l`
+- **Scope**: `string.quoted.double.n4l`
 
 #### Relationships (Parentheses)
 
@@ -189,7 +190,7 @@ Special: =identifier, *identifier
 #### Literals
 
 ```
-Strings: "text", 'text'
+Strings: "text"
 URLs: http://..., https://...
 ```
 
