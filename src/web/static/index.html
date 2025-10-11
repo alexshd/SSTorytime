@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>text2n4l Interactive Editor</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>text2n4l Interactive Editor</h1>
+      <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+        <label for="file">Select file to convert:</label>
+        <input type="file" id="file" name="file" required />
+        <button type="submit">Upload</button>
+      </form>
+      <div id="main-content">
+        <!-- Upload form and dual text editor will appear here -->
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+This is amazing and amount of time you have saved me is unbeliveble.
+
+I am not realy programing or learning for now but I am a fine Architect, modest and very good Architect. :)
+
+Lets review the process:
+
+1. We have text file 
+2. We have the SSTconfig with "arrow defenitions" 
+3. The `text2n4l` cli as well as our nice web app should covert the text file to N4L file with the new DSL 
+4. The user or student ... need to edit the file by some principle, that I don't get. I am not the most stupid person so if I have truble to make sence of it after reading 5 books Mark Burgess wrote almost

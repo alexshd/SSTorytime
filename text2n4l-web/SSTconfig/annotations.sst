@@ -1,0 +1,17 @@
+
+
+ - annotations   // for marking up a text body: body (relation) annotation
+
+ // slashes and () # - are illegal, as used in comments/grammar
+ // also avoid +,* and mathematical symbols
+
+ % (discusses)
+ = (involves)
+ ** (is a special case of)
+
+ # Longer matches should come first to ensure we don't pick up the substring instead
+
+ >> (is an example of)
+ > (has actor/subject role)
+ < (has affected object role)
+

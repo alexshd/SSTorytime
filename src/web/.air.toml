@@ -1,0 +1,28 @@
+# Air configuration for SSTorytime
+root = "."
+
+[build]
+  cmd = "go build -o ./tmp/main ."
+  bin = "./tmp/main"
+  include_ext = ["go", "css", "html"]
+  exclude_dir = ["tmp" ]
+  exclude_file = []
+  delay = 1000
+  log = "stdout"
+  send_interrupt = true
+  kill_delay = 500
+
+[log]
+  color = "auto"
+  time = true
+
+[color]
+  main = "yellow"
+  watcher = "cyan"
+  build = "green"
+  runner = "magenta"
+
+[runner]
+  dir = "."
+  env = ["PORT=5000"]
+  args = []

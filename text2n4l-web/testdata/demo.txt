@@ -1,0 +1,13 @@
+# Test Document for N4L Conversion
+
+This is a test document to demonstrate the N4L conversion functionality. It contains multiple sentences that should be analyzed for intentionality and coherence.
+
+The first paragraph introduces the topic and establishes context. This is important for narrative flow and should be captured in the N4L output.
+
+The second paragraph continues the narrative. It builds upon the previous content and adds new information. This creates a coherent story structure.
+
+Some sentences may be marked as ambiguous. These are sentences where the intentionality scoring is uncertain or below the confidence threshold.
+
+The final paragraph concludes the document. It provides closure and completes the narrative arc. This demonstrates how the analyzer handles ending sequences.
+
+This is an example of longer content that would be processed in batches for better user experience.
