@@ -74,40 +74,8 @@
         });
 
         // On page load, restore session if present; if HasFile and no session, load batch 0 into #editor-container
-        window.addEventListener('DOMContentLoaded', function ()
-        {
-            let session = loadSession();
-            if (session && session.filename)
-            {
-                // Simulate clicking the batch button to restore progress
-                setTimeout(function ()
-                {
-                    let url = '/batch/' + (session.batch || 0);
-                    let container = document.getElementById('editor-container');
-                    if (container)
-                    {
-                        container.innerHTML = '<div class="bg-blue-50 border border-blue-200 p-3 rounded">Restoring session for <strong>' + session.filename + '</strong> (batch ' + (session.batch || 0) + ')...</div>';
-                    }
-                    fetch(url).then(r => r.text()).then(html =>
-                    {
-                        if (container) container.innerHTML = html;
-                    });
-                }, 300);
-            } else
-            {
-                // No stored session; if file is present on server, auto-open first batch
-                const hasFile = {{if .HasFile}}true{{else}}false{{end}};
-            if (hasFile)
-            {
-                const container = document.getElementById('editor-container');
-                if (container)
-                {
-                    container.innerHTML = '<div class="bg-blue-50 border border-blue-200 p-3 rounded">Opening editor…</div>';
-                    fetch('/batch/0').then(r => r.text()).then(html => { container.innerHTML = html; });
-                }
-            }
-        }
-        });
+        // --- HTMX auto-load for editor if file is present ---
+        // If .HasFile, use hx-get to load batch 0 into #editor-container on page load
     </script>
 </head>
 
@@ -123,17 +91,37 @@
                     <h2 class="text-lg font-semibold">Upload Text File</h2>
                 </div>
                 <div class="p-6">
-                    <form hx-post="/upload" hx-target="#upload-result" enctype="multipart/form-data">
+                    <form id="upload-form" hx-post="/upload" hx-target="#upload-result" enctype="multipart/form-data">
                         <div class="mb-4">
-                            <input type="file"
+                            <input id="file-input" type="file"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 name="file" accept=".txt,.md,.n4l" required>
                         </div>
-                        <button type="submit"
+                        <button id="upload-btn" type="submit"
                             class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
                             Upload & Process
                         </button>
                     </form>
+                    <script>
+                        // Upload button UX: if no file, open picker instead of error
+                        document.addEventListener('DOMContentLoaded', function ()
+                        {
+                            var uploadForm = document.getElementById('upload-form');
+                            var fileInput = document.getElementById('file-input');
+                            var uploadBtn = document.getElementById('upload-btn');
+                            if (uploadForm && fileInput && uploadBtn)
+                            {
+                                uploadBtn.addEventListener('click', function (e)
+                                {
+                                    if (!fileInput.value)
+                                    {
+                                        e.preventDefault();
+                                        fileInput.click();
+                                    }
+                                });
+                            }
+                        });
+                    </script>
                     <div id="upload-result" class="mt-4"></div>
                 </div>
             </div>
@@ -163,8 +151,13 @@
 
         {{if .HasFile}}
         <div class="bg-white rounded-lg shadow border mb-6">
-            <div class="border-b px-6 py-4">
+            <div class="border-b px-6 py-4 flex justify-between items-center">
                 <h2 class="text-lg font-semibold">File: {{.Filename}} ({{.TotalBatches}} batches)</h2>
+                <button id="clear-session-btn" type="button"
+                    class="ml-4 bg-red-100 text-red-700 border border-red-300 rounded-md px-3 py-1 text-sm hover:bg-red-200 transition"
+                    title="Clear all work and return to upload screen">
+                    Clear
+                </button>
             </div>
             <div class="p-6 space-x-2">
                 <button hx-get="/batch/0" hx-target="#editor-container"
@@ -178,9 +171,29 @@
                 </button>
             </div>
         </div>
+        <script>
+            // Clear button logic: warn, suggest download, clear session, reload
+            document.addEventListener('DOMContentLoaded', function ()
+            {
+                var clearBtn = document.getElementById('clear-session-btn');
+                if (clearBtn)
+                {
+                    clearBtn.onclick = function ()
+                    {
+                        if (confirm('Are you sure you want to clear your work?\n\nAll unsaved changes will be lost.\n\nTip: Download your N4L output first if you want to keep your work.'))
+                        {
+                            clearSession();
+                            window.location.reload();
+                        }
+                    };
+                }
+            });
+        </script>
         {{end}}
 
-        <div id="editor-container" class="mt-6 min-h-screen"></div>
+        <div id="editor-container" class="mt-6 min-h-screen" {{if .HasFile}} hx-get="/batch/0" hx-trigger="load"
+            hx-target="#editor-container" hx-swap="innerHTML" {{end}}>
+        </div>
     </div>
 </body>
 
