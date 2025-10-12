@@ -36,6 +36,11 @@ test-verbose:
 	@echo "Running tests with verbose output..."
 	go test -v ./...
 
+# Test templates specifically
+test-templates:
+	@echo "Running template validation tests..."
+	go test -v ./internal/web -run TestTemplate
+
 # Run tests with race detection
 test-race:
 	@echo "Running tests with race detection..."
@@ -128,10 +133,16 @@ clean:
 setup: install-deps
 	@echo "Creating directories..."
 	mkdir -p bin tmp static templates
+	@echo "Running template validation..."
+	make test-templates
 	@echo "Setup complete! Run 'make dev' to start development server."
 
+# Template validation (run before commits)
+validate-templates: test-templates
+	@echo "✅ All templates validated successfully"
+
 # CI/CD targets
-ci-test: test-race test-coverage lint
+ci-test: test-race test-coverage test-templates lint
 	@echo "CI tests completed"
 
 # Performance testing with load
@@ -171,8 +182,10 @@ help:
 	@echo "  run             - Run the application"
 	@echo "  test            - Run all tests"
 	@echo "  test-verbose    - Run tests with verbose output"
+	@echo "  test-templates  - Run template validation tests"
 	@echo "  test-race       - Run tests with race detection"
 	@echo "  test-coverage   - Run tests with coverage analysis"
+	@echo "  validate-templates - Validate all template syntax"
 	@echo "  benchmark       - Run benchmarks"
 	@echo "  profile-cpu     - Start server for CPU profiling"
 	@echo "  profile-memory  - Start server for memory profiling"
@@ -181,6 +194,6 @@ help:
 	@echo "  fmt             - Format code"
 	@echo "  clean           - Clean build artifacts"
 	@echo "  setup           - Full development setup"
-	@echo "  ci-test         - Run CI tests (race, coverage, lint)"
+	@echo "  ci-test         - Run CI tests (race, coverage, templates, lint)"
 	@echo "  load-test       - Run load tests"
 	@echo "  help            - Show this help message"

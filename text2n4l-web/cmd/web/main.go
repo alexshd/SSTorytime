@@ -20,6 +20,8 @@ func main() {
 	mux.HandleFunc("/upload", server.UploadHandler)
 	mux.HandleFunc("/convert", server.ConvertHandler)
 	mux.HandleFunc("/batch/", server.BatchHandler)
+	// Combined editor router (handles both /combined/{batch} and /combined/{batch}/sen/{i})
+	mux.HandleFunc("/combined/", server.CombinedRouter)
 
 	// Serve static files (CSS, JS, etc.)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))

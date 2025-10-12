@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,81 +9,113 @@
     <link href="/static/style.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"></script>
     <script>
-    // --- Auto-refresh: poll reload.txt every 2s ---
-    let lastReload = null;
-    setInterval(function() {
-        fetch('/static/../tmp/reload.txt', {cache: 'no-store'})
-            .then(r => r.text())
-            .then(txt => {
-                if (lastReload && txt.trim() !== lastReload) {
-                    window.location.reload();
-                }
-                lastReload = txt.trim();
-            });
-    }, 2000);
-
-    // --- Session persistence using localStorage ---
-    function saveSession(data) {
-        localStorage.setItem('n4l_session', JSON.stringify(data));
-    }
-    function loadSession() {
-        let s = localStorage.getItem('n4l_session');
-        if (!s) return null;
-        try { return JSON.parse(s); } catch { return null; }
-    }
-    function clearSession() {
-        localStorage.removeItem('n4l_session');
-    }
-
-    // On file upload, save session info
-    document.addEventListener('htmx:afterOnLoad', function(evt) {
-        if (evt.detail && evt.detail.target && evt.detail.target.id === 'upload-result') {
-            // Parse filename and batch count from upload-result
-            let html = evt.detail.target.innerHTML;
-            let m = html.match(/File uploaded: ([^<]+) \((\d+) batches?\)/);
-            if (m) {
-                saveSession({ filename: m[1], batch: 0 });
-            }
-        }
-    });
-
-    // On batch navigation, update session
-    document.addEventListener('htmx:afterOnLoad', function(evt) {
-        if (evt.detail && evt.detail.target && evt.detail.target.id === 'editor-container') {
-            // Try to extract batch index from header
-            let html = evt.detail.target.innerHTML;
-            let m = html.match(/Batch (\d+) of (\d+)/);
-            let session = loadSession();
-            if (m && session) {
-                session.batch = parseInt(m[1], 10);
-                saveSession(session);
-            }
-        }
-    });
-
-    // On page load, restore session if present
-    window.addEventListener('DOMContentLoaded', function() {
-        let session = loadSession();
-        if (session && session.filename) {
-            // Simulate clicking the batch button to restore progress
-            setTimeout(function() {
-                let url = '/batch/' + (session.batch || 0);
-                let container = document.getElementById('editor-container');
-                if (container) {
-                    container.innerHTML = '<div class="bg-blue-50 border border-blue-200 p-3 rounded">Restoring session for <strong>' + session.filename + '</strong> (batch ' + (session.batch || 0) + ')...</div>';
-                }
-                fetch(url).then(r => r.text()).then(html => {
-                    if (container) container.innerHTML = html;
+        // --- Auto-refresh: poll reload.txt every 2s ---
+        let lastReload = null;
+        setInterval(function ()
+        {
+            fetch('/static/../tmp/reload.txt', { cache: 'no-store' })
+                .then(r => r.text())
+                .then(txt =>
+                {
+                    if (lastReload && txt.trim() !== lastReload)
+                    {
+                        window.location.reload();
+                    }
+                    lastReload = txt.trim();
                 });
-            }, 300);
+        }, 2000);
+
+        // --- Session persistence using localStorage ---
+        function saveSession(data)
+        {
+            localStorage.setItem('n4l_session', JSON.stringify(data));
         }
-    });
+        function loadSession()
+        {
+            let s = localStorage.getItem('n4l_session');
+            if (!s) return null;
+            try { return JSON.parse(s); } catch { return null; }
+        }
+        function clearSession()
+        {
+            localStorage.removeItem('n4l_session');
+        }
+
+        // On file upload, save session info
+        document.addEventListener('htmx:afterOnLoad', function (evt)
+        {
+            if (evt.detail && evt.detail.target && evt.detail.target.id === 'upload-result')
+            {
+                // Parse filename and batch count from upload-result
+                let html = evt.detail.target.innerHTML;
+                let m = html.match(/File uploaded: ([^<]+) \((\d+) batches?\)/);
+                if (m)
+                {
+                    saveSession({ filename: m[1], batch: 0 });
+                }
+            }
+        });
+
+        // On batch navigation, update session
+        document.addEventListener('htmx:afterOnLoad', function (evt)
+        {
+            if (evt.detail && evt.detail.target && evt.detail.target.id === 'editor-container')
+            {
+                // Try to extract batch index from header
+                let html = evt.detail.target.innerHTML;
+                let m = html.match(/Batch (\d+) of (\d+)/);
+                let session = loadSession();
+                if (m && session)
+                {
+                    session.batch = parseInt(m[1], 10);
+                    saveSession(session);
+                }
+            }
+        });
+
+        // On page load, restore session if present; if HasFile and no session, load batch 0 into #editor-container
+        window.addEventListener('DOMContentLoaded', function ()
+        {
+            let session = loadSession();
+            if (session && session.filename)
+            {
+                // Simulate clicking the batch button to restore progress
+                setTimeout(function ()
+                {
+                    let url = '/batch/' + (session.batch || 0);
+                    let container = document.getElementById('editor-container');
+                    if (container)
+                    {
+                        container.innerHTML = '<div class="bg-blue-50 border border-blue-200 p-3 rounded">Restoring session for <strong>' + session.filename + '</strong> (batch ' + (session.batch || 0) + ')...</div>';
+                    }
+                    fetch(url).then(r => r.text()).then(html =>
+                    {
+                        if (container) container.innerHTML = html;
+                    });
+                }, 300);
+            } else
+            {
+                // No stored session; if file is present on server, auto-open first batch
+                const hasFile = {{if .HasFile}}true{{else}}false{{end}};
+            if (hasFile)
+            {
+                const container = document.getElementById('editor-container');
+                if (container)
+                {
+                    container.innerHTML = '<div class="bg-blue-50 border border-blue-200 p-3 rounded">Opening editor…</div>';
+                    fetch('/batch/0').then(r => r.text()).then(html => { container.innerHTML = html; });
+                }
+            }
+        }
+        });
     </script>
 </head>
-<body class="bg-gray-50 text-gray-900">
-    <div class="max-w-7xl mx-auto px-4 py-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">{{.Title}}</h1>
-        
+
+<body class="bg-slate-100 text-slate-900">
+    <div class="max-w-8xl mx-auto px-4 py-6">
+        <h1 class="text-3xl font-bold text-slate-900 mb-8">{{.Title}}</h1>
+
+        {{if not .HasFile}}
         <div class="grid md:grid-cols-2 gap-6 mb-8">
             <!-- Upload Card -->
             <div class="bg-white rounded-lg shadow border">
@@ -92,21 +125,19 @@
                 <div class="p-6">
                     <form hx-post="/upload" hx-target="#upload-result" enctype="multipart/form-data">
                         <div class="mb-4">
-                            <input type="file" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                   name="file" 
-                                   accept=".txt,.md,.n4l" 
-                                   required>
+                            <input type="file"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                name="file" accept=".txt,.md,.n4l" required>
                         </div>
-                        <button type="submit" 
-                                class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                        <button type="submit"
+                            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
                             Upload & Process
                         </button>
                     </form>
                     <div id="upload-result" class="mt-4"></div>
                 </div>
             </div>
-            
+
             <!-- Quick Convert Card -->
             <div class="bg-white rounded-lg shadow border">
                 <div class="border-b px-6 py-4">
@@ -115,13 +146,12 @@
                 <div class="p-6">
                     <form hx-post="/convert" hx-target="#convert-result">
                         <div class="mb-4">
-                            <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                      name="text" 
-                                      rows="5" 
-                                      placeholder="Enter text to convert..."></textarea>
+                            <textarea
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                name="text" rows="5" placeholder="Enter text to convert..."></textarea>
                         </div>
-                        <button type="submit" 
-                                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200">
+                        <button type="submit"
+                            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200">
                             Convert
                         </button>
                     </form>
@@ -129,22 +159,29 @@
                 </div>
             </div>
         </div>
-        
+        {{end}}
+
         {{if .HasFile}}
         <div class="bg-white rounded-lg shadow border mb-6">
             <div class="border-b px-6 py-4">
                 <h2 class="text-lg font-semibold">File: {{.Filename}} ({{.TotalBatches}} batches)</h2>
             </div>
-            <div class="p-6">
-                <button hx-get="/batch/0" hx-target="#editor-container" 
-                        class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
-                    Start Batch Processing
+            <div class="p-6 space-x-2">
+                <button hx-get="/batch/0" hx-target="#editor-container"
+                    class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                    Open Dual Editor
+                </button>
+                <button hx-get="/combined/0" hx-target="#editor-container" hx-swap="innerHTML"
+                    hx-select="#combined-root"
+                    class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">
+                    Open Combined Editor
                 </button>
             </div>
         </div>
         {{end}}
-        
-        <div id="editor-container" class="mt-6"></div>
+
+        <div id="editor-container" class="mt-6 min-h-screen"></div>
     </div>
 </body>
+
 </html>

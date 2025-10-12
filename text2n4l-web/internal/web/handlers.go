@@ -193,6 +193,122 @@ func (s *Server) BatchHandler(w http.ResponseWriter, r *http.Request) {
 	s.renderTemplate(w, "dual-editor", data)
 }
 
+// CombinedBatchHandler renders a single combined view with clickable original sentences
+// and a details panel that shows generated arrows for the selected sentence.
+func (s *Server) CombinedBatchHandler(w http.ResponseWriter, r *http.Request) {
+	if currentFile == nil {
+		http.Error(w, "No file uploaded", http.StatusBadRequest)
+		return
+	}
+
+	// batch index
+	batchStr := strings.TrimPrefix(r.URL.Path, "/combined/")
+	batchIndex, err := strconv.Atoi(batchStr)
+	if err != nil || batchIndex < 0 || batchIndex >= len(currentFile.Batches) {
+		http.Error(w, "Invalid batch index", http.StatusBadRequest)
+		return
+	}
+
+	batch := currentFile.Batches[batchIndex]
+	// Compute N4L, parse annotations, and fragment original text for click targets
+	n4l := analyzer.N4LSkeletonOutput(currentFile.Filename, batch.Content, 50.0)
+	anns := analyzer.ParseN4LAnnotations(n4l)
+	frags := analyzer.FractionateTextFile(analyzer.Sanitize(batch.Content))
+
+	// We'll render combined-editor with original text fragments and minimal metadata
+	// The details panel is empty initially.
+	type CombinedData struct {
+		TemplateData
+		Fragments   []string
+		Annotations []analyzer.Annotation
+		AnnByIndex  map[int]analyzer.Annotation
+	}
+	// Build a map for easy template lookup
+	annMap := make(map[int]analyzer.Annotation, len(anns))
+	for _, a := range anns {
+		annMap[a.Index] = a
+	}
+	data := CombinedData{
+		TemplateData: TemplateData{
+			OriginalText: batch.Content,
+			N4LOutput:    n4l,
+			CurrentBatch: batchIndex,
+			TotalBatches: len(currentFile.Batches),
+		},
+		Fragments:   frags,
+		Annotations: anns,
+		AnnByIndex:  annMap,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := s.templates.ExecuteTemplate(w, "combined-editor.tmpl", data); err != nil {
+		http.Error(w, "Template execution error: "+err.Error(), http.StatusInternalServerError)
+		fmt.Printf("Template error: %v\n", err)
+	}
+}
+
+// SentenceDetailsHandler returns the details panel (arrows) for a given sentence index
+func (s *Server) SentenceDetailsHandler(w http.ResponseWriter, r *http.Request) {
+	if currentFile == nil {
+		http.Error(w, "No file uploaded", http.StatusBadRequest)
+		return
+	}
+	// Path format: /combined/{batch}/sen/{i}
+	path := strings.TrimPrefix(r.URL.Path, "/combined/")
+	parts := strings.Split(path, "/")
+	if len(parts) != 3 || parts[1] != "sen" {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	batchIndex, err1 := strconv.Atoi(parts[0])
+	senIndex, err2 := strconv.Atoi(parts[2])
+	if err1 != nil || err2 != nil || batchIndex < 0 || senIndex < 0 || batchIndex >= len(currentFile.Batches) {
+		http.Error(w, "Invalid indices", http.StatusBadRequest)
+		return
+	}
+	batch := currentFile.Batches[batchIndex]
+
+	n4l := analyzer.N4LSkeletonOutput(currentFile.Filename, batch.Content, 50.0)
+	anns := analyzer.ParseN4LAnnotations(n4l)
+	var sel *analyzer.Annotation
+	for i := range anns {
+		if anns[i].Index == senIndex {
+			sel = &anns[i]
+			break
+		}
+	}
+	if sel == nil {
+		// No generated annotation; return minimal info
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`<div class="p-3 text-sm text-gray-700">No generated arrows for this sentence.</div>`))
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := s.templates.ExecuteTemplate(w, "sentence-details.tmpl", sel); err != nil {
+		http.Error(w, "Template execution error: "+err.Error(), http.StatusInternalServerError)
+		fmt.Printf("Template error: %v\n", err)
+	}
+}
+
+// CombinedRouter routes /combined/{batch} to CombinedBatchHandler and
+// /combined/{batch}/sen/{i} to SentenceDetailsHandler.
+func (s *Server) CombinedRouter(w http.ResponseWriter, r *http.Request) {
+	// Expect path to start with /combined/
+	path := strings.TrimPrefix(r.URL.Path, "/combined/")
+	if path == "" {
+		http.Error(w, "Missing batch index", http.StatusBadRequest)
+		return
+	}
+	// If contains "/sen/" then delegate to sentence details
+	if strings.Contains(path, "/sen/") {
+		s.SentenceDetailsHandler(w, r)
+		return
+	}
+	// Otherwise render combined batch
+	s.CombinedBatchHandler(w, r)
+}
+
 // ConvertHandler handles text conversion requests
 func (s *Server) ConvertHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {

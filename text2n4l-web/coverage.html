@@ -59,13 +59,15 @@
 				
 				<option value="file1">text2n4l-web/cmd/web/main.go (0.0%)</option>
 				
-				<option value="file2">text2n4l-web/internal/analyzer/converter.go (91.5%)</option>
+				<option value="file2">text2n4l-web/internal/analyzer/annotations.go (0.0%)</option>
 				
-				<option value="file3">text2n4l-web/internal/analyzer/types.go (88.5%)</option>
+				<option value="file3">text2n4l-web/internal/analyzer/converter.go (91.5%)</option>
 				
-				<option value="file4">text2n4l-web/internal/web/handlers.go (47.8%)</option>
+				<option value="file4">text2n4l-web/internal/analyzer/types.go (88.5%)</option>
 				
-				<option value="file5">text2n4l-web/internal/web/profiling.go (0.0%)</option>
+				<option value="file5">text2n4l-web/internal/web/handlers.go (55.3%)</option>
+				
+				<option value="file6">text2n4l-web/internal/web/profiling.go (0.0%)</option>
 				
 				</select>
 			</div>
@@ -160,6 +162,8 @@ func main() <span class="cov0" title="0">{
         mux.HandleFunc("/upload", server.UploadHandler)
         mux.HandleFunc("/convert", server.ConvertHandler)
         mux.HandleFunc("/batch/", server.BatchHandler)
+        // Combined editor router (handles both /combined/{batch} and /combined/{batch}/sen/{i})
+        mux.HandleFunc("/combined/", server.CombinedRouter)
 
         // Serve static files (CSS, JS, etc.)
         mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
@@ -190,6 +194,105 @@ func main() <span class="cov0" title="0">{
 </pre>
 		
 		<pre class="file" id="file2" style="display: none">package analyzer
+
+import (
+        "regexp"
+        "strings"
+)
+
+// Annotation represents parsed information for a single sentence from N4L output
+type Annotation struct {
+        Index          int      // @sen index in original ordering
+        Text           string   // sentence text
+        ExtractFrom    string   // extract/quote from ...
+        AppearsCloseTo []string // list of context keywords
+        NeedsAttention bool     // heuristic marker for highlighting
+}
+
+var (
+        senLineRe      = regexp.MustCompile(`^@sen(\d+)\s+(.*)$`)
+        appearsCloseRe = regexp.MustCompile(`" \(appears close to\)\s+(.*)$`)
+        extractFromRe  = regexp.MustCompile(`" \(extract/quote from\)\s+(.*)$`)
+)
+
+// ParseN4LAnnotations parses the N4L skeleton output produced by N4LSkeletonOutput
+// and returns structured annotations keyed by sentence index.
+func ParseN4LAnnotations(n4l string) []Annotation <span class="cov0" title="0">{
+        lines := strings.Split(n4l, "\n")
+        var out []Annotation
+        var cur *Annotation
+        for _, line := range lines </span><span class="cov0" title="0">{
+                line = strings.TrimRight(line, "\r")
+                if line == "" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">if m := senLineRe.FindStringSubmatch(strings.TrimSpace(line)); m != nil </span><span class="cov0" title="0">{
+                        // Start a new annotation
+                        if cur != nil </span><span class="cov0" title="0">{
+                                cur.NeedsAttention = attentionHeuristic(cur)
+                                out = append(out, *cur)
+                        }</span>
+                        <span class="cov0" title="0">idx := atoiSafe(m[1])
+                        txt := strings.TrimSpace(m[2])
+                        cur = &amp;Annotation{Index: idx, Text: txt}
+                        continue</span>
+                }
+                <span class="cov0" title="0">if cur == nil </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">trimmed := strings.TrimSpace(line)
+                if m := extractFromRe.FindStringSubmatch(trimmed); m != nil </span><span class="cov0" title="0">{
+                        cur.ExtractFrom = strings.TrimSpace(m[1])
+                        continue</span>
+                }
+                <span class="cov0" title="0">if m := appearsCloseRe.FindStringSubmatch(trimmed); m != nil </span><span class="cov0" title="0">{
+                        kw := strings.TrimSpace(m[1])
+                        if kw != "" </span><span class="cov0" title="0">{
+                                cur.AppearsCloseTo = append(cur.AppearsCloseTo, kw)
+                        }</span>
+                        <span class="cov0" title="0">continue</span>
+                }
+        }
+        <span class="cov0" title="0">if cur != nil </span><span class="cov0" title="0">{
+                cur.NeedsAttention = attentionHeuristic(cur)
+                out = append(out, *cur)
+        }</span>
+        <span class="cov0" title="0">return out</span>
+}
+
+func attentionHeuristic(a *Annotation) bool <span class="cov0" title="0">{
+        // Simple initial heuristic until SSTconfig-driven rules are wired:
+        // - Many context keywords
+        // - Certain diagnostic keywords present
+        if len(a.AppearsCloseTo) &gt; 12 </span><span class="cov0" title="0">{
+                return true
+        }</span>
+        <span class="cov0" title="0">flags := []string{"arrow definition", "html", "intentionality", "n-gram", "text"}
+        for _, kw := range a.AppearsCloseTo </span><span class="cov0" title="0">{
+                low := strings.ToLower(kw)
+                for _, f := range flags </span><span class="cov0" title="0">{
+                        if strings.Contains(low, f) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+                }
+        }
+        <span class="cov0" title="0">return false</span>
+}
+
+func atoiSafe(s string) int <span class="cov0" title="0">{
+        n := 0
+        for i := 0; i &lt; len(s); i++ </span><span class="cov0" title="0">{
+                c := s[i]
+                if c &lt; '0' || c &gt; '9' </span><span class="cov0" title="0">{
+                        break</span>
+                }
+                <span class="cov0" title="0">n = n*10 + int(c-'0')</span>
+        }
+        <span class="cov0" title="0">return n</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package analyzer
 
 import (
         "fmt"
@@ -709,7 +812,7 @@ func ConvertTextToN4LWithResult(content string) ConvertTextToN4LResult <span cla
 }</span>
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">// Package analyzer provides text analysis and N4L conversion functionality.package analyzer
+		<pre class="file" id="file4" style="display: none">// Package analyzer provides text analysis and N4L conversion functionality.package analyzer
 
 // This is a clean refactor of the core analysis logic extracted from the monolithic SSTorytime package.
 package analyzer
@@ -816,7 +919,7 @@ func StaticIntentionality(L int, term string, frequency float64) float64 <span c
 }
 </pre>
 		
-		<pre class="file" id="file4" style="display: none">package web
+		<pre class="file" id="file5" style="display: none">package web
 
 import (
         "fmt"
@@ -1011,6 +1114,122 @@ func (s *Server) BatchHandler(w http.ResponseWriter, r *http.Request) <span clas
         s.renderTemplate(w, "dual-editor", data)</span>
 }
 
+// CombinedBatchHandler renders a single combined view with clickable original sentences
+// and a details panel that shows generated arrows for the selected sentence.
+func (s *Server) CombinedBatchHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        if currentFile == nil </span><span class="cov0" title="0">{
+                http.Error(w, "No file uploaded", http.StatusBadRequest)
+                return
+        }</span>
+
+        // batch index
+        <span class="cov8" title="1">batchStr := strings.TrimPrefix(r.URL.Path, "/combined/")
+        batchIndex, err := strconv.Atoi(batchStr)
+        if err != nil || batchIndex &lt; 0 || batchIndex &gt;= len(currentFile.Batches) </span><span class="cov0" title="0">{
+                http.Error(w, "Invalid batch index", http.StatusBadRequest)
+                return
+        }</span>
+
+        <span class="cov8" title="1">batch := currentFile.Batches[batchIndex]
+        // Compute N4L, parse annotations, and fragment original text for click targets
+        n4l := analyzer.N4LSkeletonOutput(currentFile.Filename, batch.Content, 50.0)
+        anns := analyzer.ParseN4LAnnotations(n4l)
+        frags := analyzer.FractionateTextFile(analyzer.Sanitize(batch.Content))
+
+        // We'll render combined-editor with original text fragments and minimal metadata
+        // The details panel is empty initially.
+        type CombinedData struct {
+                TemplateData
+                Fragments   []string
+                Annotations []analyzer.Annotation
+                AnnByIndex  map[int]analyzer.Annotation
+        }
+        // Build a map for easy template lookup
+        annMap := make(map[int]analyzer.Annotation, len(anns))
+        for _, a := range anns </span><span class="cov8" title="1">{
+                annMap[a.Index] = a
+        }</span>
+        <span class="cov8" title="1">data := CombinedData{
+                TemplateData: TemplateData{
+                        OriginalText: batch.Content,
+                        N4LOutput:    n4l,
+                        CurrentBatch: batchIndex,
+                        TotalBatches: len(currentFile.Batches),
+                },
+                Fragments:   frags,
+                Annotations: anns,
+                AnnByIndex:  annMap,
+        }
+
+        w.Header().Set("Content-Type", "text/html; charset=utf-8")
+        if err := s.templates.ExecuteTemplate(w, "combined-editor.tmpl", data); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Template execution error: "+err.Error(), http.StatusInternalServerError)
+                fmt.Printf("Template error: %v\n", err)
+        }</span>
+}
+
+// SentenceDetailsHandler returns the details panel (arrows) for a given sentence index
+func (s *Server) SentenceDetailsHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        if currentFile == nil </span><span class="cov0" title="0">{
+                http.Error(w, "No file uploaded", http.StatusBadRequest)
+                return
+        }</span>
+        // Path format: /combined/{batch}/sen/{i}
+        <span class="cov8" title="1">path := strings.TrimPrefix(r.URL.Path, "/combined/")
+        parts := strings.Split(path, "/")
+        if len(parts) != 3 || parts[1] != "sen" </span><span class="cov0" title="0">{
+                http.Error(w, "Bad request", http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov8" title="1">batchIndex, err1 := strconv.Atoi(parts[0])
+        senIndex, err2 := strconv.Atoi(parts[2])
+        if err1 != nil || err2 != nil || batchIndex &lt; 0 || senIndex &lt; 0 || batchIndex &gt;= len(currentFile.Batches) </span><span class="cov0" title="0">{
+                http.Error(w, "Invalid indices", http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov8" title="1">batch := currentFile.Batches[batchIndex]
+
+        n4l := analyzer.N4LSkeletonOutput(currentFile.Filename, batch.Content, 50.0)
+        anns := analyzer.ParseN4LAnnotations(n4l)
+        var sel *analyzer.Annotation
+        for i := range anns </span><span class="cov8" title="1">{
+                if anns[i].Index == senIndex </span><span class="cov8" title="1">{
+                        sel = &amp;anns[i]
+                        break</span>
+                }
+        }
+        <span class="cov8" title="1">if sel == nil </span><span class="cov0" title="0">{
+                // No generated annotation; return minimal info
+                w.WriteHeader(http.StatusOK)
+                _, _ = w.Write([]byte(`&lt;div class="p-3 text-sm text-gray-700"&gt;No generated arrows for this sentence.&lt;/div&gt;`))
+                return
+        }</span>
+
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "text/html; charset=utf-8")
+        if err := s.templates.ExecuteTemplate(w, "sentence-details.tmpl", sel); err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Template execution error: "+err.Error(), http.StatusInternalServerError)
+                fmt.Printf("Template error: %v\n", err)
+        }</span>
+}
+
+// CombinedRouter routes /combined/{batch} to CombinedBatchHandler and
+// /combined/{batch}/sen/{i} to SentenceDetailsHandler.
+func (s *Server) CombinedRouter(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        // Expect path to start with /combined/
+        path := strings.TrimPrefix(r.URL.Path, "/combined/")
+        if path == "" </span><span class="cov0" title="0">{
+                http.Error(w, "Missing batch index", http.StatusBadRequest)
+                return
+        }</span>
+        // If contains "/sen/" then delegate to sentence details
+        <span class="cov8" title="1">if strings.Contains(path, "/sen/") </span><span class="cov8" title="1">{
+                s.SentenceDetailsHandler(w, r)
+                return
+        }</span>
+        // Otherwise render combined batch
+        <span class="cov8" title="1">s.CombinedBatchHandler(w, r)</span>
+}
+
 // ConvertHandler handles text conversion requests
 func (s *Server) ConvertHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         if r.Method != http.MethodPost </span><span class="cov8" title="1">{
@@ -1082,7 +1301,7 @@ func (s *Server) renderTemplate(w http.ResponseWriter, templateName string, data
 }
 </pre>
 		
-		<pre class="file" id="file5" style="display: none">package web
+		<pre class="file" id="file6" style="display: none">package web
 
 import (
         "net/http"

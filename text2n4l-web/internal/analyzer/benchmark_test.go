@@ -1,7 +1,7 @@
 package analyzer
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -28,7 +28,7 @@ Final paragraph with mixed **formatting** and <em>more</em> content.`
 
 func BenchmarkFractionateTextFile(b *testing.B) {
 	// Load test data
-	testData, err := ioutil.ReadFile(filepath.Join("testdata", "sample.txt"))
+	testData, err := os.ReadFile(filepath.Join("testdata", "sample.txt"))
 	if err != nil {
 		b.Skip("Test data not available:", err)
 	}
@@ -62,7 +62,7 @@ func BenchmarkExtractIntentionalTokens(b *testing.B) {
 
 func BenchmarkN4LSkeletonOutput(b *testing.B) {
 	// Load test data
-	testData, err := ioutil.ReadFile(filepath.Join("testdata", "sample.txt"))
+	testData, err := os.ReadFile(filepath.Join("testdata", "sample.txt"))
 	if err != nil {
 		b.Skip("Test data not available:", err)
 	}

@@ -1,0 +1,52 @@
+{{/* Combined editor: single view with clickable original sentences and a details panel */}}
+<div id="combined-root" class="bg-white rounded-lg shadow border min-h-screen">
+    <div class="border-b px-6 py-4 flex justify-between items-center">
+        <h2 class="text-lg font-semibold">Batch {{.CurrentBatch}} of {{.TotalBatches}} — Combined Editor</h2>
+        <div class="flex gap-2">
+            {{if gt .CurrentBatch 0}}
+            <button hx-get="/combined/{{sub .CurrentBatch 1}}" hx-target="#editor-container" hx-select="#combined-root"
+                hx-swap="innerHTML"
+                class="px-3 py-1 bg-gray-100 border border-gray-300 rounded-md text-sm hover:bg-gray-200 transition">←
+                Prev</button>
+            {{end}}
+            {{if lt .CurrentBatch (sub .TotalBatches 1)}}
+            <button hx-get="/combined/{{add .CurrentBatch 1}}" hx-target="#editor-container" hx-select="#combined-root"
+                hx-swap="innerHTML"
+                class="px-3 py-1 bg-gray-100 border border-gray-300 rounded-md text-sm hover:bg-gray-200 transition">Next
+                →</button>
+            {{end}}
+        </div>
+    </div>
+    <div class="p-6">
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Original Text</h3>
+                <div id="orig-pane"
+                    class="border border-gray-300 rounded-md p-3 bg-gray-50 overflow-y-auto text-sm pane-scroll">
+                    {{range $i, $line := .Fragments}}
+                    {{ $ann := index $.AnnByIndex $i }}
+                    <div class="mb-1">
+                        <button hx-get="/combined/{{$.CurrentBatch}}/sen/{{$i}}" hx-target="#details-pane"
+                            hx-swap="innerHTML"
+                            class="text-left w-full px-2 py-1 rounded {{if $ann}} {{if $ann.NeedsAttention}} bg-yellow-100 border-l-4 border-yellow-400 {{else}} bg-blue-50 border-l-4 border-blue-200 {{end}} {{end}}">
+                            <span class="font-mono text-xs text-gray-500 mr-2">@sen{{$i}}</span>{{$line}}
+                            {{if $ann}}
+                            <span class="ml-2 inline-block text-xs text-gray-600">({{len $ann.AppearsCloseTo}}
+                                ctx)</span>
+                            {{end}}
+                        </button>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Arrows & Context</h3>
+                <div id="details-pane"
+                    class="border border-gray-300 rounded-md p-3 bg-gray-50 overflow-y-auto text-sm min-h-[200px]">
+                    <div class="text-gray-500 text-sm">Select a sentence on the left to view and edit generated arrows.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
