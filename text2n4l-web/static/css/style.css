@@ -1,0 +1,13 @@
+/* Tailwind import (if using CDN, this can be omitted) */
+@import url("https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4");
+
+body {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.max-w-8xl {
+  max-width: 90rem;
+}
+
+/* Add any custom styles here */

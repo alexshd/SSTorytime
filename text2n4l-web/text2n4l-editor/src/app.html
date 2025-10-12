@@ -1,0 +1,83 @@
+<div class="min-h-screen py-4 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-8xl mx-auto h-full">
+    <div id="title-section" class="text-center align-baseline min-w-full mb-4">
+      <h2 class="text-3xl font-bold mb-2">Text to N4L Converter</h2>
+      <p class="text-lg">Convert your text into N4L DSL format using our API</p>
+    </div>
+    <div class="shadow-lg rounded-lg p-4 h-full">
+      <div class="grid grid-cols-1 min-h-full lg:grid-cols-2 gap-4">
+        <!-- Input Section -->
+        <div class="flex flex-col h-full">
+          <div class="mb-2 flex flex-col sm:flex-row gap-2">
+            <input type="file" id="file-input" accept=".txt,.md,.text" class="hidden" />
+            <button
+              id="upload-btn"
+              class="flex-1 py-2 px-4 rounded-md focus:ring-2 focus:ring-offset-2 transition-colors">
+              📁 Upload Text File
+            </button>
+            <button
+              id="convert-btn"
+              class="flex-1 py-2 px-4 rounded-md focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              Convert to N4L
+            </button>
+            <button
+              id="arrows-btn"
+              class="flex-1 py-2 px-4 rounded-md focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled>
+              🏹 Arrow Types
+            </button>
+          </div>
+          <label for="input-text" class="block text-sm font-medium mb-2">
+            Input Text
+          </label>
+          <textarea
+            id="input-text"
+            class="flex-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none min-h-[60vh] max-h-[80vh] overflow-y-auto"
+            placeholder="Enter your text here..."></textarea>
+        </div>
+        <!-- Output Section -->
+        <div class="flex flex-col h-full">
+          <div class="mb-2 flex flex-col sm:flex-row gap-2">
+            <button
+              id="copy-btn"
+              class="flex-1 py-2 px-4 rounded-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled>
+              📋 Copy to Clipboard
+            </button>
+            <button
+              id="save-btn"
+              class="flex-1 py-2 px-4 rounded-md focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled>
+              💾 Save as .n4l
+            </button>
+          </div>
+          <label for="output-area" class="block text-sm font-medium mb-2">
+            N4L Output (Editable)
+          </label>
+          <div
+            id="output-area"
+            class="flex-1 w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 min-h-[60vh] max-h-[80vh] overflow-y-auto bg-white resize-none outline-none"
+            contenteditable="true"
+            spellcheck="false"
+            placeholder="N4L output will appear here..."
+            aria-label="N4L Output (Editable)"></div>
+        </div>
+      </div>
+      <!-- Arrows Annotation Section -->
+      <div id="arrows-section" class="mt-6 hidden">
+        <div class="border-t pt-4">
+          <h3 class="text-lg font-medium mb-3">Available Arrows for Editing</h3>
+          <div
+            id="arrows-content"
+            class="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+            <!-- Available arrows will be displayed here -->
+          </div>
+        </div>
+      </div>
+      <!-- Status Message -->
+      <div id="status-message" class="mt-4 text-center hidden">
+        <p class="text-sm"></p>
+      </div>
+    </div>
+  </div>
+</div>
