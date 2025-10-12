@@ -9,6 +9,7 @@ fetch('/src/app.html')
 
     // Select DOM elements
     const inputText = document.querySelector('#input-text');
+    const inputPreview = document.querySelector('#input-preview');
     const outputArea = document.querySelector('#output-area');
     const convertBtn = document.querySelector('#convert-btn');
     const copyBtn = document.querySelector('#copy-btn');
@@ -16,13 +17,119 @@ fetch('/src/app.html')
     const fileInput = document.querySelector('#file-input');
     const arrowsBtn = document.querySelector('#arrows-btn');
     const saveBtn = document.querySelector('#save-btn');
+    const clearSessionBtn = document.querySelector('#clear-session-btn');
+    const sessionIndicator = document.querySelector('#session-indicator');
     const statusMessage = document.querySelector('#status-message');
     const titleSection = document.querySelector('#title-section');
     const arrowsSection = document.querySelector('#arrows-section');
     const arrowsContent = document.querySelector('#arrows-content');
 
     let currentFileName = '';
+    let currentFileType = 'text'; // 'text', 'html', or 'markdown'
     let isScrollSyncing = false;
+    let showingPreview = false;
+
+    // === SESSION PERSISTENCE ===
+
+    function saveSession()
+    {
+      try
+      {
+        const sessionData = {
+          inputText: inputText.value,
+          outputHTML: outputArea.innerHTML,
+          fileName: currentFileName,
+          fileType: currentFileType,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('n4l-editor-session', JSON.stringify(sessionData));
+
+        // Show indicator briefly
+        sessionIndicator.classList.remove('hidden');
+        setTimeout(() =>
+        {
+          sessionIndicator.classList.add('hidden');
+        }, 2000);
+      }
+      catch (error)
+      {
+        console.warn('Could not save session:', error);
+      }
+    }
+
+    function loadSession()
+    {
+      try
+      {
+        const saved = localStorage.getItem('n4l-editor-session');
+        if (!saved) return false;
+
+        const sessionData = JSON.parse(saved);
+
+        // Check if session is less than 7 days old
+        const sessionAge = Date.now() - new Date(sessionData.timestamp).getTime();
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+        if (sessionAge > sevenDays)
+        {
+          localStorage.removeItem('n4l-editor-session');
+          return false;
+        }
+
+        // Restore session
+        inputText.value = sessionData.inputText || '';
+        outputArea.innerHTML = sessionData.outputHTML || '';
+        currentFileName = sessionData.fileName || '';
+        currentFileType = sessionData.fileType || 'text';
+
+        // Enable buttons if there's output
+        if (outputArea.innerHTML.trim())
+        {
+          copyBtn.disabled = false;
+          saveBtn.disabled = false;
+        }
+
+        // Update title if we have a filename
+        if (currentFileName)
+        {
+          const titleText = titleSection.querySelector('h1');
+          if (titleText) titleText.textContent = currentFileName;
+        }
+
+        showStatus('Previous session restored (auto-save enabled)');
+        return true;
+      }
+      catch (error)
+      {
+        console.warn('Could not load session:', error);
+        localStorage.removeItem('n4l-editor-session');
+        return false;
+      }
+    }
+
+    function clearSessionData()
+    {
+      if (confirm('Clear the current session? This will reset the editor and remove saved work.'))
+      {
+        localStorage.removeItem('n4l-editor-session');
+
+        // Clear the editor
+        inputText.value = '';
+        outputArea.innerHTML = '';
+        currentFileName = '';
+        currentFileType = 'text';
+
+        // Disable buttons
+        copyBtn.disabled = true;
+        saveBtn.disabled = true;
+
+        // Hide sections
+        arrowsSection.classList.add('hidden');
+        titleSection.classList.remove('hidden');
+
+        showStatus('Session cleared');
+      }
+    }
 
     // === ALL FUNCTION DEFINITIONS MUST BE HERE ===
 
@@ -67,8 +174,10 @@ fetch('/src/app.html')
         outputArea.innerHTML = highlightArrows(n4lOutput);
         copyBtn.disabled = false;
         saveBtn.disabled = false;
-        arrowsBtn.disabled = false;
         showStatus('Text converted successfully!');
+
+        // Save session after successful conversion
+        saveSession();
 
       } catch (error)
       {
@@ -77,7 +186,6 @@ fetch('/src/app.html')
         outputArea.innerHTML = '';
         copyBtn.disabled = true;
         saveBtn.disabled = true;
-        arrowsBtn.disabled = true;
       } finally
       {
         convertBtn.disabled = false;
@@ -103,6 +211,106 @@ fetch('/src/app.html')
       fileInput.click();
     }
 
+    // Detect file type based on content and extension
+    function detectFileType(filename, content)
+    {
+      const ext = filename.split('.').pop().toLowerCase();
+
+      // Check by extension
+      if (['html', 'htm'].includes(ext)) return 'html';
+      if (['md', 'markdown'].includes(ext)) return 'markdown';
+
+      // Check by content
+      const sample = content.substring(0, 500).toLowerCase();
+      if (sample.includes('<!doctype html') || sample.includes('<html') ||
+        (sample.includes('<body') && sample.includes('<head')))
+      {
+        return 'html';
+      }
+      if (sample.match(/^#{1,6}\s+/m) || sample.match(/\[.*\]\(.*\)/) ||
+        sample.includes('```'))
+      {
+        return 'markdown';
+      }
+
+      return 'text';
+    }
+
+    // Simple markdown to HTML converter
+    function markdownToHtml(markdown)
+    {
+      let html = markdown;
+
+      // Headers
+      html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>');
+      html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>');
+      html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-6 mb-4">$1</h1>');
+
+      // Bold and italic
+      html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      html = html.replace(/___(.+?)___/g, '<strong><em>$1</em></strong>');
+      html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+      html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+      // Links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>');
+
+      // Code blocks
+      html = html.replace(/```([^`]+)```/g, '<pre class="bg-gray-100 p-3 rounded my-2 overflow-x-auto"><code>$1</code></pre>');
+      html = html.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>');
+
+      // Lists
+      html = html.replace(/^\* (.+)$/gim, '<li class="ml-4">• $1</li>');
+      html = html.replace(/^\- (.+)$/gim, '<li class="ml-4">• $1</li>');
+      html = html.replace(/^\d+\. (.+)$/gim, '<li class="ml-4">$1</li>');
+
+      // Line breaks
+      html = html.replace(/\n\n/g, '</p><p class="mb-2">');
+      html = '<p class="mb-2">' + html + '</p>';
+
+      return html;
+    }
+
+    // Render file content based on type
+    function renderFileContent(content, type)
+    {
+      inputPreview.innerHTML = '';
+      inputText.classList.remove('hidden');
+      inputPreview.classList.add('hidden');
+      showingPreview = false;
+
+      if (type === 'html')
+      {
+        // Render HTML in preview
+        inputPreview.innerHTML = content;
+        inputPreview.classList.remove('hidden');
+        inputText.classList.add('hidden');
+        showingPreview = true;
+        // Keep raw content in textarea for conversion
+        inputText.value = content;
+      }
+      else if (type === 'markdown')
+      {
+        // Render markdown as HTML in preview
+        const html = markdownToHtml(content);
+        inputPreview.innerHTML = '<div class="prose max-w-none">' + html + '</div>';
+        inputPreview.classList.remove('hidden');
+        inputText.classList.add('hidden');
+        showingPreview = true;
+        // Keep raw content in textarea for conversion
+        inputText.value = content;
+      }
+      else
+      {
+        // Plain text - just show in textarea
+        inputText.value = content;
+        inputText.classList.remove('hidden');
+        inputPreview.classList.add('hidden');
+      }
+    }
+
     function handleFileSelect(event)
     {
       const file = event.target.files[0];
@@ -126,20 +334,27 @@ fetch('/src/app.html')
       reader.onload = function (e)
       {
         const content = e.target.result;
-        inputText.value = content;
         currentFileName = file.name;
+        currentFileType = detectFileType(file.name, content);
+
+        // Render content based on file type
+        renderFileContent(content, currentFileType);
 
         // Hide title section when file is uploaded
         titleSection.classList.add('hidden');
 
-        showStatus('File "' + file.name + '" loaded successfully!');
+        const typeLabel = currentFileType === 'html' ? 'HTML' :
+          currentFileType === 'markdown' ? 'Markdown' : 'Text';
+        showStatus('File "' + file.name + '" loaded successfully! (' + typeLabel + ' format)');
 
         // Clear any previous output
         outputArea.innerText = '';
         copyBtn.disabled = true;
         saveBtn.disabled = true;
-        arrowsBtn.disabled = true;
         arrowsSection.classList.add('hidden');
+
+        // Save session after file load
+        saveSession();
 
         // Reset file input
         fileInput.value = '';
@@ -274,12 +489,116 @@ fetch('/src/app.html')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 
-      // Only highlight parenthetical arrow descriptions like "(appears close to)"
-      // This matches any text in parentheses that looks like a relationship description
+      // Split into lines to handle line-based syntax and content blocks
+      const lines = escaped.split('\n');
+      const highlightedLines = [];
+      let inContentBlock = false;
+      let contentIndentLevel = 0;
+
+      for (let i = 0; i < lines.length; i++)
+      {
+        const line = lines[i];
+        let result = line;
+
+        // Check if this line starts a content block (has @ tag)
+        const hasAtTag = /^\s*@[a-zA-Z_][a-zA-Z0-9_\.]*/.test(line);
+
+        // Check if this line is a ditto line with arrow (ends content block)
+        const isDittoWithArrow = /^\s*&quot;\s+\([a-z]/.test(line);
+
+        // Check current line indentation
+        const currentIndent = line.match(/^\s*/)[0].length;
+
+        // If we hit a ditto line with arrow, we're exiting content block
+        if (inContentBlock && isDittoWithArrow)
+        {
+          inContentBlock = false;
+        }
+
+        // If we're in a content block
+        if (inContentBlock)
+        {
+          // Check if we've gone back to lower indentation (exiting content block)
+          if (currentIndent <= contentIndentLevel && line.trim() !== '')
+          {
+            inContentBlock = false;
+          }
+          else
+          {
+            // In content block - no special highlighting except @ tag if present
+            if (hasAtTag)
+            {
+              // Highlight the @ tag only
+              result = result.replace(/(@[a-zA-Z_][a-zA-Z0-9_\.]*)/g, '<span style="color: #0891b2; font-weight: 600;">$1</span>');
+            }
+            // Leave rest as plain text
+            highlightedLines.push(result);
+            continue;
+          }
+        }
+
+        // If this line starts with @ tag, enter content block mode
+        if (hasAtTag)
+        {
+          inContentBlock = true;
+          contentIndentLevel = currentIndent;
+
+          // Highlight @ tag on this line, but leave rest as is
+          result = result.replace(/(@[a-zA-Z_][a-zA-Z0-9_\.]*)/g, '<span style="color: #0891b2; font-weight: 600;">$1</span>');
+
+          // Check if there's an arrow on the same line (inline annotation)
+          const hasInlineArrow = /\([a-z][a-z\s,;:.\-'\/]{3,}\)/i.test(line);
+          if (hasInlineArrow)
+          {
+            // Apply arrow highlighting only
+            result = applyArrowHighlighting(result);
+          }
+
+          highlightedLines.push(result);
+          continue;
+        }
+
+        // Not in content block - apply all highlighting rules
+
+        // 1. Highlight comments (# anything after)
+        result = result.replace(/(#.*)$/g, '<span style="color: #6b7280; font-style: italic;">$1</span>');
+
+        // 2. Highlight title markers (- at start of line followed by text)
+        result = result.replace(/^(\s*-\s+)([^#]+)/g, '$1<span style="color: #7c3aed; font-weight: 600;">$2</span>');
+
+        // 3. Highlight sequence markers (+:: and -::)
+        result = result.replace(/(\+::|−::)/g, '<span style="color: #ea580c; font-weight: 700;">$1</span>');
+        result = result.replace(/(-::)/g, '<span style="color: #ea580c; font-weight: 700;">$1</span>');
+
+        // 4. Highlight $ symbols (references like $title.1)
+        result = result.replace(/(\$[a-zA-Z_][a-zA-Z0-9_\.]*)/g, '<span style="color: #0891b2; font-weight: 600;">$1</span>');
+
+        // 5. Highlight ditto symbol (standalone " at beginning of line)
+        result = result.replace(/^(\s*)(&quot;)(\s)/g, '$1<span style="color: #059669; font-weight: 700; font-size: 1.1em;">$2</span>$3');
+
+        // 6. Highlight special single-char annotations (%, =, **, >>, >, <)
+        result = result.replace(/(\*\*|&gt;&gt;|&gt;|&lt;|%|=)(?=\s)/g, '<span style="color: #dc2626; font-weight: 700;">$1</span>');
+
+        // 7. Highlight ALL CAPS text (3+ consecutive uppercase words) - reminders
+        result = result.replace(/\b([A-Z][A-Z]+(?:\s+[A-Z][A-Z]+){2,})\b/g, '<span style="background: #fef3c7; color: #92400e; font-weight: 600; padding: 0 0.2em;">$1</span>');
+
+        highlightedLines.push(result);
+      }
+
+      // Join lines back together
+      const joined = highlightedLines.join('\n');
+
+      // 8. Apply arrow highlighting to parenthetical expressions
+      return applyArrowHighlighting(joined);
+    }
+
+    // Helper function to apply arrow highlighting
+    function applyArrowHighlighting(text)
+    {
+      // Highlight parenthetical arrow descriptions like "(appears close to)"
       const parenArrowRegex = /\([a-z][a-z\s,;:.\-'\/]*\)/gi;
 
-      // Highlight parenthetical arrow descriptions
-      const result = escaped.replace(parenArrowRegex, function (match)
+      return text.replace(parenArrowRegex, function (match)
       {
         // Only highlight if it's not just a single word (to avoid matching things like (x) or (a))
         // and if it contains at least one space or common relationship words
@@ -295,8 +614,6 @@ fetch('/src/app.html')
         }
         return match; // Don't highlight short or non-relational parenthetical text
       });
-
-      return result;
     }
 
     // Global function for arrow menu (called from onclick in HTML)
@@ -530,43 +847,35 @@ fetch('/src/app.html')
     // Replace arrow in the output
     window.replaceArrow = function (oldArrow, newArrow, menu)
     {
-      const text = outputArea.innerHTML;
+      // Get plain text content
+      const plainText = outputArea.innerText;
 
-      // Escape special characters for regex
-      function escapeRegex(str)
+      // Check if arrow exists
+      if (!plainText.includes(oldArrow))
       {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        menu.remove();
+        showStatus('Could not find arrow: ' + oldArrow, true);
+        return;
       }
 
-      // Escape HTML entities in the old arrow
-      const oldEscaped = oldArrow
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+      // Replace the arrow (only first occurrence)
+      const newText = plainText.replace(oldArrow, newArrow);
 
-      // Escape HTML entities in the new arrow
-      const newEscaped = newArrow
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-
-      // Find and replace the span containing the old arrow
-      const regex = new RegExp('<span class="n4l-arrow-highlight"[^>]*data-arrow="[^"]*"[^>]*>' + escapeRegex(oldEscaped) + '</span>');
-      const newText = text.replace(regex, '<span class="n4l-arrow-highlight" data-arrow="' + newArrow + '" onclick="showArrowMenu(event, this)">' + newEscaped + '</span>');
-      outputArea.innerHTML = newText;
+      // Re-highlight and update
+      outputArea.innerHTML = highlightArrows(newText);
 
       menu.remove();
       showStatus('Arrow changed to ' + newArrow);
+
+      // Save session after change
+      saveSession();
     };
 
     // Delete arrow from the output
     window.deleteArrow = function (arrow, menu)
     {
-      const text = outputArea.innerHTML;
+      const text = outputArea.innerText;
+      const htmlContent = outputArea.innerHTML;
 
       // Escape special characters for regex
       function escapeRegex(str)
@@ -574,140 +883,182 @@ fetch('/src/app.html')
         return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       }
 
-      // Escape HTML entities
-      const escaped = arrow
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+      // Find the line in plain text that contains this arrow
+      const lines = text.split('\n');
+      let lineToDelete = -1;
 
-      // Find the line containing the arrow and delete the entire line
-      // Match from start of line (or after a <br> or newline) to end of line (or before <br> or newline)
-      const lineRegex = new RegExp(
-        '(?:^|(?:<br>)|(?:\\n))([^\\n<]*<span class="n4l-arrow-highlight"[^>]*data-arrow="[^"]*"[^>]*>' +
-        escapeRegex(escaped) +
-        '</span>[^\\n<]*)(?:(?:<br>)|(?:\\n)|$)',
-        'g'
-      );
-
-      let newText = text.replace(lineRegex, '');
-
-      // If that didn't work (no <br> tags), try a simpler approach - just remove the whole line
-      if (newText === text)
+      for (let i = 0; i < lines.length; i++)
       {
-        // Split by line breaks, filter out lines containing the arrow, rejoin
-        const lines = text.split(/\n/);
-        const filteredLines = lines.filter(function (line)
+        if (lines[i].includes(arrow))
         {
-          return !line.includes('<span class="n4l-arrow-highlight"[^>]*data-arrow="[^"]*"[^>]*>' + escapeRegex(escaped) + '</span>');
-        });
-        newText = filteredLines.join('\n');
+          lineToDelete = i;
+          break;
+        }
       }
 
-      outputArea.innerHTML = newText;
+      if (lineToDelete !== -1)
+      {
+        // Remove the line from the array
+        lines.splice(lineToDelete, 1);
 
-      menu.remove();
-      showStatus('Line with arrow deleted');
+        // Rejoin the lines
+        const newText = lines.join('\n');
+
+        // Re-highlight the arrows in the new text
+        outputArea.innerHTML = highlightArrows(newText);
+
+        menu.remove();
+        showStatus('Line with arrow "' + arrow + '" deleted');
+
+        // Save session after deletion
+        saveSession();
+      }
+      else
+      {
+        menu.remove();
+        showStatus('Could not find line to delete', true);
+      }
     };
 
     function extractArrows()
     {
-      // Toggle arrows section visibility
-      const isHidden = arrowsSection.classList.contains('hidden');
+      // Show a popup modal with the N4L Arrow Validation Guide
+      showArrowValidationGuide();
+    }
 
-      if (isHidden)
+    function showArrowValidationGuide()
+    {
+      // Create modal overlay
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+      modal.onclick = (e) =>
       {
-        const n4lText = outputArea.innerText.trim();
-        if (!n4lText)
-        {
-          showStatus('No N4L output to show arrows for', true);
-          return;
-        }
+        if (e.target === modal) modal.remove();
+      };
 
-        // Define available arrow types for editing
-        const availableArrows = [
-          {
-            type: 'Implication',
-            symbol: '->',
-            description: 'Basic implication or causation',
-            example: 'A -> B',
-            category: 'Basic'
-          },
-          {
-            type: 'Strong Implication',
-            symbol: '+>',
-            description: 'Strong or positive implication',
-            example: 'A +> B',
-            category: 'Basic'
-          },
-          {
-            type: 'Weak Implication',
-            symbol: '~>',
-            description: 'Weak or uncertain implication',
-            example: 'A ~> B',
-            category: 'Basic'
-          },
-          {
-            type: 'Bidirectional',
-            symbol: '<->',
-            description: 'Two-way relationship',
-            example: 'A <-> B',
-            category: 'Bidirectional'
-          },
-          {
-            type: 'Conditional',
-            symbol: '?>',
-            description: 'Conditional relationship',
-            example: 'A ?> B',
-            category: 'Conditional'
-          },
-          {
-            type: 'Temporal',
-            symbol: '>>',
-            description: 'Temporal sequence',
-            example: 'A >> B',
-            category: 'Temporal'
-          },
-          {
-            type: 'Contextual',
-            symbol: '::>',
-            description: 'Context-dependent relationship',
-            example: 'A ::> B',
-            category: 'Contextual'
-          },
-          {
-            type: 'Negation',
-            symbol: '!>',
-            description: 'Negative implication',
-            example: 'A !> B',
-            category: 'Negation'
-          },
-          {
-            type: 'Constraint',
-            symbol: '|>',
-            description: 'Constraint or requirement',
-            example: 'A |> B',
-            category: 'Constraint'
-          },
-          {
-            type: 'Optional',
-            symbol: '~?>',
-            description: 'Optional or possible relationship',
-            example: 'A ~?> B',
-            category: 'Optional'
-          }
-        ];
+      // Create modal content
+      const modalContent = document.createElement('div');
+      modalContent.className = 'bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col';
 
-        displayAvailableArrows(availableArrows);
-        arrowsSection.classList.remove('hidden');
-        showStatus('Showing available arrow types');
-      }
-      else
-      {
-        arrowsSection.classList.add('hidden');
-        showStatus('Arrow types hidden');
-      }
+      modalContent.innerHTML = `
+        <div class="flex items-center justify-between p-4 border-b">
+          <h2 class="text-xl font-bold text-gray-800">🏹 N4L Arrow Validation Guide</h2>
+          <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+        </div>
+        <div class="overflow-y-auto p-6 flex-1" style="font-family: system-ui, -apple-system, sans-serif;">
+          <div class="prose max-w-none">
+            <p class="text-gray-600 mb-4">
+              N4L uses semantic arrows to represent different types of relationships between concepts. 
+              Click on any <span class="text-blue-600 font-semibold">blue highlighted arrow</span> in the output to change it, 
+              or see <span class="text-red-600 font-semibold">red warnings</span> for invalid arrows.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50">
+                <h3 class="text-sm font-bold text-blue-900 mb-1">✓ Valid Arrow</h3>
+                <code class="text-sm bg-white px-2 py-1 rounded border border-blue-200">(leads to)</code>
+                <p class="text-xs text-blue-700 mt-1">Blue highlight = recognized by N4L parser</p>
+              </div>
+              <div class="border-l-4 border-red-500 pl-4 py-2 bg-red-50">
+                <h3 class="text-sm font-bold text-red-900 mb-1">✗ Invalid Arrow</h3>
+                <code class="text-sm bg-white px-2 py-1 rounded border border-red-200">(leadsto)</code>
+                <p class="text-xs text-red-700 mt-1">Red highlight = will cause parser error</p>
+              </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Four Semantic Arrow Types</h3>
+
+            <!-- NR-0 -->
+            <div class="mb-4 border rounded-lg p-4 bg-gray-50">
+              <h4 class="font-bold text-gray-800 mb-2">🔗 NR-0: Similarity (Non-directional)</h4>
+              <p class="text-sm text-gray-600 mb-2">Symmetric relationships, order doesn't matter</p>
+              <div class="bg-white p-3 rounded border">
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <code class="text-blue-600">(similar to)</code>
+                  <code class="text-blue-600">(associated with)</code>
+                  <code class="text-blue-600">(see also)</code>
+                  <code class="text-blue-600">(alias)</code>
+                  <code class="text-blue-600">(equals)</code>
+                  <code class="text-blue-600">(compare to)</code>
+                  <code class="text-blue-600">(is not)</code>
+                  <code class="text-blue-600">(looks like)</code>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2 italic">Example: Alice (alias) A | Person (is not) Thing</p>
+            </div>
+
+            <!-- LT-1 -->
+            <div class="mb-4 border rounded-lg p-4 bg-gray-50">
+              <h4 class="font-bold text-gray-800 mb-2">➡️ LT-1: Causality (Leads To)</h4>
+              <p class="text-sm text-gray-600 mb-2">Directional, cause-effect, temporal ordering</p>
+              <div class="bg-white p-3 rounded border">
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <code class="text-blue-600">(leads to)</code>
+                  <code class="text-blue-600">(causes)</code>
+                  <code class="text-blue-600">(creates)</code>
+                  <code class="text-blue-600">(results in)</code>
+                  <code class="text-blue-600">(enables)</code>
+                  <code class="text-blue-600">(affects)</code>
+                  <code class="text-blue-600">(precedes)</code>
+                  <code class="text-blue-600">(comes from)</code>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2 italic">Example: Rain (leads to) Wet ground | Study (enables) Success</p>
+            </div>
+
+            <!-- CN-2 -->
+            <div class="mb-4 border rounded-lg p-4 bg-gray-50">
+              <h4 class="font-bold text-gray-800 mb-2">📦 CN-2: Composition (Contains)</h4>
+              <p class="text-sm text-gray-600 mb-2">Part-whole, membership, hierarchical</p>
+              <div class="bg-white p-3 rounded border">
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <code class="text-blue-600">(contains)</code>
+                  <code class="text-blue-600">(is a part of)</code>
+                  <code class="text-blue-600">(consists of)</code>
+                  <code class="text-blue-600">(belongs to)</code>
+                  <code class="text-blue-600">(has component)</code>
+                  <code class="text-blue-600">(is a set of)</code>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2 italic">Example: Book (contains) Chapter | Wheel (is a part of) Car</p>
+            </div>
+
+            <!-- EP-3 -->
+            <div class="mb-4 border rounded-lg p-4 bg-gray-50">
+              <h4 class="font-bold text-gray-800 mb-2">🏷️ EP-3: Properties (Expresses)</h4>
+              <p class="text-sm text-gray-600 mb-2">Attributes, descriptions, annotations</p>
+              <div class="bg-white p-3 rounded border">
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <code class="text-blue-600">(expresses)</code>
+                  <code class="text-blue-600">(note)</code>
+                  <code class="text-blue-600">(defined as)</code>
+                  <code class="text-blue-600">(has example)</code>
+                  <code class="text-blue-600">(is about)</code>
+                  <code class="text-blue-600">(has attribute)</code>
+                  <code class="text-blue-600">(describes)</code>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2 italic">Example: Sky (has attribute) Blue | API (defined as) Interface</p>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+              <p class="text-sm text-yellow-800">
+                <strong>💡 Pro Tip:</strong> Click any arrow in the output area to see suggestions and change it. 
+                The editor validates against 300+ official N4L arrows from SSTconfig.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="border-t p-4 bg-gray-50 flex justify-end">
+          <button onclick="this.closest('.fixed').remove()" 
+                  class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+            Got it!
+          </button>
+        </div>
+      `;
+
+      modal.appendChild(modalContent);
+      document.body.appendChild(modal);
     }
 
     function displayAvailableArrows(arrows)
@@ -796,23 +1147,29 @@ fetch('/src/app.html')
       showStatus('File saved as ' + fileName);
     }
 
-    function syncScroll()
+    function syncScroll(source)
     {
       if (isScrollSyncing) return;
 
       isScrollSyncing = true;
 
-      const outputLines = outputArea.innerText.split('\n');
-      const inputLines = inputText.value.split('\n');
+      // Determine which element triggered the scroll
+      const isOutput = source === outputArea;
+
+      // Get the visible input element (either textarea or preview)
+      const inputEl = inputText.classList.contains('hidden') ? inputPreview : inputText;
+
+      const sourceEl = isOutput ? outputArea : inputEl;
+      const targetEl = isOutput ? inputEl : outputArea;
 
       // Calculate scroll position ratio
-      const outputScrollTop = outputArea.scrollTop;
-      const outputScrollHeight = outputArea.scrollHeight - outputArea.clientHeight;
-      const scrollRatio = outputScrollHeight > 0 ? outputScrollTop / outputScrollHeight : 0;
+      const sourceScrollTop = sourceEl.scrollTop;
+      const sourceScrollHeight = sourceEl.scrollHeight - sourceEl.clientHeight;
+      const scrollRatio = sourceScrollHeight > 0 ? sourceScrollTop / sourceScrollHeight : 0;
 
-      // Apply same ratio to input
-      const inputScrollHeight = inputText.scrollHeight - inputText.clientHeight;
-      inputText.scrollTop = scrollRatio * inputScrollHeight;
+      // Apply same ratio to target
+      const targetScrollHeight = targetEl.scrollHeight - targetEl.clientHeight;
+      targetEl.scrollTop = scrollRatio * targetScrollHeight;
 
       setTimeout(() => { isScrollSyncing = false; }, 50);
     }
@@ -823,7 +1180,12 @@ fetch('/src/app.html')
     fileInput.addEventListener('change', handleFileSelect);
     arrowsBtn.addEventListener('click', extractArrows);
     saveBtn.addEventListener('click', saveAsN4L);
-    outputArea.addEventListener('scroll', syncScroll);
+    clearSessionBtn.addEventListener('click', clearSessionData);
+
+    // Bidirectional scroll sync
+    outputArea.addEventListener('scroll', function () { syncScroll(outputArea); });
+    inputText.addEventListener('scroll', function () { syncScroll(inputText); });
+    inputPreview.addEventListener('scroll', function () { syncScroll(inputPreview); });
 
     // Allow Ctrl/Cmd + Enter to convert
     inputText.addEventListener('keydown', (e) =>
@@ -852,6 +1214,30 @@ fetch('/src/app.html')
         convertText();
       }, 100);
     });
+
+    // Auto-save on input changes (debounced)
+    let autoSaveTimeout;
+    inputText.addEventListener('input', () =>
+    {
+      clearTimeout(autoSaveTimeout);
+      autoSaveTimeout = setTimeout(() =>
+      {
+        saveSession();
+      }, 2000); // Save 2 seconds after user stops typing
+    });
+
+    // Auto-save when output is manually edited
+    outputArea.addEventListener('input', () =>
+    {
+      clearTimeout(autoSaveTimeout);
+      autoSaveTimeout = setTimeout(() =>
+      {
+        saveSession();
+      }, 2000);
+    });
+
+    // Try to restore previous session on load
+    loadSession();
 
     // Initial focus
     inputText.focus();

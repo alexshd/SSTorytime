@@ -19,7 +19,7 @@ func ConvertHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	n4lOut := analyzer.N4LSkeletonOutput("uploaded.txt", text, 50.0)
+	n4lOut := analyzer.N4LSkeletonOutput("uploaded.txt", text, 100.0)
 	w.Header().Set("Content-Type", "text/plain")
 	_, _ = w.Write([]byte(n4lOut))
 }

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- High resolution version for Apple Touch Icon -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Main background with subtle border -->
+  <rect width="512" height="512" rx="90" fill="url(#bgGrad)"/>
+  <rect width="512" height="512" rx="90" fill="none" stroke="#1e40af" stroke-width="8"/>
+  
+  <!-- Knowledge graph nodes with shadows -->
+  <circle cx="150" cy="150" r="45" fill="#10b981" stroke="#059669" stroke-width="8" filter="url(#shadow)"/>
+  <circle cx="362" cy="150" r="45" fill="#10b981" stroke="#059669" stroke-width="8" filter="url(#shadow)"/>
+  <circle cx="256" cy="330" r="45" fill="#10b981" stroke="#059669" stroke-width="8" filter="url(#shadow)"/>
+  
+  <!-- Small inner highlights on nodes -->
+  <circle cx="165" cy="135" r="12" fill="white" opacity="0.4"/>
+  <circle cx="377" cy="135" r="12" fill="white" opacity="0.4"/>
+  <circle cx="271" cy="315" r="12" fill="white" opacity="0.4"/>
+  
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="40" markerHeight="40" refX="36" refY="12" orient="auto">
+      <polygon points="0 0, 40 12, 0 24" fill="#fbbf24" />
+    </marker>
+  </defs>
+  
+  <!-- Arrows with gradient -->
+  <path d="M 195 150 L 317 150" stroke="url(#arrowGrad)" stroke-width="16" fill="none" marker-end="url(#arrowhead)" stroke-linecap="round"/>
+  <path d="M 165 195 L 241 285" stroke="url(#arrowGrad)" stroke-width="16" fill="none" marker-end="url(#arrowhead)" stroke-linecap="round"/>
+  <path d="M 347 195 L 271 285" stroke="url(#arrowGrad)" stroke-width="16" fill="none" marker-end="url(#arrowhead)" stroke-linecap="round"/>
+  
+  <!-- N4L text -->
+  <text x="256" y="445" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle" filter="url(#shadow)">N4L</text>
+  <text x="256" y="480" font-family="Arial, sans-serif" font-size="28" font-weight="normal" fill="rgba(255,255,255,0.8)" text-anchor="middle">Editor</text>
+  
+  <!-- Decorative sparkles -->
+  <circle cx="100" cy="360" r="10" fill="#fbbf24" opacity="0.7"/>
+  <circle cx="412" cy="360" r="10" fill="#fbbf24" opacity="0.7"/>
+  <circle cx="256" cy="80" r="10" fill="#fbbf24" opacity="0.7"/>
+  <circle cx="80" cy="256" r="8" fill="#fbbf24" opacity="0.5"/>
+  <circle cx="432" cy="256" r="8" fill="#fbbf24" opacity="0.5"/>
+</svg>
