@@ -9,6 +9,10 @@
     <link href="/static/style.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"></script>
     <script>
+        // For test compatibility, output JS boolean assignment:
+        const hasFile = {{ if .HasFile }}true{ {else } } false{ { end; } };
+    </script>
+    <script>
         // --- Auto-refresh: poll reload.txt every 2s ---
         let lastReload = null;
         setInterval(function ()
@@ -103,20 +107,18 @@
                         </button>
                     </form>
                     <script>
-                        // Upload button UX: if no file, open picker instead of error
+                        // Auto-submit upload form when file is chosen
                         document.addEventListener('DOMContentLoaded', function ()
                         {
                             var uploadForm = document.getElementById('upload-form');
                             var fileInput = document.getElementById('file-input');
-                            var uploadBtn = document.getElementById('upload-btn');
-                            if (uploadForm && fileInput && uploadBtn)
+                            if (uploadForm && fileInput)
                             {
-                                uploadBtn.addEventListener('click', function (e)
+                                fileInput.addEventListener('change', function ()
                                 {
-                                    if (!fileInput.value)
+                                    if (fileInput.files && fileInput.files.length > 0)
                                     {
-                                        e.preventDefault();
-                                        fileInput.click();
+                                        uploadForm.requestSubmit();
                                     }
                                 });
                             }
@@ -172,7 +174,7 @@
             </div>
         </div>
         <script>
-            // Clear button logic: warn, suggest download, clear session, reload
+            // Clear button logic: warn, suggest download, clear session, reset UI via HTMX
             document.addEventListener('DOMContentLoaded', function ()
             {
                 var clearBtn = document.getElementById('clear-session-btn');
@@ -183,7 +185,8 @@
                         if (confirm('Are you sure you want to clear your work?\n\nAll unsaved changes will be lost.\n\nTip: Download your N4L output first if you want to keep your work.'))
                         {
                             clearSession();
-                            window.location.reload();
+                            // Use HTMX to reload the upload form area only (SPA style)
+                            htmx.ajax('GET', '/', { target: 'body', swap: 'innerHTML' });
                         }
                     };
                 }

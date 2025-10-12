@@ -1,4 +1,4 @@
-.PHONY: all benchmark build clean dev install-deps profile run test test-coverage test-verbose
+.PHONY: all benchmark build clean dev install-deps profile run test test-all test-coverage test-verbose
 
 # Makefile for text2n4l-web development and testing
 
@@ -30,6 +30,12 @@ run: build
 test:
 	@echo "Running all tests..."
 	go test ./...
+
+# Run all tests including templates
+test-all:
+	@echo "Running all tests and template validation..."
+	go test ./...
+	$(MAKE) test-templates
 
 # Run tests with verbose output
 test-verbose:
