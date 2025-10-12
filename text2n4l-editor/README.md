@@ -1,14 +1,48 @@
 # Text to N4L Converter Frontend
 
-A modern web interface for converting text to N4L DSL format using Vite and Tailwind CSS v4.
+A modern web interface for converting text to N4L DSL format with **real-time arrow validation** using Vite and Tailwind CSS v4.
 
-## Features
+## ✨ Key Features
+
+### Core Functionality
 
 - Clean, responsive UI built with Tailwind CSS v4
 - Real-time text conversion via API
+- File upload support (any text-based file)
 - Copy to clipboard functionality
+- Save edited N4L files
 - Keyboard shortcuts (Ctrl/Cmd + Enter to convert)
-- Modern development stack with Vite
+
+### 🎯 NEW: Arrow Validation (v1.0)
+
+**Real-time N4L arrow validation** to prevent parser errors!
+
+- **Visual Error Detection**: Invalid arrows are highlighted in red with ⚠️ warning
+- **Valid Arrow Highlighting**: Recognized arrows shown in blue
+- **Smart Suggestions**: Keyword-based matching suggests correct arrows
+- **Categorized Arrow Menu**: Browse 300+ valid arrows organized by semantic type:
+  - 🔗 NR-0: Similarity (78 arrows)
+  - ➡️ LT-1: Causality (70+ arrows)
+  - 📦 CN-2: Composition (90+ arrows)
+  - 🏷️ Properties (80+ arrows)
+  - ⭐ Special annotations
+- **Interactive Editing**: Click any arrow to see alternatives or fix errors
+- **Parser Error Prevention**: Fix issues before they cause compilation errors
+
+#### Quick Example
+
+```
+❌ Before: X (appears close to) Y     [RED - Invalid]
+✅ After:  X (similar to) Y           [BLUE - Valid]
+```
+
+See [ARROW_VALIDATION.md](./ARROW_VALIDATION.md) for complete documentation.
+
+## 📚 Documentation
+
+- **[N4L_EDITING_GUIDE.md](./N4L_EDITING_GUIDE.md)** - Complete guide to N4L syntax and editing workflow
+- **[ARROW_VALIDATION.md](./ARROW_VALIDATION.md)** - Technical details on arrow validation
+- **[VALIDATION_VISUAL_GUIDE.md](./VALIDATION_VISUAL_GUIDE.md)** - Visual reference with examples
 
 ## Development
 

@@ -15,7 +15,7 @@
     "Courier New", monospace;
 }
 
-/* Highlighted N4L arrow style */
+/* Highlighted N4L arrow style - Valid arrows */
 .n4l-arrow-highlight {
   background: #e0f2fe;
   color: #0369a1;
@@ -32,6 +32,32 @@
   color: #0c4a6e;
   border-color: #38bdf8;
   box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* Error styling for invalid/unrecognized arrows */
+.n4l-arrow-error {
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 0.25rem;
+  padding: 0 0.2em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  position: relative;
+  font-weight: 600;
+  border: 1px solid #fca5a5;
+  text-decoration: wavy underline;
+  text-decoration-color: #ef4444;
+}
+.n4l-arrow-error:hover {
+  background: #fecaca;
+  color: #991b1b;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+.n4l-arrow-error::before {
+  content: "⚠️";
+  margin-right: 0.2em;
+  font-size: 0.85em;
 }
 
 /* Tooltip for arrow actions */

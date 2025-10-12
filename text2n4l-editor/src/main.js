@@ -112,17 +112,6 @@ fetch('/src/app.html')
         return;
       }
 
-      // Check file type
-      const allowedTypes = ['text/plain', 'text/markdown'];
-      const fileExtension = file.name.toLowerCase().split('.').pop();
-      const allowedExtensions = ['txt', 'md', 'text'];
-
-      if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension))
-      {
-        showStatus('Please select a text file (.txt, .md, .text)', true);
-        return;
-      }
-
       // Check file size (limit to 10MB)
       if (file.size > 10 * 1024 * 1024)
       {
@@ -130,6 +119,8 @@ fetch('/src/app.html')
         return;
       }
 
+      // We'll attempt to read any file as text
+      // The browser will handle it gracefully if it's not a text file
       const reader = new FileReader();
 
       reader.onload = function (e)
@@ -161,6 +152,117 @@ fetch('/src/app.html')
       reader.readAsText(file);
     }
 
+    // Complete list of valid N4L arrows from SSTconfig files
+    // This is used for validation - if an arrow is not in this list, it's invalid
+    function getValidArrowsList()
+    {
+      return [
+        // NR-0: Similarity arrows (symmetric)
+        'similar to', 'sim', 'associated with', 'ass', 'see also', 'see', 'alias',
+        'equals', '=', 'compare to', 'compare', 'is not', 'not the same as',
+        'looks like', 'll', 'sounds like', 'sl', 'don\'t confuse with', 'confuse',
+        'alternate spelling', 'sp', 'stands for', 'sfor', 'is sometimes mistaken for', 'mistaken',
+        'has same supplier', 'sm-sup', 'has common origin', 'cm-org', 'is entangled with', 'entg',
+        'has same destination', 'sm-dir', 'same class', 'sm_cls', 'same group', 'sm_grp',
+        'same tribe', 'sm_trb', 'same hometown', 'sm_hmt', 'same modus operandi', 'sm_MO',
+        'is a variant of', 'variant', 'near to', 'nr', 'terminates together with', 'termwith',
+
+        // LT-1: Causality arrows (directional)
+        'leads to', 'fwd', 'comes from', 'bwd', 'brings about', 'brings', 'was brought about by', 'brought-by',
+        'from which we derive', 'derive', 'derives from', 'derive-fr', 'leads ahead to', 'fwd1',
+        'leads back to', 'bwd1', 'succeeds', 'succ1', 'is succeeded by', 'succ-by',
+        'precedes', 'prec', 'is preceded by', 'prec-by', 'succeeded by', 'succ2',
+        'preceded by', 'pre-by', 'comes before', 'bfr', 'comes after', 'after',
+        'supplies', 'suppl', 'has been supplied by', 'suppl-by', 'evolved to', 'evolve',
+        'evolved from', 'evolve-fr', 'thereafter', '=>', 'whence', '<=',
+        'next if yes', 'ifyes', 'is affirmative outcome of', 'bifyes',
+        'next if no', 'if no', 'is negitive outcome of', 'bifno',
+        'affects', 'aff', 'is affected by', 'aff-by', 'causes', 'cause',
+        'is caused by', 'cause-by', 'creates', 'cr', 'is created by', 'crtd',
+        'redirects', 'redir', 'is redirected by', 'redir-by',
+        'is used by', 'used-by', 'makes use of', 'uses', 'binds to', 'bind-to',
+        'is bound by', 'bound-by', 'results in', 'result', 'was a result of', 'result-of',
+        'enables', 'depends on', 'dep', 'is depended upon by', 'dep-by',
+        'invokes', 'invoke', 'is invoked by', 'invoke-by', 'determines', 'det',
+
+        // CN-2: Composition arrows
+        'contains', 'contain', 'belongs to', 'belong', 'consists of', 'consists',
+        'makes up part of', 'mkpt', 'uses word', 'useword', 'is a word used in', 'word-in',
+        'uses material', 'material', 'is a material for', 'mat-for',
+        'may contain', 'm-cont', 'may be contained by', 'm-cont-by',
+        'has component', 'has-cmpt', 'is component of', 'cmpt-of',
+        'has a part', 'has-pt', 'is a part of', 'pt-of',
+        'has no part', 'no-pt', 'is not part of', 'not-pt-of',
+        'has ingredient', 'ingred', 'is an ingredient of', 'ingred-of',
+        'does not contain', 'has no', 'is not from set', 'is not',
+        'is a set of', 'setof', 'is part of the set', 'in-set',
+        'is a group of', 'grp-of', 'is an element of', 'in-grp',
+        'is a herd of', 'herd', 'is part of herd', 'in-herd',
+        'is a tribe of', 'tribe', 'is part of tribe', 'in-tribe',
+        'is a region of', 'region', 'is within region', 'within',
+        'is an interval of', 'interval', 'is part of interval', 'in-intvl',
+        'species has member', 'smember', 'belongs to species', 'sbelongs',
+        'is an umbrella for', 'umbrella', 'under the aegis of', 'aegis',
+        'is the company of', 'company', 'works for', 'works',
+        'is the employer of', 'employer', 'is an employee of', 'employee',
+        'has many copies of', 'has-many', 'is one of many in', 'one-of',
+        'has member', 'has-memb', 'is a member of', 'is-memb',
+        'subsumes', 'sub', 'is subsumed by', 'sub-by', 'encloses', 'encl',
+        'is enclosed by', 'is-encl', 'has absorbed', 'sw', 'absorbed by', 'ab-by',
+        'houses', 'house', 'is housed by', 'is-housed', 'situates', 'situate',
+        'is situated in', 'is-sit', 'bullet point', 'bullet', 'is a bulletpoint for', 'isbullet',
+        'occurs within', 'occurs', 'situates occurrences of', 'occurence-of',
+        'is a shared resource for', 'shared-by', 'shares resource', 'shares',
+
+        // EP-3: Properties/Expresses arrows
+        'note', 'remark', 'is a note or remark about', 'isnotefor',
+        'added remark', 'is a remark about', 'remabout', 'please note!', 'NB',
+        'is an important remark concerning', 'important regarding',
+        'has example', 'e.g.', 'is an example of', 'ex', 'has no example', 'noex',
+        'is not an example of', 'not-ex', 'has abbreviation', 'abbrev',
+        'is short for', 'short for', 'has version', 'version', 'is a version of', 'is-version',
+        'has supplier', 'supply', 'is the supplier of', 'supply-by',
+        'has source', 'source', 'the source for', 'source-of',
+        'discusses', 'disc', 'is discussed in', 'is-disc',
+        'described as', 'descr', 'is used as a description of', 'isdescr',
+        'has age character', 'age', 'is the age characteristic of', 'isageof',
+        'mentions study', 'ment', 'a kind of study mentioned in', 'isment',
+        'has a pun about', 'pun on', 'was made into pun', 'has pun',
+        'famously uses', 'fuses', 'famously used in', 'fused',
+        'has title', 'title', 'is the title of', 'title of',
+        'has description', 'description', 'is the description for', 'descrip-for',
+        'is about topic/them', 'about', 'is the topic/theme of', 'theme-of',
+        'is wrong about', 'wrongabt', 'is not accurately represented by', 'narb',
+        'expresses', 'expresses property', 'expr', 'is/are expressed by', 'expr-by',
+        'has value', 'hasX', 'is the value of', 'isXof',
+        'may have value', 'maybeX', 'is the possible value for', 'mXof',
+        'has frequency', 'freq', 'is the frequency of', 'freq-of',
+        'is characterized by', 'state', 'is a/the state of', 'state-of',
+        'is expressed in formula', 'formula', 'is a formula for', 'isformula',
+        'has condition', 'cond', 'is the condition of', 'cond-of',
+        'has an attribute', 'attr', 'is an attribute of', 'attr-of',
+        'has feature', 'feat', 'is a feature of', 'feat-of',
+        'has property', 'prop', 'is a property of', 'prop-of',
+
+        // Special arrows
+        'offers', 'accepts', 'observes', 'ovserves', 'may be influenced by',
+        'has overlap', 'has promiser', 'has promisee', 'observed by',
+        'has intended promisee', 'has intended promiser', 'imposes'
+      ];
+    }
+
+    function isValidArrow(arrowText)
+    {
+      // Remove parentheses and normalize
+      const normalized = arrowText.replace(/^\(|\)$/g, '').trim().toLowerCase();
+      const validArrows = getValidArrowsList();
+
+      // Check if it's a valid arrow (exact match or close match)
+      return validArrows.some(function (valid)
+      {
+        return valid.toLowerCase() === normalized;
+      });
+    }
 
     function highlightArrows(text)
     {
@@ -174,16 +276,20 @@ fetch('/src/app.html')
 
       // Only highlight parenthetical arrow descriptions like "(appears close to)"
       // This matches any text in parentheses that looks like a relationship description
-      const parenArrowRegex = /\([a-z][a-z\s,;:-]*\)/gi;
+      const parenArrowRegex = /\([a-z][a-z\s,;:.\-'\/]*\)/gi;
 
       // Highlight parenthetical arrow descriptions
       const result = escaped.replace(parenArrowRegex, function (match)
       {
         // Only highlight if it's not just a single word (to avoid matching things like (x) or (a))
         // and if it contains at least one space or common relationship words
-        if (match.length > 4 && (match.includes(' ') || /(?:to|by|from|in|on|at|as)/i.test(match)))
+        if (match.length > 4 && (match.includes(' ') || /(?:to|by|from|in|on|at|as|with|of)/i.test(match)))
         {
-          return '<span class="n4l-arrow-highlight" data-arrow="' + match + '" onclick="showArrowMenu(event, this)">' +
+          // Check if this is a valid N4L arrow
+          const isValid = isValidArrow(match);
+          const cssClass = isValid ? 'n4l-arrow-highlight' : 'n4l-arrow-error';
+
+          return '<span class="' + cssClass + '" data-arrow="' + match + '" data-valid="' + isValid + '" onclick="showArrowMenu(event, this)">' +
             match +
             '</span>';
         }
@@ -208,23 +314,67 @@ fetch('/src/app.html')
       // Create menu
       const menu = document.createElement('div');
       menu.className = 'arrow-menu';
-      menu.style.cssText = 'position: absolute; z-index: 100; background: white; border: 1px solid #38bdf8; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 0.5rem; min-width: 200px;';
+      menu.style.cssText = 'position: absolute; z-index: 100; background: white; border: 1px solid #38bdf8; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 0.75rem; min-width: 280px; max-height: 400px; overflow-y: auto;';
 
-      // All available arrows with relationship keywords for matching
+      // N4L Semantic Arrow Types based on SSTconfig
       const allArrows = [
-        { symbol: '->', name: 'Implies', keywords: ['implies', 'causes', 'leads to', 'results in'] },
-        { symbol: '+>', name: 'Positive', keywords: ['positive', 'encourages', 'promotes'] },
-        { symbol: '~>', name: 'Approximately', keywords: ['approximately', 'appears close to', 'similar to', 'like'] },
-        { symbol: '<->', name: 'Bidirectional', keywords: ['bidirectional', 'mutual', 'reciprocal'] },
-        { symbol: '?>', name: 'Conditional', keywords: ['conditional', 'if', 'maybe', 'possibly'] },
-        { symbol: '>>', name: 'Sequence', keywords: ['precedes', 'before', 'follows', 'then', 'sequence'] },
-        { symbol: '::>', name: 'Context', keywords: ['context', 'depends on', 'given', 'in context'] },
-        { symbol: '!>', name: 'Negative', keywords: ['negative', 'prevents', 'blocks', 'inhibits'] },
-        { symbol: '|>', name: 'Requires', keywords: ['requires', 'needs', 'demands', 'constrains'] },
-        { symbol: '~?>', name: 'Maybe', keywords: ['uncertain', 'might', 'could', 'suggests'] }
+        // NR-0: Similarity (symmetric, non-directional)
+        { type: 'NR-0', symbol: '(similar to)', abbrev: '(sim)', keywords: ['similar', 'like', 'resembles', 'appears close to'] },
+        { type: 'NR-0', symbol: '(associated with)', abbrev: '(ass)', keywords: ['associated', 'related', 'connected'] },
+        { type: 'NR-0', symbol: '(see also)', abbrev: '(see)', keywords: ['see', 'refer', 'also', 'related'] },
+        { type: 'NR-0', symbol: '(alias)', abbrev: '(alias)', keywords: ['also called', 'known as', 'alias'] },
+        { type: 'NR-0', symbol: '(equals)', abbrev: '(=)', keywords: ['equals', 'same as', 'equivalent', 'is'] },
+        { type: 'NR-0', symbol: '(compare to)', abbrev: '(compare)', keywords: ['compare', 'contrast', 'versus'] },
+        { type: 'NR-0', symbol: '(is not)', abbrev: '(!eq)', keywords: ['not', 'different', 'unlike', 'isn\'t'] },
+
+        // LT-1: Leads To (causality, processes)
+        { type: 'LT-1', symbol: '(leads to)', abbrev: '(fwd)', keywords: ['leads', 'causes', 'results', 'produces', 'brings about'] },
+        { type: 'LT-1', symbol: '(causes)', abbrev: '(cause)', keywords: ['causes', 'triggers', 'initiates', 'starts'] },
+        { type: 'LT-1', symbol: '(creates)', abbrev: '(cr)', keywords: ['creates', 'generates', 'makes', 'builds'] },
+        { type: 'LT-1', symbol: '(results in)', abbrev: '(result)', keywords: ['results', 'ends', 'concludes', 'becomes'] },
+        { type: 'LT-1', symbol: '(enables)', abbrev: '(enables)', keywords: ['enables', 'allows', 'permits', 'facilitates'] },
+        { type: 'LT-1', symbol: '(affects)', abbrev: '(aff)', keywords: ['affects', 'impacts', 'influences', 'changes'] },
+        { type: 'LT-1', symbol: '(precedes)', abbrev: '(prec)', keywords: ['precedes', 'before', 'prior', 'earlier'] },
+        { type: 'LT-1', symbol: '(comes from)', abbrev: '(bwd)', keywords: ['from', 'derives', 'originates', 'stems'] },
+        { type: 'LT-1', symbol: '(determines)', abbrev: '(det)', keywords: ['determines', 'decides', 'controls', 'defines'] },
+
+        // CN-2: Contains (composition, part-whole)
+        { type: 'CN-2', symbol: '(contains)', abbrev: '(contain)', keywords: ['contains', 'includes', 'has', 'comprises'] },
+        { type: 'CN-2', symbol: '(is a part of)', abbrev: '(pt-of)', keywords: ['part of', 'within', 'inside', 'component of'] },
+        { type: 'CN-2', symbol: '(consists of)', abbrev: '(consists)', keywords: ['consists', 'made up', 'composed'] },
+        { type: 'CN-2', symbol: '(belongs to)', abbrev: '(belong)', keywords: ['belongs', 'member', 'element'] },
+        { type: 'CN-2', symbol: '(has component)', abbrev: '(has-cmpt)', keywords: ['component', 'piece', 'section'] },
+        { type: 'CN-2', symbol: '(is a set of)', abbrev: '(setof)', keywords: ['set', 'collection', 'group'] },
+
+        // EP-3: Expresses/Properties (attributes, descriptions)
+        { type: 'EP-3', symbol: '(expresses)', abbrev: '(expr)', keywords: ['expresses', 'shows', 'demonstrates', 'reveals'] },
+        { type: 'EP-3', symbol: '(note)', abbrev: '(note)', keywords: ['note', 'remark', 'comment', 'annotation'] },
+        { type: 'EP-3', symbol: '(defined as)', abbrev: '(def)', keywords: ['defined', 'means', 'definition', 'is defined'] },
+        { type: 'EP-3', symbol: '(has example)', abbrev: '(e.g.)', keywords: ['example', 'instance', 'such as', 'for example'] },
+        { type: 'EP-3', symbol: '(is about)', abbrev: '(about)', keywords: ['about', 'concerning', 'regarding', 'topic'] },
+        { type: 'EP-3', symbol: '(has attribute)', abbrev: '(attr)', keywords: ['attribute', 'property', 'characteristic', 'feature'] },
+        { type: 'EP-3', symbol: '(has feature)', abbrev: '(feat)', keywords: ['feature', 'aspect', 'quality'] },
+        { type: 'EP-3', symbol: '(describes)', abbrev: '(descr)', keywords: ['describes', 'explains', 'details'] },
+
+        // Special annotations
+        { type: 'Special', symbol: '(is a special case of)', abbrev: '(**)', keywords: ['special case', 'exception', 'specific'] },
+        { type: 'Special', symbol: '(is an example of)', abbrev: '(>>)', keywords: ['example of', 'instance of', 'exemplifies'] },
+        { type: 'Special', symbol: '(discusses)', abbrev: '(%)', keywords: ['discusses', 'talks about', 'addresses'] },
+        { type: 'Special', symbol: '(involves)', abbrev: '(=)', keywords: ['involves', 'includes', 'entails'] }
       ];
 
       let menuHTML = '';
+
+      // Check if this arrow is invalid and show error message
+      const isValid = arrowSpan.dataset.valid === 'true';
+      if (!isValid && isParenthetical)
+      {
+        menuHTML += '<div style="background: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 0.75rem; border-left: 4px solid #dc2626;">' +
+          '<div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.25rem;">⚠️ Invalid N4L Arrow</div>' +
+          '<div style="font-size: 0.75rem; line-height: 1.4;">This arrow is not recognized in the N4L configuration. ' +
+          'Please select a valid arrow from the list below or the N4L parser will report an error.</div>' +
+          '</div>';
+      }
 
       if (isParenthetical)
       {
@@ -238,69 +388,125 @@ fetch('/src/app.html')
           });
         });
 
-        menuHTML += '<div style="font-weight: 600; color: #0369a1; margin-bottom: 0.5rem; font-size: 0.875rem;">Replace with arrow:</div>';
+        menuHTML += '<div style="font-weight: 700; color: #0369a1; margin-bottom: 0.75rem; font-size: 0.875rem; border-bottom: 2px solid #38bdf8; padding-bottom: 0.5rem;">Replace with N4L Arrow:</div>';
 
         // Show suggested arrows first
         if (suggestedArrows.length > 0)
         {
-          menuHTML += '<div style="color: #16a34a; font-size: 0.75rem; margin-bottom: 0.25rem; font-weight: 500;">✓ Suggested:</div>';
+          menuHTML += '<div style="color: #16a34a; font-size: 0.75rem; margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase;">✓ Suggested Matches:</div>';
           suggestedArrows.forEach(function (arr)
           {
-            menuHTML += '<div class="arrow-menu-item" style="padding: 0.4rem 0.5rem; cursor: pointer; border-radius: 0.25rem; font-size: 0.875rem; display: flex; justify-content: space-between; align-items: center; background: #f0fdf4;" ' +
+            menuHTML += '<div class="arrow-menu-item" style="padding: 0.5rem; cursor: pointer; border-radius: 0.375rem; font-size: 0.875rem; margin-bottom: 0.25rem; background: #f0fdf4; border-left: 3px solid #22c55e;" ' +
               'onmouseover="this.style.background=\'#dcfce7\'" ' +
               'onmouseout="this.style.background=\'#f0fdf4\'" ' +
-              'onclick="replaceArrow(\'' + arrow.replace(/'/g, "\\'") + '\', \'' + arr.symbol + '\', this.closest(\'.arrow-menu\'))">' +
-              '<span style="font-family: monospace; color: #0369a1; font-weight: 600;">' + arr.symbol + '</span>' +
-              '<span style="color: #64748b;">' + arr.name + '</span>' +
+              'onclick="replaceArrow(\'' + arrow.replace(/'/g, "\\'") + '\', \'' + arr.symbol.replace(/'/g, "\\'") + '\', this.closest(\'.arrow-menu\'))">' +
+              '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+              '<span style="font-family: monospace; color: #0369a1; font-weight: 600; flex: 1;">' + arr.symbol + '</span>' +
+              '<span style="font-size: 0.75rem; color: #64748b; margin-left: 0.5rem;">' + arr.abbrev + '</span>' +
+              '</div>' +
+              '<div style="font-size: 0.7rem; color: #059669; margin-top: 0.25rem;">Type: ' + arr.type + '</div>' +
               '</div>';
           });
 
-          menuHTML += '<div style="color: #64748b; font-size: 0.75rem; margin: 0.5rem 0 0.25rem; font-weight: 500;">Other options:</div>';
+          menuHTML += '<div style="color: #64748b; font-size: 0.75rem; margin: 0.75rem 0 0.5rem; font-weight: 600; text-transform: uppercase;">Browse All Arrows:</div>';
         }
 
-        // Show other arrows
+        // Group other arrows by type
+        const arrowsByType = {};
         const otherArrows = suggestedArrows.length > 0
           ? allArrows.filter(function (arr) { return !suggestedArrows.includes(arr); })
           : allArrows;
 
         otherArrows.forEach(function (arr)
         {
-          menuHTML += '<div class="arrow-menu-item" style="padding: 0.4rem 0.5rem; cursor: pointer; border-radius: 0.25rem; font-size: 0.875rem; display: flex; justify-content: space-between; align-items: center;" ' +
-            'onmouseover="this.style.background=\'#e0f2fe\'" ' +
-            'onmouseout="this.style.background=\'white\'" ' +
-            'onclick="replaceArrow(\'' + arrow.replace(/'/g, "\\'") + '\', \'' + arr.symbol + '\', this.closest(\'.arrow-menu\'))">' +
-            '<span style="font-family: monospace; color: #0369a1; font-weight: 600;">' + arr.symbol + '</span>' +
-            '<span style="color: #64748b;">' + arr.name + '</span>' +
-            '</div>';
+          if (!arrowsByType[arr.type]) arrowsByType[arr.type] = [];
+          arrowsByType[arr.type].push(arr);
+        });
+
+        // Display arrows grouped by type
+        const typeOrder = ['NR-0', 'LT-1', 'CN-2', 'EP-3', 'Special'];
+        const typeNames = {
+          'NR-0': '🔗 Similarity (Non-directional)',
+          'LT-1': '➡️ Causality (Leads To)',
+          'CN-2': '📦 Composition (Contains)',
+          'EP-3': '🏷️ Properties (Expresses)',
+          'Special': '⭐ Special Annotations'
+        };
+
+        typeOrder.forEach(function (type)
+        {
+          if (arrowsByType[type] && arrowsByType[type].length > 0)
+          {
+            menuHTML += '<div style="font-size: 0.7rem; color: #475569; margin: 0.75rem 0 0.25rem; font-weight: 600;">' + typeNames[type] + '</div>';
+            arrowsByType[type].forEach(function (arr)
+            {
+              menuHTML += '<div class="arrow-menu-item" style="padding: 0.4rem 0.5rem; cursor: pointer; border-radius: 0.25rem; font-size: 0.8rem; margin-bottom: 0.15rem;" ' +
+                'onmouseover="this.style.background=\'#e0f2fe\'" ' +
+                'onmouseout="this.style.background=\'white\'" ' +
+                'onclick="replaceArrow(\'' + arrow.replace(/'/g, "\\'") + '\', \'' + arr.symbol.replace(/'/g, "\\'") + '\', this.closest(\'.arrow-menu\'))">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                '<span style="font-family: monospace; color: #0369a1; font-weight: 500; font-size: 0.75rem;">' + arr.symbol + '</span>' +
+                '<span style="font-size: 0.65rem; color: #94a3b8;">' + arr.abbrev + '</span>' +
+                '</div>' +
+                '</div>';
+            });
+          }
         });
       }
       else
       {
-        // For arrow symbols, show options to change to other arrows
-        menuHTML += '<div style="font-weight: 600; color: #0369a1; margin-bottom: 0.5rem; font-size: 0.875rem;">Change arrow:</div>';
+        // For arrow symbols, show options to change to other arrows grouped by type
+        menuHTML += '<div style="font-weight: 700; color: #0369a1; margin-bottom: 0.75rem; font-size: 0.875rem; border-bottom: 2px solid #38bdf8; padding-bottom: 0.5rem;">Change N4L Arrow:</div>';
 
+        // Group arrows by type
+        const arrowsByType = {};
         allArrows.forEach(function (arr)
         {
           if (arr.symbol !== arrow)
           {
-            menuHTML += '<div class="arrow-menu-item" style="padding: 0.4rem 0.5rem; cursor: pointer; border-radius: 0.25rem; font-size: 0.875rem; display: flex; justify-content: space-between; align-items: center;" ' +
-              'onmouseover="this.style.background=\'#e0f2fe\'" ' +
-              'onmouseout="this.style.background=\'white\'" ' +
-              'onclick="replaceArrow(\'' + arrow.replace(/'/g, "\\'") + '\', \'' + arr.symbol + '\', this.closest(\'.arrow-menu\'))">' +
-              '<span style="font-family: monospace; color: #0369a1; font-weight: 600;">' + arr.symbol + '</span>' +
-              '<span style="color: #64748b;">' + arr.name + '</span>' +
-              '</div>';
+            if (!arrowsByType[arr.type]) arrowsByType[arr.type] = [];
+            arrowsByType[arr.type].push(arr);
+          }
+        });
+
+        const typeOrder = ['NR-0', 'LT-1', 'CN-2', 'EP-3', 'Special'];
+        const typeNames = {
+          'NR-0': '🔗 Similarity (NR-0)',
+          'LT-1': '➡️ Causality (LT-1)',
+          'CN-2': '📦 Composition (CN-2)',
+          'EP-3': '🏷️ Properties (EP-3)',
+          'Special': '⭐ Special'
+        };
+
+        typeOrder.forEach(function (type)
+        {
+          if (arrowsByType[type] && arrowsByType[type].length > 0)
+          {
+            menuHTML += '<div style="font-size: 0.7rem; color: #475569; margin: 0.75rem 0 0.25rem; font-weight: 600;">' + typeNames[type] + '</div>';
+            arrowsByType[type].forEach(function (arr)
+            {
+              menuHTML += '<div class="arrow-menu-item" style="padding: 0.4rem 0.5rem; cursor: pointer; border-radius: 0.25rem; font-size: 0.8rem; margin-bottom: 0.15rem;" ' +
+                'onmouseover="this.style.background=\'#e0f2fe\'" ' +
+                'onmouseout="this.style.background=\'white\'" ' +
+                'onclick="replaceArrow(\'' + arrow.replace(/'/g, "\\'") + '\', \'' + arr.symbol.replace(/'/g, "\\'") + '\', this.closest(\'.arrow-menu\'))">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                '<span style="font-family: monospace; color: #0369a1; font-weight: 500; font-size: 0.75rem;">' + arr.symbol + '</span>' +
+                '<span style="font-size: 0.65rem; color: #94a3b8;">' + arr.abbrev + '</span>' +
+                '</div>' +
+                '</div>';
+            });
           }
         });
       }
 
-      menuHTML += '<hr style="margin: 0.5rem 0; border-color: #e2e8f0;">';
-      menuHTML += '<div class="arrow-menu-item" style="padding: 0.4rem 0.5rem; cursor: pointer; border-radius: 0.25rem; color: #dc2626; font-size: 0.875rem; font-weight: 500;" ' +
+      menuHTML += '<hr style="margin: 0.75rem 0; border-color: #e2e8f0;">';
+      menuHTML += '<div class="arrow-menu-item" style="padding: 0.5rem; cursor: pointer; border-radius: 0.375rem; color: #dc2626; font-size: 0.875rem; font-weight: 600; text-align: center;" ' +
         'onmouseover="this.style.background=\'#fee2e2\'" ' +
         'onmouseout="this.style.background=\'white\'" ' +
         'onclick="deleteArrow(\'' + arrowSpan.dataset.arrow.replace(/'/g, "\\'") + '\', this.closest(\'.arrow-menu\'))">🗑️ Delete entire line</div>';
 
       menu.innerHTML = menuHTML;
+
 
       // Position menu near the arrow
       const rect = arrowSpan.getBoundingClientRect();
