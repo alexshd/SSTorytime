@@ -1,3 +1,4 @@
+// Package web provides HTTP handlers for the N4L text conversion API
 package web
 
 import (

@@ -72,6 +72,7 @@ function initEditor()
     inputPreview: document.querySelector('#input-preview'),
     outputEditorContainer: document.querySelector('#output-editor-container'),
     convertBtn: document.querySelector('#convert-btn'),
+    cancelBtn: document.querySelector('#cancel-btn'),
     copyBtn: document.querySelector('#copy-btn'),
     uploadBtn: document.querySelector('#upload-btn'),
     fileInput: document.querySelector('#file-input'),
@@ -81,7 +82,13 @@ function initEditor()
     sessionIndicator: document.querySelector('#session-indicator'),
     statusMessage: document.querySelector('#status-message'),
     titleSection: document.querySelector('#title-section'),
+    processingIndicator: document.querySelector('#processing-indicator'),
+    processingDots: document.querySelector('#processing-dots'),
   };
+
+  // Global state for cancellation
+  state.abortController = null;
+  state.dotsInterval = null;
 
   // Initialize CodeMirror editor with proper line numbers
   n4lEditor = new N4LEditor(elements.outputEditorContainer);
@@ -125,6 +132,7 @@ function setupModeUI(elements)
 function setupEventListeners(elements)
 {
   elements.convertBtn.addEventListener('click', () => convertText(elements));
+  elements.cancelBtn.addEventListener('click', () => cancelConversion(elements));
   elements.copyBtn.addEventListener('click', () => copyToClipboard(elements));
   elements.uploadBtn.addEventListener('click', () => elements.fileInput.click());
   elements.fileInput.addEventListener('change', (e) => handleFileSelect(e, elements));
@@ -150,26 +158,62 @@ async function convertText(elements)
     return;
   }
 
+  // Create new abort controller for this conversion
+  state.abortController = new AbortController();
+
+  // Disable convert button, enable cancel button
   elements.convertBtn.disabled = true;
+  elements.convertBtn.classList.add('hidden');
+  elements.cancelBtn.classList.remove('hidden');
+
+  // Show processing indicator with animated dots
+  elements.processingIndicator.style.display = 'flex';
+  startDotsAnimation(elements);
+
   showStatus('Converting...', false, elements);
+
+  // Clear previous output and prepare for streaming
+  n4lEditor.setContent('');
+  let accumulatedText = '';
 
   try
   {
     const formData = new URLSearchParams();
     formData.append('text', text);
 
-    const response = await fetch('http://localhost:8080/api/convert', {
+    // Use streaming endpoint
+    const response = await fetch('http://localhost:8080/api/convert/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData
+      body: formData,
+      signal: state.abortController.signal
     });
 
     if (!response.ok) throw new Error('Conversion failed');
 
-    const n4lText = await response.text();
+    // Read the response as a stream
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
-    // Set content in CodeMirror editor
-    n4lEditor.setContent(n4lText);
+    while (true)
+    {
+      const { done, value } = await reader.read();
+
+      if (done)
+      {
+        break;
+      }
+
+      // Decode the chunk and append to accumulated text
+      const chunk = decoder.decode(value, { stream: true });
+      accumulatedText += chunk;
+
+      // Update the editor with the accumulated content
+      n4lEditor.setContent(accumulatedText);
+
+      // Update status with streaming indicator
+      showStatus('Receiving results...', false, elements);
+    }
 
     elements.copyBtn.disabled = false;
     elements.saveBtn.disabled = false;
@@ -178,10 +222,56 @@ async function convertText(elements)
     saveCurrentSession(elements);
   } catch (error)
   {
-    showStatus('Error: ' + error.message, true, elements);
+    if (error.name === 'AbortError')
+    {
+      showStatus('Conversion cancelled by user', true, elements);
+    } else
+    {
+      showStatus('Error: ' + error.message, true, elements);
+    }
   } finally
   {
+    // Clean up: re-enable convert, hide cancel, hide spinner
     elements.convertBtn.disabled = false;
+    elements.convertBtn.classList.remove('hidden');
+    elements.cancelBtn.classList.add('hidden');
+    elements.processingIndicator.style.display = 'none';
+    stopDotsAnimation();
+    state.abortController = null;
+  }
+}
+
+function cancelConversion(elements)
+{
+  if (!state.abortController)
+  {
+    return; // Nothing to cancel
+  }
+
+  // Show confirmation dialog
+  if (confirm('Are you sure you want to cancel the conversion?'))
+  {
+    state.abortController.abort();
+    showStatus('Cancelling conversion...', false, elements);
+  }
+}
+
+function startDotsAnimation(elements)
+{
+  let dotCount = 0;
+  state.dotsInterval = setInterval(() =>
+  {
+    dotCount = (dotCount + 1) % 4;
+    elements.processingDots.textContent = '.'.repeat(dotCount === 0 ? 3 : dotCount);
+  }, 500);
+}
+
+function stopDotsAnimation()
+{
+  if (state.dotsInterval)
+  {
+    clearInterval(state.dotsInterval);
+    state.dotsInterval = null;
   }
 }
 

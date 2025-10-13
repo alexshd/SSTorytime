@@ -116,41 +116,50 @@ func Sanitize(s string) string {
 	return replacer.Replace(s)
 }
 
+// Pre-compiled regexes for CleanText (initialized once)
+var (
+	cleanTextHTMLTagRE       = regexp.MustCompile(`<[^>]*>`)
+	cleanTextSentenceEndRE   = regexp.MustCompile(`([?!.。]+[ \n])`)
+	cleanTextEllipsisRE      = regexp.MustCompile(`([.][.][.])+`)
+	cleanTextEmDashRE        = regexp.MustCompile(`[—]+`)
+	cleanTextDoubleNewlineRE = regexp.MustCompile(`[\n][\n]`)
+	cleanTextMultiNewlineRE  = regexp.MustCompile(`[\n]+`)
+
+	// Replacer for multiple simple string replacements (faster than individual ReplaceAll calls)
+	cleanTextReplacer = strings.NewReplacer(
+		"Mr.", "Mr",
+		"Ms.", "Ms",
+		"Mrs.", "Mrs",
+		"Dr.", "Dr",
+		"St.", "St",
+		"[", "",
+		"]", "",
+	)
+)
+
 // CleanText preprocesses text to prepare for fractionation - matches CLI algorithm
 func CleanText(s string) string {
 	// Strip HTML/XML tags first
-	tagRE := regexp.MustCompile(`<[^>]*>`)
-	s = tagRE.ReplaceAllString(s, ":\n")
+	s = cleanTextHTMLTagRE.ReplaceAllString(s, ":\n")
 
-	// Handle English abbreviations that end with periods
-	s = strings.ReplaceAll(s, "Mr.", "Mr")
-	s = strings.ReplaceAll(s, "Ms.", "Ms")
-	s = strings.ReplaceAll(s, "Mrs.", "Mrs")
-	s = strings.ReplaceAll(s, "Dr.", "Dr")
-	s = strings.ReplaceAll(s, "St.", "St")
-	s = strings.ReplaceAll(s, "[", "")
-	s = strings.ReplaceAll(s, "]", "")
+	// Handle English abbreviations and brackets using Replacer (more efficient)
+	s = cleanTextReplacer.Replace(s)
+
+	// Handle ellipsis before sentence marking to avoid conflicts
+	s = cleanTextEllipsisRE.ReplaceAllString(s, "---")
+
+	// Handle em-dash
+	s = cleanTextEmDashRE.ReplaceAllString(s, ", ")
+
+	// Mark paragraphs with >> (must be before sentence marking to preserve structure)
+	s = cleanTextDoubleNewlineRE.ReplaceAllString(s, ">>\n")
 
 	// Mark sentence boundaries with # for later splitting
 	// Match end of sentence punctuation followed by space or newline
-	sentenceEndRE := regexp.MustCompile(`([?!.。]+[ \n])`)
-	s = sentenceEndRE.ReplaceAllString(s, "$0#")
+	s = cleanTextSentenceEndRE.ReplaceAllString(s, "$0#")
 
-	// Handle ellipsis
-	ellipsisRE := regexp.MustCompile(`([.][.][.])+`)
-	s = ellipsisRE.ReplaceAllString(s, "---")
-
-	// Handle em-dash
-	emDashRE := regexp.MustCompile(`[—]+`)
-	s = emDashRE.ReplaceAllString(s, ", ")
-
-	// Mark paragraphs with >>
-	doubleNewlineRE := regexp.MustCompile(`[\n][\n]`)
-	s = doubleNewlineRE.ReplaceAllString(s, ">>\n")
-
-	// Consolidate spurious newlines
-	multiNewlineRE := regexp.MustCompile(`[\n]+`)
-	s = multiNewlineRE.ReplaceAllString(s, " ")
+	// Consolidate spurious newlines (after all other processing)
+	s = cleanTextMultiNewlineRE.ReplaceAllString(s, " ")
 
 	return s
 }

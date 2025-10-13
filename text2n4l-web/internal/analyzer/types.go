@@ -1,5 +1,4 @@
-// Package analyzer provides text analysis and N4L conversion functionality.package analyzer
-
+// Package analyzer provides text analysis and N4L conversion functionality.
 // This is a clean refactor of the core analysis logic extracted from the monolithic SSTorytime package.
 package analyzer
 

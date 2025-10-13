@@ -14,6 +14,7 @@ func main() {
 
 	// API endpoints
 	mux.HandleFunc("/api/convert", web.ConvertHandler)
+	mux.HandleFunc("/api/convert/stream", web.StreamingConvertHandler)
 
 	// Profiling endpoints (accessible at /debug/pprof/)
 	// For CPU profiling: curl http://localhost:8080/debug/pprof/profile?seconds=30 -o cpu.prof
@@ -24,7 +25,8 @@ func main() {
 	port := ":8080"
 	fmt.Printf("N4L API server starting on http://localhost%s\n", port)
 	fmt.Println("API Endpoints:")
-	fmt.Println("  POST /api/convert - Convert text to N4L format")
+	fmt.Println("  POST /api/convert - Convert text to N4L format (buffered)")
+	fmt.Println("  POST /api/convert/stream - Convert text to N4L format (streaming)")
 	fmt.Println("Profiling Endpoints:")
 	fmt.Println("  GET /debug/pprof/ - Profiling index")
 	fmt.Println("  GET /debug/pprof/profile - CPU profile")

@@ -2,89 +2,194 @@
 
 # (begin) ************
 
- :: ## headers and, ### more content ::
+ :: **formatting** that needs, **markdown bold** and ::
 
 @sen0   This is markdown content with emphasis and inline code.
-              " (extract/quote from) part 0 of markdown_sample with ## headers and, ### more content
-              " (appears close to) ## headers and
-              " (appears close to) ### more content
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
               " (appears close to) - item one
               " (appears close to) - item three
               " (appears close to) - item two
               " (appears close to) > blockquote with
               " (appears close to) > that should
-              " (appears close to) and code spans
               " (appears close to) - item
-              " (appears close to) emphasis and
-              " (appears close to) ## headers
-              " (appears close to) ### more
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
               " (appears close to) > blockquote
               " (appears close to) > that
-              " (appears close to) and code
-              " (appears close to) and inline
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
               " (appears close to) with
               " (appears close to) and
 
-@sen1   Headers and Lists - Item one with link - Item two with image - Item three with HTML tags go func example[] { fmt.Println["code block"] } > Blockquote with multiple lines > that should be cleaned up ### More Content This paragraph has various formatting that needs to be stripped during sanitization.
-              " (extract/quote from) part 0 of markdown_sample with ## headers and, ### more content
-              " (appears close to) ## headers and
-              " (appears close to) ### more content
+@sen1   Headers and Lists
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
               " (appears close to) - item one
               " (appears close to) - item three
               " (appears close to) - item two
               " (appears close to) > blockquote with
               " (appears close to) > that should
-              " (appears close to) and code spans
               " (appears close to) - item
-              " (appears close to) emphasis and
-              " (appears close to) ## headers
-              " (appears close to) ### more
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
               " (appears close to) > blockquote
               " (appears close to) > that
-              " (appears close to) and code
-              " (appears close to) and inline
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
               " (appears close to) with
               " (appears close to) and
 
-@sen2   The important thing is that the semantic content remains while the markup is removed.
-              " (extract/quote from) part 0 of markdown_sample with ## headers and, ### more content
-              " (appears close to) ## headers and
-              " (appears close to) ### more content
+@sen2   - Item one with link[https://example.com] - Item two with !image[image.png "alt text"] - Item three with : HTML tags:
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
               " (appears close to) - item one
               " (appears close to) - item three
               " (appears close to) - item two
               " (appears close to) > blockquote with
               " (appears close to) > that should
-              " (appears close to) and code spans
               " (appears close to) - item
-              " (appears close to) emphasis and
-              " (appears close to) ## headers
-              " (appears close to) ### more
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
               " (appears close to) > blockquote
               " (appears close to) > that
-              " (appears close to) and code
-              " (appears close to) and inline
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
               " (appears close to) with
               " (appears close to) and
 
-@sen3   Final paragraph with mixed content: HTML emphasis and markdown bold and code spans.
-              " (extract/quote from) part 0 of markdown_sample with ## headers and, ### more content
-              " (appears close to) ## headers and
-              " (appears close to) ### more content
+@sen3   go func example[] { fmt.Println["code block"] }
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
               " (appears close to) - item one
               " (appears close to) - item three
               " (appears close to) - item two
               " (appears close to) > blockquote with
               " (appears close to) > that should
-              " (appears close to) and code spans
               " (appears close to) - item
-              " (appears close to) emphasis and
-              " (appears close to) ## headers
-              " (appears close to) ### more
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
               " (appears close to) > blockquote
               " (appears close to) > that
-              " (appears close to) and code
-              " (appears close to) and inline
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
+              " (appears close to) with
+              " (appears close to) and
+
+@sen4   Blockquote with multiple lines > that should be cleaned up
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
+              " (appears close to) - item one
+              " (appears close to) - item three
+              " (appears close to) - item two
+              " (appears close to) > blockquote with
+              " (appears close to) > that should
+              " (appears close to) - item
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
+              " (appears close to) > blockquote
+              " (appears close to) > that
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
+              " (appears close to) with
+              " (appears close to) and
+
+@sen5   More Content
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
+              " (appears close to) - item one
+              " (appears close to) - item three
+              " (appears close to) - item two
+              " (appears close to) > blockquote with
+              " (appears close to) > that should
+              " (appears close to) - item
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
+              " (appears close to) > blockquote
+              " (appears close to) > that
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
+              " (appears close to) with
+              " (appears close to) and
+
+@sen6   This paragraph has various formatting that needs to be stripped during sanitization.
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
+              " (appears close to) - item one
+              " (appears close to) - item three
+              " (appears close to) - item two
+              " (appears close to) > blockquote with
+              " (appears close to) > that should
+              " (appears close to) - item
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
+              " (appears close to) > blockquote
+              " (appears close to) > that
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
+              " (appears close to) with
+              " (appears close to) and
+
+@sen7   The important thing is that the semantic content remains while the markup is removed.
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
+              " (appears close to) - item one
+              " (appears close to) - item three
+              " (appears close to) - item two
+              " (appears close to) > blockquote with
+              " (appears close to) > that should
+              " (appears close to) - item
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
+              " (appears close to) > blockquote
+              " (appears close to) > that
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
+              " (appears close to) with
+              " (appears close to) and
+
+@sen8   Final paragraph with mixed content: : HTML emphasis: and markdown bold and code spans.
+              " (extract/quote from) part 0 of markdown_sample with **formatting** that needs, **markdown bold** and
+              " (appears close to) **formatting** that needs
+              " (appears close to) **markdown bold** and
+              " (appears close to) **markdown** content with
+              " (appears close to) - item one
+              " (appears close to) - item three
+              " (appears close to) - item two
+              " (appears close to) > blockquote with
+              " (appears close to) > that should
+              " (appears close to) - item
+              " (appears close to) **formatting** that
+              " (appears close to) **markdown bold**
+              " (appears close to) **markdown** content
+              " (appears close to) > blockquote
+              " (appears close to) > that
+              " (appears close to) _emphasis_ and
+              " (appears close to) _important thing_
               " (appears close to) with
               " (appears close to) and
 
@@ -92,5 +197,5 @@
 
 # Final fraction 100.00 of requested 0.80
 
-# Selected 4 samples of 4: 0 1 2 3 
+# Selected 9 samples of 9: 0 1 2 3 4 5 6 7 8 
 #
