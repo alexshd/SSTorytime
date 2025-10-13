@@ -1,28 +1,63 @@
-@import "https://unpkg.com/open-props";
-@import "https://unpkg.com/open-props/normalize.light.min.css";
-@import "https://unpkg.com/open-props/buttons.light.min.css";
 @import "tailwindcss";
+
+/* Resizable panel sections */
+#input-section {
+  resize: horizontal;
+  overflow: hidden;
+}
+
+#input-section::-webkit-resizer {
+  border: 2px solid #3b82f6;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(90deg, transparent 50%, #3b82f6 50%);
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+}
+
+/* Line numbers styling */
+#line-numbers {
+  line-height: 1.5;
+  font-size: 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: none;
+}
+
+#line-numbers div {
+  padding-right: 0.5rem;
+  line-height: 1.5;
+  height: auto;
+  white-space: pre;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: block;
+}
 
 /* Make output area resizable */
 #output-area {
   white-space: pre-wrap;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
-  resize: vertical !important;
+  line-height: 1.5;
+  font-size: 1rem;
   overflow: auto !important;
   display: block !important;
-}
-
-/* Ensure resize handle is visible */
-#output-area::-webkit-resizer {
-  border: 2px solid #94a3b8;
-  border-radius: 0 0 4px 0;
-  background: linear-gradient(135deg, transparent 50%, #94a3b8 50%);
+  padding-top: 0.75rem; /* Match line numbers */
+  padding-bottom: 0.75rem;
 }
 
 #input-text {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
+  line-height: 1.5;
 }
 
 /* Placeholder for contenteditable output area */
@@ -158,4 +193,36 @@
 }
 .n4l-arrow-highlight:hover .n4l-arrow-tooltip {
   display: block;
+}
+
+/* Landing page animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Smooth gradient text */
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
 }

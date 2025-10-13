@@ -2,76 +2,84 @@
   <div class="max-w-full mx-auto h-full">
     <div id="title-section" class="text-center align-baseline min-w-full mb-2"></div>
     <div class="shadow-lg rounded-lg p-3 h-full">
-      <div class="grid grid-cols-1 min-h-full lg:grid-cols-2 gap-3">
+      <!-- Status and session indicator - positioned absolutely to not affect layout -->
+      <div class="relative">
+        <div class="absolute top-0 right-0 z-10">
+          <span
+            id="session-indicator"
+            class="hidden text-[10px] text-green-600 bg-white px-2 py-1 rounded shadow-sm"
+            >💾 Auto-saved</span
+          >
+        </div>
+      </div>
+      <div class="flex min-h-full gap-3">
         <!-- Input Section -->
-        <div class="flex flex-col h-full">
+        <div
+          id="input-section"
+          class="flex flex-col h-full"
+          style="
+            width: 50%;
+            resize: horizontal;
+            overflow: auto;
+            min-width: 200px;
+            max-width: 80%;
+          ">
           <div class="pb-4 flex flex-row gap-1.5">
             <input type="file" id="file-input" class="hidden" />
             <button
               id="upload-btn"
-              class="flex-1 py-1.5 px-3 text-sm rounded focus:ring-2 focus:ring-offset-1 transition-colors">
+              class="m-1 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
               📁 Upload
             </button>
             <button
               id="convert-btn"
-              class="flex-1 py-1.5 px-3 text-sm rounded focus:ring-2 focus:ring-offset-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              class="m-1 text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed">
               ▶ Convert
             </button>
             <button
               id="arrows-btn"
-              class="flex-1 py-1.5 px-3 text-sm rounded focus:ring-2 focus:ring-offset-1 transition-colors"
+              class="m-1 text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               title="Show N4L Arrow Validation Guide">
               🏹 Arrows
             </button>
           </div>
           <div
             id="input-preview"
-            class="hidden flex-1 w-full p-3 border border-gray-300 rounded shadow-sm overflow-y-auto bg-white"
-            style="
-              min-height: calc(100vh - 160px);
-              max-height: calc(100vh - 100px);
-            "></div>
+            class="hidden w-full p-3 border border-gray-300 rounded shadow-sm overflow-y-auto bg-white"
+            style="height: calc(100vh - 200px)"></div>
           <textarea
             id="input-text"
-            class="flex-1 w-full p-3 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none overflow-y-auto"
-            style="min-height: calc(100vh - 160px); max-height: calc(100vh - 100px)"
+            class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none overflow-y-auto"
+            style="height: calc(100vh - 200px)"
             placeholder="Input Text - Enter text, upload HTML, or Markdown here..."></textarea>
         </div>
         <!-- Output Section -->
-        <div class="flex flex-col h-full">
+        <div class="flex flex-col h-full flex-1" style="min-width: 200px">
           <div class="pb-4 flex flex-row gap-1.5">
             <button
               id="copy-btn"
-              class="flex-1 py-1.5 px-3 text-sm rounded focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="m-1 text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed"
               disabled>
               📋 Copy
             </button>
             <button
               id="save-btn"
-              class="flex-1 py-1.5 px-3 text-sm rounded focus:ring-2 focus:ring-green-500 focus:ring-offset-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="m-1 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed"
               disabled>
               💾 Save
             </button>
             <button
               id="clear-session-btn"
-              class="flex-1 py-1.5 px-3 text-sm rounded focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600"
-              title="Clear saved session">
+              class="m-1 text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+              title="Clear session and reset editor">
               🗑️ Clear
             </button>
           </div>
-          <div class="flex items-center justify-end mb-1">
-            <span id="session-indicator" class="hidden text-[10px] text-green-600"
-              >💾 Auto-saved</span
-            >
-          </div>
+          <!-- Output area with CodeMirror editor (has built-in line numbers) -->
           <div
-            id="output-area"
-            class="flex-1 w-full p-3 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 overflow-y-auto bg-white outline-none resize-y"
-            contenteditable="true"
-            spellcheck="false"
-            style="min-height: calc(100vh - 160px); max-height: calc(100vh - 100px)"
-            data-placeholder="N4L Output (Editable) - Converted output will appear here..."
-            aria-label="N4L Output"></div>
+            id="output-editor-container"
+            class="border border-gray-300 rounded shadow-sm bg-white"
+            style="height: calc(100vh - 200px)"></div>
         </div>
       </div>
       <!-- Arrows Annotation Section -->

@@ -9,6 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.19.0",
+    "@codemirror/commands": "^6.9.0",
+    "@codemirror/gutter": "^0.19.9",
+    "@codemirror/language": "^6.11.3",
+    "@codemirror/lint": "^6.9.0",
+    "@codemirror/search": "^6.5.11",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.38.5",
+    "@lezer/highlight": "^1.2.1",
     "@tailwindcss/vite": "^4.1.14",
     "tailwindcss": "^4.1.14",
     "vite": "^7.1.9"
