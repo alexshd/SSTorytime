@@ -11,9 +11,10 @@ import (
 // N4LSkeletonOutput generates the _edit_me.n4l skeleton DSL output, matching the CLI
 func N4LSkeletonOutput(filename string, content string, percentage float64) string {
 	MemoryInit()
-	// Pre-sanitize to strip HTML/Markdown noise before fractionation
-	content = Sanitize(content)
-	// For web, fractionate content directly
+	// DON'T sanitize before fractionation - it destroys newlines needed for splitting
+	// Sanitize only happens on individual fragments during output
+
+	// Fractionate content directly
 	fragments := FractionateTextFile(content)
 	L := len(fragments)
 	if L == 0 {
@@ -115,41 +116,78 @@ func Sanitize(s string) string {
 	return replacer.Replace(s)
 }
 
+// CleanText preprocesses text to prepare for fractionation - matches CLI algorithm
+func CleanText(s string) string {
+	// Strip HTML/XML tags first
+	tagRE := regexp.MustCompile(`<[^>]*>`)
+	s = tagRE.ReplaceAllString(s, ":\n")
+
+	// Handle English abbreviations that end with periods
+	s = strings.ReplaceAll(s, "Mr.", "Mr")
+	s = strings.ReplaceAll(s, "Ms.", "Ms")
+	s = strings.ReplaceAll(s, "Mrs.", "Mrs")
+	s = strings.ReplaceAll(s, "Dr.", "Dr")
+	s = strings.ReplaceAll(s, "St.", "St")
+	s = strings.ReplaceAll(s, "[", "")
+	s = strings.ReplaceAll(s, "]", "")
+
+	// Mark sentence boundaries with # for later splitting
+	// Match end of sentence punctuation followed by space or newline
+	sentenceEndRE := regexp.MustCompile(`([?!.。]+[ \n])`)
+	s = sentenceEndRE.ReplaceAllString(s, "$0#")
+
+	// Handle ellipsis
+	ellipsisRE := regexp.MustCompile(`([.][.][.])+`)
+	s = ellipsisRE.ReplaceAllString(s, "---")
+
+	// Handle em-dash
+	emDashRE := regexp.MustCompile(`[—]+`)
+	s = emDashRE.ReplaceAllString(s, ", ")
+
+	// Mark paragraphs with >>
+	doubleNewlineRE := regexp.MustCompile(`[\n][\n]`)
+	s = doubleNewlineRE.ReplaceAllString(s, ">>\n")
+
+	// Consolidate spurious newlines
+	multiNewlineRE := regexp.MustCompile(`[\n]+`)
+	s = multiNewlineRE.ReplaceAllString(s, " ")
+
+	return s
+}
+
 // FractionateTextFile splits text into processable fragments (sentences)
+// This now matches the CLI algorithm: CleanText -> SplitIntoParaSentences
 func FractionateTextFile(content string) []string {
-	// Split by common sentence endings
-	separators := []string{". ", "! ", "? ", "\n", "\r\n"}
+	// First clean the text using CLI algorithm
+	cleanedText := CleanText(content)
 
-	fragments := []string{content}
+	// Split into paragraphs and sentences following CLI logic
+	var fragments []string
 
-	for _, sep := range separators {
-		var newFragments []string
-		for _, frag := range fragments {
-			parts := strings.Split(frag, sep)
-			for i, part := range parts {
-				part = strings.TrimSpace(part)
-				if part != "" {
-					// Add separator back except for last part
-					if i < len(parts)-1 && sep != "\n" && sep != "\r\n" {
-						part += strings.TrimSpace(sep)
-					}
-					newFragments = append(newFragments, part)
-				}
+	// Split on >> for paragraphs first
+	paras := strings.Split(cleanedText, ">>")
+
+	for _, para := range paras {
+		// Split on # for sentences (inserted by CleanText)
+		// Use regex to split on # but preserve the character before #
+		// The regex [^#]# matches any character that's not # followed by #
+		// Split preserves the character before # in the left part
+		sentenceRE := regexp.MustCompile(`[^#]#`)
+		sentences := sentenceRE.Split(para, -1)
+
+		for _, sentence := range sentences {
+			// Clean up: remove the # markers that might remain
+			sentence = strings.ReplaceAll(sentence, "#", "")
+			sentence = strings.TrimSpace(sentence)
+
+			// Filter out very short fragments
+			if len(sentence) > 2 {
+				fragments = append(fragments, sentence)
 			}
 		}
-		fragments = newFragments
 	}
 
-	// Filter out very short fragments
-	var result []string
-	for _, frag := range fragments {
-		frag = strings.TrimSpace(frag)
-		if len(frag) > 3 {
-			result = append(result, frag)
-		}
-	}
-
-	return result
+	return fragments
 }
 
 // fileAlias returns the filename without extension

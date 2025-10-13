@@ -4,10 +4,22 @@ import { getValidArrowsList } from '../lib/arrows.js';
 
 export function showArrowValidationGuide()
 {
-  const modal = createModal();
-  document.body.appendChild(modal);
+  const panel = createHelpPanel();
+  const container = document.getElementById('help-panel-container');
 
-  setTimeout(() => modal.classList.add('opacity-100'), 10);
+  if (container)
+  {
+    // Toggle visibility
+    if (container.style.display === 'none' || !container.style.display)
+    {
+      container.innerHTML = '';
+      container.appendChild(panel);
+      container.style.display = 'block';
+    } else
+    {
+      container.style.display = 'none';
+    }
+  }
 }
 
 export function createArrowMenu(arrowSpan, replaceCallback, deleteCallback)
@@ -154,6 +166,112 @@ function createModal()
 
   return modal;
 }
+
+function createHelpPanel()
+{
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 16px; max-height: 400px; overflow-y: auto;';
+
+  const allArrows = getAllArrowsData();
+  const byType = groupArrowsByType(allArrows);
+
+  panel.innerHTML = `
+    <div style="margin-bottom: 16px;">
+      <h3 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">🏹 N4L Editing Reference Guide</h3>
+      <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+        Complete reference for editing N4L files with <strong>${allArrows.length} valid arrows</strong> organized by semantic type.
+      </p>
+    </div>
+
+    <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+      <h4 style="font-weight: 600; color: #1e40af; margin-bottom: 4px;">📝 Editing Workflow</h4>
+      <ol style="color: #1e3a8a; font-size: 13px; margin-left: 20px; line-height: 1.8;">
+        <li><strong>Convert:</strong> Upload text/HTML/Markdown to generate initial N4L</li>
+        <li><strong>Edit:</strong> Click invalid arrows (red) to see suggestions and replace</li>
+        <li><strong>Enhance:</strong> Add semantic relationships using valid arrows below</li>
+        <li><strong>Validate:</strong> All arrows are checked against SSTconfig files</li>
+        <li><strong>Save:</strong> Download the validated .n4l file ready for upload</li>
+      </ol>
+    </div>
+
+    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+      <h4 style="font-weight: 600; color: #92400e; margin-bottom: 4px;">⚠️ Common Invalid Arrows</h4>
+      <p style="color: #78350f; font-size: 12px; margin-bottom: 8px;">The text2n4l converter generates natural language that needs correction:</p>
+      <table style="width: 100%; font-size: 12px; color: #78350f;">
+        <tr><td style="padding: 2px;"><code>(appears close to)</code></td><td>→</td><td><strong>(similar to)</strong></td></tr>
+        <tr><td style="padding: 2px;"><code>(is similar to)</code></td><td>→</td><td><strong>(similar to)</strong></td></tr>
+        <tr><td style="padding: 2px;"><code>(relates to)</code></td><td>→</td><td><strong>(associated with)</strong></td></tr>
+        <tr><td style="padding: 2px;"><code>(mentioned in)</code></td><td>→</td><td><strong>(is discussed in)</strong></td></tr>
+      </table>
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <h4 style="font-weight: 600; color: #374151; margin-bottom: 12px; font-size: 16px;">📚 Valid Arrow Categories</h4>
+      
+      <details style="margin-bottom: 8px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #dc2626; font-size: 14px;">
+          🔴 NR-0: Similarity & Equivalence (${byType['NR-0'].length} arrows)
+        </summary>
+        <div style="margin-top: 8px; padding-left: 8px; max-height: 200px; overflow-y: auto;">
+          ${byType['NR-0'].slice(0, 20).map(arr =>
+    `<div style="padding: 4px; font-size: 12px; font-family: monospace; color: #4b5563;">${arr.symbol}</div>`
+  ).join('')}
+          ${byType['NR-0'].length > 20 ? `<div style="padding: 4px; font-size: 11px; color: #6b7280; font-style: italic;">...and ${byType['NR-0'].length - 20} more</div>` : ''}
+        </div>
+      </details>
+
+      <details style="margin-bottom: 8px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #ea580c; font-size: 14px;">
+          🟠 LT-1: Causality & Temporal (${byType['LT-1'].length} arrows)
+        </summary>
+        <div style="margin-top: 8px; padding-left: 8px; max-height: 200px; overflow-y: auto;">
+          ${byType['LT-1'].slice(0, 20).map(arr =>
+    `<div style="padding: 4px; font-size: 12px; font-family: monospace; color: #4b5563;">${arr.symbol}</div>`
+  ).join('')}
+          ${byType['LT-1'].length > 20 ? `<div style="padding: 4px; font-size: 11px; color: #6b7280; font-style: italic;">...and ${byType['LT-1'].length - 20} more</div>` : ''}
+        </div>
+      </details>
+
+      <details style="margin-bottom: 8px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #0891b2; font-size: 14px;">
+          🔵 CN-2: Containment & Structure (${byType['CN-2'].length} arrows)
+        </summary>
+        <div style="margin-top: 8px; padding-left: 8px; max-height: 200px; overflow-y: auto;">
+          ${byType['CN-2'].slice(0, 20).map(arr =>
+    `<div style="padding: 4px; font-size: 12px; font-family: monospace; color: #4b5563;">${arr.symbol}</div>`
+  ).join('')}
+          ${byType['CN-2'].length > 20 ? `<div style="padding: 4px; font-size: 11px; color: #6b7280; font-style: italic;">...and ${byType['CN-2'].length - 20} more</div>` : ''}
+        </div>
+      </details>
+
+      <details style="margin-bottom: 8px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #7c3aed; font-size: 14px;">
+          🟣 EP-3: Expression & Properties (${byType['EP-3'].length} arrows)
+        </summary>
+        <div style="margin-top: 8px; padding-left: 8px; max-height: 200px; overflow-y: auto;">
+          ${byType['EP-3'].slice(0, 20).map(arr =>
+    `<div style="padding: 4px; font-size: 12px; font-family: monospace; color: #4b5563;">${arr.symbol}</div>`
+  ).join('')}
+          ${byType['EP-3'].length > 20 ? `<div style="padding: 4px; font-size: 11px; color: #6b7280; font-style: italic;">...and ${byType['EP-3'].length - 20} more</div>` : ''}
+        </div>
+      </details>
+    </div>
+
+    <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px; border-radius: 4px;">
+      <h4 style="font-weight: 600; color: #065f46; margin-bottom: 4px;">💡 Pro Tips</h4>
+      <ul style="color: #047857; font-size: 12px; margin-left: 20px; line-height: 1.8;">
+        <li><strong>Click any arrow</strong> in the output to validate and replace</li>
+        <li><strong>Red underlined arrows</strong> are invalid - replace them first</li>
+        <li><strong>Use suggestions</strong> - the menu shows similar valid arrows</li>
+        <li><strong>Line numbers</strong> match your source - wrapped lines keep same number</li>
+        <li><strong>Scroll sync</strong> - input and output scroll together for easy reference</li>
+      </ul>
+    </div>
+  `;
+
+  return panel;
+}
+
 
 function getAllArrowsData()
 {
