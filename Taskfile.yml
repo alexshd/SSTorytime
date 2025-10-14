@@ -2,36 +2,140 @@
 
 version: "3"
 
-vars:
-  GREETING: Hello, World!
+includes:
+  text2n4l-web:
+    taskfile: ./text2n4l-web/Taskfile.yml
+    dir: text2n4l-web
+  text2n4l-editor:
+    taskfile: ./text2n4l-editor/Taskfile.yml
+    dir: text2n4l-editor
 
 tasks:
   default:
+    desc: "Show available tasks"
     cmds:
-      - echo "{{.GREETING}}"
+      - echo "Available tasks:"
+      - task --list-all
     silent: true
 
   build:
+    desc: "Build the main project"
     cmds:
       - echo "Building the project..."
       - go build -o ./tmp/main tex
-    desc: "Build the text2n4l-web project"
     silent: true
 
+  # N4L package tasks
   n4l-build:
+    desc: "Build the N4L package"
     dir: n4l
     cmds:
-      - task build
-    desc: "Build the N4L package"
+      - task: build
 
   n4l-test:
+    desc: "Test the N4L package"
     dir: n4l
     cmds:
-      - task test
-    desc: "Test the N4L package"
+      - task: test
 
   n4l-clean:
+    desc: "Clean N4L build artifacts"
     dir: n4l
     cmds:
-      - task clean
-    desc: "Clean N4L build artifacts"
+      - task: clean
+
+  # Text2N4L-Web package tasks
+  web-build:
+    desc: "Build the text2n4l-web package"
+    dir: text2n4l-web
+    cmds:
+      - task: build
+
+  web-test:
+    desc: "Test the text2n4l-web package"
+    dir: text2n4l-web
+    cmds:
+      - task: test
+
+  web-start:
+    desc: "Start the text2n4l-web server"
+    dir: text2n4l-web
+    cmds:
+      - task: start
+
+  web-dev:
+    desc: "Start text2n4l-web development server with hot reload"
+    dir: text2n4l-web
+    cmds:
+      - task: dev
+
+  web-clean:
+    desc: "Clean text2n4l-web build artifacts"
+    dir: text2n4l-web
+    cmds:
+      - task: clean
+
+  # Text2N4L-Editor frontend tasks
+  editor-build:
+    desc: "Build the text2n4l-editor frontend"
+    dir: text2n4l-editor
+    cmds:
+      - task: build
+
+  editor-dev:
+    desc: "Start text2n4l-editor development server"
+    dir: text2n4l-editor
+    cmds:
+      - task: dev
+
+  editor-preview:
+    desc: "Preview text2n4l-editor production build"
+    dir: text2n4l-editor
+    cmds:
+      - task: preview
+
+  editor-install:
+    desc: "Install text2n4l-editor dependencies"
+    dir: text2n4l-editor
+    cmds:
+      - task: install
+
+  editor-clean:
+    desc: "Clean text2n4l-editor build artifacts"
+    dir: text2n4l-editor
+    cmds:
+      - task: clean
+
+  # Combined tasks
+  build-all:
+    desc: "Build all packages"
+    cmds:
+      - task: build
+      - task: n4l-build
+      - task: web-build
+      - task: editor-build
+
+  test-all:
+    desc: "Test all packages"
+    cmds:
+      - task: n4l-test
+      - task: web-test
+
+  clean-all:
+    desc: "Clean all build artifacts"
+    cmds:
+      - rm -rf ./tmp
+      - task: n4l-clean
+      - task: web-clean
+      - task: editor-clean
+
+  dev-all:
+    desc: "Start all development servers (requires multiple terminals)"
+    cmds:
+      - echo "🚀 Starting all development servers..."
+      # - echo "📝 Editor: http://localhost:5173"
+      # - echo "🌐 Web API: http://localhost:8080"
+      - echo ""
+      - echo "Run these in separate terminals:"
+      - echo "  task web-dev # Backend API server"
+      - echo "  task editor-dev # Frontend editor"

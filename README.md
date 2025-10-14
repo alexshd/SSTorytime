@@ -236,31 +236,84 @@ The analysis identifies symbols that appear to have zero references both within 
 
 Symbols marked with `// UNUSED:` comments have been automatically identified and can be candidates for removal after manual review.
 
-## Learned by Doing and Conclusions
+## 📚 Documentation Index
 
-This section collects the most important lessons, refactorings, and architectural conclusions from recent development cycles. These documents are arranged in rough chronological order, reflecting the evolution of the project and its ecosystem.
+All root-level documentation files have been moved to the [`docs/`](docs/) directory for better organization:
 
-1. **Project Summary and Refactoring Overview**
+- [COMPLETE_IMPLEMENTATION_SUMMARY.md](docs/COMPLETE_IMPLEMENTATION_SUMMARY.md)
+- [COMPREHENSIVE_UNUSED_CODE_ANALYSIS.md](docs/COMPREHENSIVE_UNUSED_CODE_ANALYSIS.md)
+- [PROJECT_SUMMARY.md](docs/PROJECT_SUMMARY.md)
+- [RECENT_CLI_COMMANDS.md](docs/RECENT_CLI_COMMANDS.md)
+- [UNUSED_FUNCTIONS_README.md](docs/UNUSED_FUNCTIONS_README.md)
+- [UNUSED_REPORT.md](docs/UNUSED_REPORT.md)
 
-   - [Project Summary](PROJECT_SUMMARY.md): Comprehensive overview of major changes, refactoring, and new architecture.
+See also:
 
-2. **PostgreSQL Semantic Architecture**
+- [PostgreSQL_Semantic_Architecture.md](docs/PostgreSQL_Semantic_Architecture.md)
+- [N4L_Golang_Refactor_Suggestions.md](docs/N4L_Golang_Refactor_Suggestions.md)
 
-   - [PostgreSQL_Semantic_Architecture.md](docs/PostgreSQL_Semantic_Architecture.md): Why PostgreSQL is essential for semantic graph storage and search.
+## 📦 Package READMEs
 
-3. **Go Refactoring and Modernization**
+Explore the main packages and their documentation:
 
-   - [N4L_Golang_Refactor_Suggestions.md](docs/N4L_Golang_Refactor_Suggestions.md): Practical suggestions for improving the Go codebase, naming, structure, and serialization.
+- [text2n4l-web/README.md](text2n4l-web/README.md) — Go web API and converter
+- [text2n4l-editor/README.md](text2n4l-editor/README.md) — Frontend editor (Vite/Tailwind/JS)
+- [n4l/README.md](n4l/README.md) — N4L CLI and library
 
-4. **Recent CLI and Automation Insights**
+---
 
-   - [RECENT_CLI_COMMANDS.md](RECENT_CLI_COMMANDS.md): Noteworthy shell commands and automation patterns discovered during development.
+## ✍️ Editor Integrations
 
-5. **Unused Code and Quality Analysis**
-   - [UNUSED_REPORT.md](UNUSED_REPORT.md): Repository-wide report of likely-unused Go symbols.
-   - [COMPLETE_IMPLEMENTATION_SUMMARY.md](COMPLETE_IMPLEMENTATION_SUMMARY.md): Full summary of implementation and codebase evolution.
-   - [COMPREHENSIVE_UNUSED_CODE_ANALYSIS.md](COMPREHENSIVE_UNUSED_CODE_ANALYSIS.md): Deep dive into code quality and unused code.
+| Editor / Tool        | Support                        | Location                            | Notes                                                                      |
+| -------------------- | ------------------------------ | ----------------------------------- | -------------------------------------------------------------------------- |
+| VS Code              | Syntax + snippets (.n4l, .sst) | `editors/vscode-extension`          | Install `n4l-language-support-*.vsix` via Extensions: Install from VSIX    |
+| NeoVim (Tree-sitter) | Experimental syntax tree       | `editors/tree-sitter-n4l`           | Run `npm install && npx tree-sitter generate`; configure `nvim-treesitter` |
+| JetBrains IDEs       | TextMate highlighting          | `editors/jetbrains-textmate-bundle` | Add as TextMate bundle in Settings                                         |
+| Vim                  | Basic syntax (legacy)          | `editors/n4l.vim`                   | Drop into `~/.vim/syntax/` as needed                                       |
+| Emacs                | Major mode (basic)             | `editors/n4l-mode.el`               | Load in init and associate extensions                                      |
 
-These documents are intended to help current and future contributors understand the rationale behind key decisions, and to serve as a reference for best practices and lessons learned in the SSTorytime project.
+### VS Code
+
+1. Package already built: `editors/vscode-extension/n4l-language-support-1.0.4.vsix`
+2. Command Palette → Extensions: Install from VSIX
+3. Open a `.n4l` or `.sst` file → language activates.
+
+### NeoVim Tree-sitter
+
+Add to `init.lua`:
+
+```lua
+require('nvim-treesitter.parsers').get_parser_configs().n4l = {
+	install_info = {
+		url = '/absolute/path/to/SSTorytime/editors/tree-sitter-n4l',
+		files = { 'src/parser.c' },
+		generate_requires_npm = true,
+		requires_generate_from_grammar = true,
+	},
+	filetype = 'n4l'
+}
+vim.filetype.add({ extension = { n4l = 'n4l' } })
+```
+
+Then: `:TSInstall n4l` (or `:TSUpdate n4l`).
+
+### JetBrains
+
+Settings → Editor → TextMate Bundles → `+` → select `editors/jetbrains-textmate-bundle` → Apply.
+Then map `*.n4l` / `*.sst` under File Types if needed.
+
+### Emacs
+
+Add to init:
+
+```elisp
+(load-file "/absolute/path/to/SSTorytime/editors/n4l-mode.el")
+(add-to-list 'auto-mode-alist '("\\.n4l\\'" . n4l-mode))
+(add-to-list 'auto-mode-alist '("\\.sst\\'" . n4l-mode))
+```
+
+### Vim
+
+Copy `editors/n4l.vim` to `~/.vim/syntax/n4l.vim` and add to `ftdetect` if desired.
 
 ---

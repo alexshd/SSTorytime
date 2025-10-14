@@ -1,0 +1,249 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  APP_NAME: text2n4l-editor
+  DEV_PORT: 5173
+  PREVIEW_PORT: 4173
+  BUILD_DIR: dist
+  NODE_VERSION: ">=18.0.0"
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+
+  check-node:
+    desc: "Check Node.js version"
+    cmds:
+      - |
+        node_version=$(node --version | cut -d'v' -f2)
+        echo "Node.js version v$node_version"
+        if [ "$(printf '%s\n' "18.0.0" "$node_version" | sort -V | head -n1)" != "18.0.0" ]; then
+          echo "⚠️  Warning Node.js 18+ recommended"
+        fi
+    silent: true
+
+  install:
+    desc: "Install dependencies"
+    deps: [check-node]
+    cmds:
+      - npm install
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/**
+
+  install-clean:
+    desc: "Clean install dependencies"
+    cmds:
+      - rm -rf node_modules package-lock.json
+      - npm install
+
+  update:
+    desc: "Update dependencies"
+    cmds:
+      - npm update
+      - npm audit fix
+
+  dev:
+    desc: "Start development server with hot reload"
+    deps: [install]
+    cmds:
+      - echo '🚀 Starting {{.APP_NAME}} development server...'
+      - echo '📱 Local http//localhost{{.DEV_PORT}}'
+      - echo '🌐 Network http//[your-ip]{{.DEV_PORT}}'
+      - echo ''
+
+  dev-host:
+    desc: "Start development server accessible from network"
+    deps: [install]
+    cmds:
+      - echo "🚀 Starting {{.APP_NAME}} development server (network accessible)..."
+      - vite --host 0.0.0.0
+
+  build:
+    desc: "Build for production"
+    deps: [install]
+    cmds:
+      - echo '🏗️  Building {{.APP_NAME}} for production...'
+      - npm run build
+      - echo '✅ Build complete! Output in {{.BUILD_DIR}}/'
+    sources:
+      - "src/**/*"
+      - "public/**/*"
+      - index.html
+      - vite.config.js
+      - package.json
+    generates:
+      - "{{.BUILD_DIR}}/**"
+
+  preview:
+    desc: "Preview production build"
+    deps: [build]
+    cmds:
+      - echo '👀 Previewing production build...'
+      - echo '📱 Local http//localhost{{.PREVIEW_PORT}}'
+      - npm run preview
+
+  preview-host:
+    desc: "Preview production build accessible from network"
+    deps: [build]
+    cmds:
+      - echo "👀 Previewing production build (network accessible)..."
+      - vite preview --host 0.0.0.0
+
+  lint:
+    desc: "Lint JavaScript/CSS files"
+    cmds:
+      - |
+        echo "🔍 Linting files..."
+        if command -v eslint >/dev/null 2>&1; then
+          npx eslint src/
+        else
+          echo "ESLint not found, skipping JS linting"
+        fi
+        if command -v stylelint >/dev/null 2>&1; then
+          npx stylelint "src/**/*.css"
+        else
+          echo "Stylelint not found, skipping CSS linting"
+        fi
+
+  format:
+    desc: "Format code with Prettier"
+    cmds:
+      - |
+        if command -v prettier >/dev/null 2>&1; then
+          npx prettier --write src/ public/ *.html *.js *.json
+          echo "✅ Code formatted"
+        else
+          echo "Prettier not found, installing..."
+          npm install -D prettier
+          npx prettier --write src/ public/ *.html *.js *.json
+        fi
+
+  test:
+    desc: "Run tests (if configured)"
+    cmds:
+      - |
+        if npm run test --silent 2>/dev/null; then
+          npm run test
+        else
+          echo "No tests configured in package.json"
+        fi
+
+  test-watch:
+    desc: "Run tests in watch mode"
+    cmds:
+      - |
+        if npm run test-watch --silent 2>/dev/null; then
+          npm run test:watch
+        else
+          echo "No test watch script configured"
+        fi
+
+  analyze:
+    desc: "Analyze bundle size"
+    deps: [build]
+    cmds:
+      - |
+        if command -v npx >/dev/null 2>&1; then
+          echo "📊 Analyzing bundle..."
+          npx vite-bundle-analyzer {{.BUILD_DIR}}
+        else
+          echo "Bundle analyzer not available"
+          ls -la {{.BUILD_DIR}}/assets/
+        fi
+
+  clean:
+    desc: "Clean build artifacts and cache"
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -rf node_modules/.vite
+      - echo "🧹 Cleaned build artifacts"
+
+  clean-all:
+    desc: "Clean everything including node_modules"
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -rf node_modules
+      - rm -f package-lock.json
+      - echo "🧹 Cleaned all artifacts and dependencies"
+
+  serve:
+    desc: "Serve build directory with simple HTTP server"
+    deps: [build]
+    cmds:
+      - |
+        if command -v python3 >/dev/null 2>&1; then
+          echo '🌐 Serving {{.BUILD_DIR}} on http//localhost8000'
+          cd {{.BUILD_DIR}} && python3 -m http.server 8000
+        elif command -v python >/dev/null 2>&1; then
+          echo '🌐 Serving {{.BUILD_DIR}} on http//localhost8000'
+          cd {{.BUILD_DIR}} && python -m SimpleHTTPServer 8000
+        elif command -v npx >/dev/null 2>&1; then
+          echo '🌐 Serving {{.BUILD_DIR}} on http//localhost3000'
+          npx serve {{.BUILD_DIR}}
+        else
+          echo '❌ No HTTP server available (python/npx serve)'
+        fi
+
+  docker-build:
+    desc: "Build Docker image"
+    deps: [build]
+    cmds:
+      - |
+        if [ -f "Dockerfile" ]; then
+          docker build -t {{.APP_NAME}}:latest .
+          echo '🐳 Docker image built {{.APP_NAME}} latest'
+        else
+          echo 'No Dockerfile found'
+        fi
+
+  docker-run:
+    desc: "Run Docker container"
+    deps: [docker-build]
+    cmds:
+      - docker run -p 8080:80 {{.APP_NAME}}:latest
+
+  info:
+    desc: "Show project information"
+    cmds:
+      - echo '📋 Project {{.APP_NAME}}'
+      - echo '📦 Package manager npm'
+      - echo '⚡ Build tool Vite'
+      - echo '🎨 CSS framework Tailwind CSS'
+      - echo '📝 Editor CodeMirror'
+      - echo ''
+      - echo '🔧 Development task dev'
+      - echo '🏗️  Build task build'
+      - echo '👀 Preview task preview'
+
+  deps-check:
+    desc: "Check for dependency updates"
+    cmds:
+      - |
+        if command -v npm-check-updates >/dev/null 2>&1; then
+          ncu
+        else
+          echo 'Installing npm-check-updates...'
+          npm install -g npm-check-updates
+          ncu
+        fi
+
+  deps-update:
+    desc: "Update all dependencies to latest"
+    cmds:
+      - |
+        if command -v npm-check-updates >/dev/null 2>&1; then
+          ncu -u
+          npm install
+        else
+          echo 'Installing npm-check-updates...'
+          npm install -g npm-check-updates
+          ncu -u
+          npm install
+        fi

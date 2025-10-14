@@ -701,7 +701,7 @@ func SummarizeGraph() {
 
 	fmt.Println("Total nodes", count_nodes)
 
-	for st := 0; st < 4; st++ {
+	for st := range 4 {
 		total += count_links[st]
 		fmt.Println("Total directed links of type", SST.STTypeName(st), count_links[st])
 	}
@@ -773,14 +773,14 @@ func PrintMatrix(name string, dim int, key []SST.NodePtr, matrix [][]float32) {
 			const screenwidth = 12
 
 			if col > screenwidth {
-				s += fmt.Sprint("\t...")
+				s += "\t..."
 				break
 			} else {
 				s += fmt.Sprintf("  %4.1f", matrix[row][col])
 			}
 
 		}
-		s += fmt.Sprint(")")
+		s += ")"
 		Verbose(s)
 	}
 }

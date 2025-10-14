@@ -1,8 +1,8 @@
 {
   "name": "n4l-language-support",
   "displayName": "N4L & SST Language Support",
-  "description": "Syntax highlighting and language support for N4L (Notes for Learning) and SST config files",
-  "version": "1.0.4",
+  "description": "Syntax highlighting and language support for N4L (Notes for Learning) and SST config files with interactive arrow validation",
+  "version": "1.1.0",
   "publisher": "local",
   "engines": {
     "vscode": "^1.74.0"
@@ -56,20 +56,50 @@
         "language": "sst",
         "path": "./snippets/sst.json"
       }
-    ]
+    ],
+    "commands": [
+      {
+        "command": "n4l.validateArrows",
+        "title": "Validate N4L Arrows",
+        "category": "N4L"
+      },
+      {
+        "command": "n4l.showArrowList",
+        "title": "Show Arrow Tokens (by Category)",
+        "category": "N4L"
+      },
+      {
+        "command": "n4l.reloadArrows",
+        "title": "Reload Arrow Definitions",
+        "category": "N4L"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == n4l || resourceLangId == sst",
+          "command": "n4l.validateArrows",
+          "group": "n4l"
+        },
+        {
+          "when": "resourceLangId == n4l || resourceLangId == sst",
+          "command": "n4l.showArrowList",
+          "group": "n4l@1"
+        },
+        {
+          "when": "resourceLangId == n4l || resourceLangId == sst",
+          "command": "n4l.reloadArrows",
+          "group": "n4l@2"
+        }
+      ]
+    }
   },
   "main": "./extension.js",
   "activationEvents": [
-    "*"
+    "onLanguage:n4l",
+    "onLanguage:sst"
   ],
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.74.0",
-    "@types/node": "16.x",
-    "typescript": "^4.9.4"
+    "package": "echo 'Nothing to build (plain JS extension)'"
   }
 }

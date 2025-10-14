@@ -14,18 +14,18 @@
  contexts
  lessons
  evidence
- sense-making (same as) sense making (=) sensemaking
+ sense-making  [same as] sense making (=) sensemaking
  mapping
  path solving
 
 
- orbits (defined) the collection of >nodes linked to a given node to >radius R
+ orbits (def) the collection of >nodes linked to a given node to >radius R
 
- paths  (defined) a collection of sequences of >nodes satisfying given criteria between start and end nodes
+ paths  (def) a collection of sequences of >nodes satisfying given criteria between start and end nodes
 
  There are two main types of data for a graph database
-      "    (contains)  a relationship >map of explanations between >things and >concepts with examples
-      "    (contains)  >regularised >data input about >agents, persons, etc as sensory attributes and documented events
+      "    (contain)  a relationship >map of explanations between >things and >concepts with examples
+      "    (contain)  >regularised >data input about >agents, persons, etc as sensory attributes and documented events
       "    (then) The difference between these is whether the >data are first hand and >regular in >schema or attribute sets and are searchable by random access or whether they are only ad hoc explanatory >stories like metadata without all the raw examples.
 
 

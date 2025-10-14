@@ -1,0 +1,207 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  BINARY_NAME: text2n4l-web
+  BUILD_DIR: ./bin
+  WEB_CMD: ./cmd/web
+  CLI_CMD: ./cmd/cli
+  MAIN_PORT: 8080
+
+env:
+  CGO_ENABLED: 0
+  GOOS: linux
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+
+  deps:
+    desc: "Download Go dependencies"
+    cmds:
+      - go mod download
+      - go mod tidy
+    sources:
+      - go.mod
+      - go.sum
+
+  build:
+    desc: "Build all binaries"
+    deps: [deps]
+    cmds:
+      - task: build-web
+      - task: build-cli
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}-cli"
+
+  build-web:
+    desc: "Build web server binary"
+    deps: [deps]
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} {{.WEB_CMD}}
+    sources:
+      - "{{.WEB_CMD}}/**/*.go"
+      - "internal/**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+
+  build-cli:
+    desc: "Build CLI binary"
+    deps: [deps]
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}}-cli {{.CLI_CMD}}
+    sources:
+      - "{{.CLI_CMD}}/**/*.go"
+      - "internal/**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}-cli"
+
+  test:
+    desc: "Run all tests"
+    cmds:
+      - go test -v ./...
+      - task: test-integration
+    sources:
+      - "**/*.go"
+
+  test-watch:
+    desc: "Run tests in watch mode"
+    watch: true
+    sources:
+      - "**/*.go"
+    cmds:
+      - go test -v ./...
+
+  test-integration:
+    desc: "Run integration tests"
+    cmds:
+      - |
+        if [ -f "./tests/run_tests" ]; then
+          cd tests && ./run_tests
+        else
+          echo "No integration tests found"
+        fi
+
+  test-coverage:
+    desc: "Run tests with coverage"
+    cmds:
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo 'Coverage report generated coverage.html'
+
+  start:
+    desc: "Start the web server"
+    deps: [build-web]
+    cmds:
+      - echo "Starting server on port {{.MAIN_PORT}}..."
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+
+  dev:
+    desc: "Start development server with hot reload"
+    watch: true
+    sources:
+      - "**/*.go"
+      - "**/*.html"
+      - "**/*.css"
+      - "**/*.js"
+    cmds:
+      - task: build-web
+      - echo "🔄 Restarting server..."
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+
+  dev-air:
+    desc: "Start development server with Air hot reload (if available)"
+    cmds:
+      - |
+        if command -v air >/dev/null 2>&1; then
+          air
+        else
+          echo "Air not found, falling back to task dev"
+          task dev
+        fi
+
+  benchmark:
+    desc: "Run benchmarks"
+    cmds:
+      - go test -bench=. -benchmem ./...
+
+  lint:
+    desc: "Run linters"
+    cmds:
+      - |
+        if command -v golangci-lint >/dev/null 2>&1; then
+          golangci-lint run
+        else
+          echo "golangci-lint not found, running basic checks"
+          go vet ./...
+          go fmt ./...
+        fi
+
+  format:
+    desc: "Format Go code"
+    cmds:
+      - go fmt ./...
+      - |
+        if command -v goimports >/dev/null 2>&1; then
+          goimports -w .
+        fi
+
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -f coverage.out coverage.html
+      - go clean -cache
+
+  install:
+    desc: "Install binary to GOPATH/bin"
+    deps: [build-web]
+    cmds:
+      - go install {{.WEB_CMD}}
+
+  docker-build:
+    desc: "Build Docker image"
+    cmds:
+      - |
+        if [ -f "Dockerfile" ]; then
+          docker build -t {{.BINARY_NAME}}:latest .
+        else
+          echo "No Dockerfile found"
+        fi
+
+  docker-run:
+    desc: "Run Docker container"
+    deps: [docker-build]
+    cmds:
+      - docker run -p {{.MAIN_PORT}}:{{.MAIN_PORT}} {{.BINARY_NAME}}:latest
+
+  profile:
+    desc: "Start server with profiling enabled"
+    deps: [build-web]
+    cmds:
+      - echo "Starting server with profiling on port {{.MAIN_PORT}}..."
+      - echo "Profiling endpoints available at http://localhost:{{.MAIN_PORT}}/debug/pprof/"
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+
+  all:
+    desc: "Run complete build pipeline"
+    cmds:
+      - task: clean
+      - task: format
+      - task: lint
+      - task: test
+      - task: build

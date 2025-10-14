@@ -1,0 +1,20 @@
+{
+  "name": "tree-sitter-n4l",
+  "version": "0.1.0",
+  "description": "Tree-sitter grammar for the N4L (Notes for Learning) language",
+  "main": "index.js",
+  "scripts": {
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter test"
+  },
+  "keywords": [
+    "tree-sitter",
+    "n4l",
+    "language",
+    "grammar"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "tree-sitter-cli": "^0.22.6"
+  }
+}

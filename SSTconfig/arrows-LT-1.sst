@@ -1,9 +1,9 @@
 
 #
-# LEADSTO relations are about processes and events (sequences of)
+# LEADSTO relations are about processes and events [sequences of]
 #
 # Note that passive things cannot cause or affect changes, only active processes
-# (meaning events) so events always affect events
+# [meaning events] so events always affect events
 #
 
 

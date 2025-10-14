@@ -1,6 +1,6 @@
 // Arrow menu modal component
 
-import { getValidArrowsList } from '../lib/arrows.js';
+import { loadArrows, getValidArrowsList, findSuggestions } from '../lib/arrows.js';
 
 export function showArrowValidationGuide()
 {
@@ -22,10 +22,11 @@ export function showArrowValidationGuide()
   }
 }
 
-export function createArrowMenu(arrowSpan, replaceCallback, deleteCallback)
+export async function createArrowMenu(arrowSpan, replaceCallback, deleteCallback)
 {
+  await loadArrows();
   const currentArrow = arrowSpan.getAttribute('data-arrow');
-  const isValid = arrowSpan.getAttribute('data-valid') === 'true';
+  const isValid = getValidArrowsList().includes(currentArrow.replace(/[()]/g, ''));
 
   const menu = document.createElement('div');
   menu.className = 'arrow-menu';
@@ -43,11 +44,9 @@ export function createArrowMenu(arrowSpan, replaceCallback, deleteCallback)
   actions.appendChild(deleteBtn);
   menu.appendChild(actions);
 
-  if (!isValid)
-  {
-    const suggestions = createArrowSuggestions(currentArrow, replaceCallback, menu);
-    menu.appendChild(suggestions);
-  }
+  // Show suggestions always (even if currently valid) so user can swap synonyms
+  const suggestions = await createArrowSuggestions(currentArrow, replaceCallback, menu, isValid);
+  menu.appendChild(suggestions);
 
   const allArrowsSection = createAllArrowsSection(replaceCallback, menu);
   menu.appendChild(allArrowsSection);
@@ -64,38 +63,29 @@ function createButton(text, color, onClick)
   return btn;
 }
 
-function createArrowSuggestions(currentArrow, replaceCallback, menu)
+async function createArrowSuggestions(currentArrow, replaceCallback, menu, isValid)
 {
   const container = document.createElement('div');
   container.style.cssText = 'margin-bottom: 12px;';
-
   const heading = document.createElement('div');
   heading.style.cssText = 'font-weight: 600; margin-bottom: 6px; color: #1f2937; font-size: 13px;';
-  heading.textContent = '💡 Suggested Replacements:';
+  heading.textContent = isValid ? '🔁 Swap / Alternative Arrows:' : '💡 Suggested Replacements:';
   container.appendChild(heading);
-
-  const allArrows = getAllArrowsData();
-  const cleanCurrent = currentArrow.replace(/[()]/g, '').toLowerCase();
-  const words = cleanCurrent.split(/\s+/);
-
-  const suggestedArrows = allArrows.filter(arr =>
-    arr.keywords.some(keyword => words.some(word => keyword.toLowerCase().includes(word) || word.includes(keyword.toLowerCase())))
-  );
-
-  if (suggestedArrows.length > 0)
+  const token = currentArrow.replace(/[()]/g, '');
+  const suggestions = findSuggestions(token);
+  if (suggestions.length)
   {
-    suggestedArrows.slice(0, 5).forEach(arr =>
+    suggestions.slice(0, 10).forEach(s =>
     {
-      container.appendChild(createArrowButton(arr, replaceCallback, menu, true));
+      container.appendChild(createArrowButton({ symbol: `(${s})`, example: s, keywords: s.split(/\s+/) }, replaceCallback, menu, true));
     });
   } else
   {
-    const noSuggestions = document.createElement('div');
-    noSuggestions.style.cssText = 'color: #6b7280; font-size: 12px; font-style: italic; padding: 4px;';
-    noSuggestions.textContent = 'No similar arrows found';
-    container.appendChild(noSuggestions);
+    const no = document.createElement('div');
+    no.style.cssText = 'color:#6b7280;font-size:12px;font-style:italic;padding:4px;';
+    no.textContent = 'No suggestions';
+    container.appendChild(no);
   }
-
   return container;
 }
 
@@ -275,12 +265,8 @@ function createHelpPanel()
 
 function getAllArrowsData()
 {
-  const validArrows = getValidArrowsList();
-  return validArrows.map(arrow => ({
-    symbol: `(${arrow})`,
-    example: arrow,
-    keywords: arrow.split(/\s+/)
-  }));
+  const list = getValidArrowsList();
+  return list.map(a => ({ symbol: `(${a})`, example: a, keywords: a.split(/\s+/) }));
 }
 
 function groupArrowsByType(arrows)

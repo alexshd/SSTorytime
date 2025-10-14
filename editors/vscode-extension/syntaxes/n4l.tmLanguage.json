@@ -13,6 +13,9 @@
       "include": "#contexts"
     },
     {
+      "include": "#content-blocks"
+    },
+    {
       "include": "#todos"
     },
     {
@@ -28,13 +31,19 @@
       "include": "#special-markers"
     },
     {
+      "include": "#sequence-markers"
+    },
+    {
+      "include": "#ditto-continuation"
+    },
+    {
       "include": "#strings"
     },
     {
       "include": "#urls"
     },
     {
-      "include": "#continuation"
+      "include": "#all-caps-reminders"
     }
   ],
   "repository": {
@@ -42,26 +51,29 @@
       "patterns": [
         {
           "name": "comment.line.hash.n4l",
-          "match": "^\\s*#.*$"
+          "match": "#.*$"
         },
         {
           "name": "comment.line.double-slash.n4l",
-          "match": "^\\s*//.*$"
+          "match": "//.*$"
         }
       ]
     },
     "sections": {
       "name": "entity.name.section.n4l",
-      "match": "^\\s*-\\s*(.+)$",
+      "match": "^\\s*(-\\s+)(.+?)(?:\\s*#.*)?$",
       "captures": {
         "1": {
-          "name": "string.unquoted.section.n4l"
+          "name": "punctuation.definition.section.n4l"
+        },
+        "2": {
+          "name": "markup.heading.section.n4l"
         }
       }
     },
     "contexts": {
       "name": "entity.name.tag.context.n4l",
-      "match": "^\\s*([+\\-]?)(:{1,})\\s*(.+?)\\s*(:{1,})\\s*(#.*)?$",
+      "match": "^\\s*([+\\-]?)(:{2,})\\s*(.+?)\\s*(:{2,})\\s*(#.*)?$",
       "captures": {
         "1": {
           "name": "keyword.operator.context.modifier.n4l"
@@ -70,7 +82,7 @@
           "name": "punctuation.definition.context.begin.n4l"
         },
         "3": {
-          "name": "string.unquoted.context.content.n4l"
+          "name": "markup.bold.context.content.n4l"
         },
         "4": {
           "name": "punctuation.definition.context.end.n4l"
@@ -80,13 +92,46 @@
         }
       }
     },
+    "content-blocks": {
+      "patterns": [
+        {
+          "name": "entity.name.tag.alias.n4l",
+          "match": "^\\s*(@[a-zA-Z_][a-zA-Z0-9_\\.]*)",
+          "captures": {
+            "1": {
+              "name": "support.type.alias.n4l"
+            }
+          }
+        }
+      ]
+    },
+    "sequence-markers": {
+      "patterns": [
+        {
+          "name": "keyword.control.sequence.start.n4l",
+          "match": "\\+::"
+        },
+        {
+          "name": "keyword.control.sequence.end.n4l",
+          "match": "\\-::"
+        }
+      ]
+    },
+    "ditto-continuation": {
+      "name": "keyword.operator.continuation.ditto.n4l",
+      "match": "^\\s*(\")\\s+(?=\\()"
+    },
     "todos": {
       "name": "markup.bold.todo.n4l",
-      "match": "^\\s*[A-Z][A-Z0-9\\s]+[A-Z0-9]\\s*$"
+      "match": "\\b([A-Z][A-Z0-9]+(?:\\s+[A-Z][A-Z0-9]+){2,})\\b"
+    },
+    "all-caps-reminders": {
+      "name": "markup.italic.emphasis.reminder.n4l",
+      "match": "\\b([A-Z][A-Z]+(?:\\s+[A-Z][A-Z]+){2,})\\b"
     },
     "aliases": {
       "name": "entity.name.constant.alias.n4l",
-      "match": "@([a-zA-Z_][a-zA-Z0-9_]*)",
+      "match": "@([a-zA-Z_][a-zA-Z0-9_\\.]*)",
       "captures": {
         "1": {
           "name": "variable.other.constant.alias.n4l"
@@ -110,16 +155,32 @@
       ]
     },
     "relationships": {
-      "name": "entity.name.function.relation.n4l",
-      "match": "\\(([^)]+)\\)",
-      "captures": {
-        "0": {
-          "name": "punctuation.definition.relation.n4l"
+      "patterns": [
+        {
+          "name": "entity.name.function.relation.valid.n4l",
+          "match": "\\(([a-z][a-z\\s,;:.\\-'/]*[a-z])\\)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.relation.n4l"
+            },
+            "1": {
+              "name": "string.unquoted.relation.name.n4l"
+            }
+          }
         },
-        "1": {
-          "name": "entity.name.function.relation.name.n4l"
+        {
+          "name": "invalid.illegal.relation.invalid.n4l",
+          "match": "\\(([^)]{2,})\\)",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.relation.invalid.n4l"
+            },
+            "1": {
+              "name": "invalid.illegal.relation.content.n4l"
+            }
+          }
         }
-      }
+      ]
     },
     "special-markers": {
       "patterns": [
@@ -149,6 +210,10 @@
               "name": "variable.other.emphasis.n4l"
             }
           }
+        },
+        {
+          "name": "keyword.operator.annotation.n4l",
+          "match": "(?:^|\\s)(\\*\\*|>>|>|<)(?=\\s)"
         }
       ]
     },
@@ -170,10 +235,6 @@
     "urls": {
       "name": "markup.underline.link.n4l",
       "match": "https?://[^\\s\"')}]+"
-    },
-    "continuation": {
-      "name": "keyword.operator.continuation.n4l",
-      "match": "^\\s*\"\\s*(?=\\()"
     }
   }
 }
