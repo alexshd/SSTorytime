@@ -235,3 +235,32 @@ The analysis identifies symbols that appear to have zero references both within 
 > - Exported APIs used by external code
 
 Symbols marked with `// UNUSED:` comments have been automatically identified and can be candidates for removal after manual review.
+
+## Learned by Doing and Conclusions
+
+This section collects the most important lessons, refactorings, and architectural conclusions from recent development cycles. These documents are arranged in rough chronological order, reflecting the evolution of the project and its ecosystem.
+
+1. **Project Summary and Refactoring Overview**
+
+   - [Project Summary](PROJECT_SUMMARY.md): Comprehensive overview of major changes, refactoring, and new architecture.
+
+2. **PostgreSQL Semantic Architecture**
+
+   - [PostgreSQL_Semantic_Architecture.md](docs/PostgreSQL_Semantic_Architecture.md): Why PostgreSQL is essential for semantic graph storage and search.
+
+3. **Go Refactoring and Modernization**
+
+   - [N4L_Golang_Refactor_Suggestions.md](docs/N4L_Golang_Refactor_Suggestions.md): Practical suggestions for improving the Go codebase, naming, structure, and serialization.
+
+4. **Recent CLI and Automation Insights**
+
+   - [RECENT_CLI_COMMANDS.md](RECENT_CLI_COMMANDS.md): Noteworthy shell commands and automation patterns discovered during development.
+
+5. **Unused Code and Quality Analysis**
+   - [UNUSED_REPORT.md](UNUSED_REPORT.md): Repository-wide report of likely-unused Go symbols.
+   - [COMPLETE_IMPLEMENTATION_SUMMARY.md](COMPLETE_IMPLEMENTATION_SUMMARY.md): Full summary of implementation and codebase evolution.
+   - [COMPREHENSIVE_UNUSED_CODE_ANALYSIS.md](COMPREHENSIVE_UNUSED_CODE_ANALYSIS.md): Deep dive into code quality and unused code.
+
+These documents are intended to help current and future contributors understand the rationale behind key decisions, and to serve as a reference for best practices and lessons learned in the SSTorytime project.
+
+---

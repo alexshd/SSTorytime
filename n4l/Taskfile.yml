@@ -1,0 +1,27 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the N4L binary
+    cmds:
+      - go build -o ../bin/n4l N4L.go
+
+  test:
+    desc: Run the test suite
+    cmds:
+      - ./run_tests
+
+  all:
+    desc: Build and test
+    deps: [build, test]
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -f ../bin/n4l
+      - rm -rf test_outputs
+
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list
