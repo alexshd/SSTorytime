@@ -1,0 +1,12 @@
+goos: linux
+goarch: amd64
+pkg: main/mazeexample
+cpu: Intel(R) Core(TM) i7-6500U CPU @ 2.50GHz
+BenchmarkOpen-4                                 	  320654	      4953 ns/op	     976 B/op	      11 allocs/op
+BenchmarkVertex-4                               	20551590	        59.00 ns/op	       0 B/op	       0 allocs/op
+BenchmarkVertexUnique-4                         	 4248847	       236.6 ns/op	       4 B/op	       1 allocs/op
+BenchmarkEdge-4                                 	  954051	      1161 ns/op	     335 B/op	       0 allocs/op
+BenchmarkGraphBuilding-4                        	   52964	     20668 ns/op	    5832 B/op	      55 allocs/op
+BenchmarkGetEntireNCConePathsAsLinks_Depth1-4   	  252908	      4362 ns/op	    2024 B/op	      19 allocs/op
+BenchmarkGetEntireNCConePathsAsLinks_Depth5-4   	signal: interrupt
+FAIL	main/mazeexample	12.669s

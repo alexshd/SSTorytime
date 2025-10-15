@@ -1,0 +1,232 @@
+version: "3"
+
+# Taskfile for mazeexample project
+# This file provides tasks for building, testing, and benchmarking
+# the maze solving implementation using bidirectional wavefront search
+
+vars:
+  PACKAGE: main/mazeexample/maze
+  BINARY: mazeexample
+  BENCHMARK_BASELINE: benchmark_baseline.txt
+  BENCHMARK_NEW: benchmark_new.txt
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  build:
+    desc: Build the mazeexample binary
+    cmds:
+      - go build -o {{.BINARY}} -v .
+    sources:
+      - "*.go"
+      - "maze/*.go"
+    generates:
+      - "{{.BINARY}}"
+
+  run:
+    desc: Build and run the maze solver
+    deps: [build]
+    cmds:
+      - ./{{.BINARY}}
+
+  clean:
+    desc: Clean build artifacts and test files
+    cmds:
+      - rm -f {{.BINARY}}
+      - rm -f {{.BENCHMARK_NEW}}
+      - go clean -testcache
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test -C maze
+
+  test-v:
+    desc: Run all tests with verbose output (shows maze solving details)
+    cmds:
+      - go test -C maze -v
+
+  test-run:
+    desc: "Run a specific test (usage: task test-run TEST=TestVertex)"
+    cmds:
+      - go test -C maze -run {{.TEST}}
+    vars:
+      TEST: '{{.TEST | default "TestOpen"}}'
+
+  test-coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - go test -C maze -cover
+      - go test -C maze -coverprofile=coverage.out
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "Coverage report generated at coverage.html"
+
+  test-coverage-func:
+    desc: Run tests and show coverage by function
+    cmds:
+      - go test -C maze -coverprofile=coverage.out
+      - go tool cover -func=coverage.out
+
+  bench:
+    desc: Run all benchmarks with memory stats
+    cmds:
+      - go test -C maze -bench=. -benchmem -run=^$
+
+  bench-v:
+    desc: Run all benchmarks with verbose test output
+    cmds:
+      - go test -C maze -bench=. -benchmem
+
+  bench-time:
+    desc: "Run benchmarks with custom duration (usage: task bench-time TIME=5s)"
+    cmds:
+      - go test -C maze -bench=. -benchmem -benchtime={{.TIME}} -run=^$
+    vars:
+      TIME: '{{.TIME | default "5s"}}'
+
+  bench-run:
+    desc: "Run specific benchmark (usage: task bench-run BENCH=BenchmarkVertex)"
+    cmds:
+      - go test -C maze -bench={{.BENCH}} -benchmem -run=^$
+    vars:
+      BENCH: '{{.BENCH | default "BenchmarkVertex"}}'
+
+  bench-core:
+    desc: Run core benchmarks only (Open, Vertex, Edge, GraphBuilding, SolveMaze, MemoryAllocation)
+    cmds:
+      - go test -C maze -bench='Benchmark(Open|Vertex|Edge|GraphBuilding|SolveMaze|MemoryAllocation)' -benchmem -benchtime=1s -run=^$
+
+  bench-save:
+    desc: Save benchmark results to file
+    cmds:
+      - go test -C maze -bench=. -benchmem -run=^$ > {{.BENCHMARK_BASELINE}}
+      - echo "Benchmark baseline saved to {{.BENCHMARK_BASELINE}}"
+
+  bench-compare:
+    desc: Run benchmarks and compare with baseline (requires benchstat)
+    deps: [bench-check-benchstat]
+    cmds:
+      - go test -C maze -bench=. -benchmem -run=^$ > {{.BENCHMARK_NEW}}
+      - benchstat {{.BENCHMARK_BASELINE}} {{.BENCHMARK_NEW}}
+      - echo ""
+      - echo "New results saved to {{.BENCHMARK_NEW}}"
+
+  bench-check-benchstat:
+    desc: Check if benchstat is installed
+    cmds:
+      - |
+        if ! command -v benchstat &> /dev/null; then
+          echo "benchstat not found. Installing..."
+          go install golang.org/x/perf/cmd/benchstat@latest
+        fi
+    silent: true
+    internal: true
+
+  bench-cpu:
+    desc: Run CPU profiling on benchmarks
+    cmds:
+      - go test -C maze -bench=. -benchmem -cpuprofile=cpu.prof -run=^$
+      - echo "CPU profile saved to cpu.prof"
+      - echo "Analyze with - go tool pprof cpu.prof"
+
+  bench-mem:
+    desc: Run memory profiling on benchmarks
+    cmds:
+      - go test -C maze -bench=. -benchmem -memprofile=mem.prof -run=^$
+      - echo "Memory profile saved to mem.prof"
+      - echo "Analyze with - go tool pprof mem.prof"
+
+  verify:
+    desc: Run build, test, and benchmarks to verify everything works
+    cmds:
+      - task: build
+      - task: test
+      - task: bench-core
+      - echo ""
+      - echo "✓ All verification steps passed!"
+
+  ci:
+    desc: Run CI pipeline (build, test with coverage, core benchmarks)
+    cmds:
+      - task: clean
+      - task: build
+      - task: test-coverage-func
+      - task: bench-core
+      - echo ""
+      - echo "✓ CI pipeline completed successfully!"
+
+  fmt:
+    desc: Format Go code
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  lint:
+    desc: Run go vet and check formatting
+    cmds:
+      - task: fmt
+      - task: vet
+      - |
+        if [ -n "$(gofmt -l .)" ]; then
+          echo "Go code is not formatted. Run 'task fmt'"
+          exit 1
+        fi
+      - echo "✓ Code is properly formatted and vetted"
+
+  watch-test:
+    desc: Watch for changes and run tests
+    cmds:
+      - |
+        echo "Watching for changes... (Ctrl+C to stop)"
+        while true; do
+          go test
+          inotifywait -q -e modify *.go 2>/dev/null || sleep 2
+        done
+
+  help:
+    desc: Show detailed help information
+    cmds:
+      - |
+        cat << 'EOF'
+        Mazeexample Package Taskfile
+        =============================
+
+        Quick Start:
+          task build       - Build the package
+          task test        - Run all tests
+          task bench       - Run benchmarks
+
+        Testing:
+          task test        - Run tests (quiet mode)
+          task test-v      - Run tests with verbose output
+          task test-run TEST=TestVertex - Run specific test
+          task test-coverage - Generate HTML coverage report
+
+        Benchmarking:
+          task bench       - Run all benchmarks
+          task bench-core  - Run core benchmarks only
+          task bench-save  - Save baseline for comparison
+          task bench-compare - Compare with baseline (needs benchstat)
+          task bench-cpu   - Profile CPU usage
+          task bench-mem   - Profile memory usage
+
+        Development:
+          task verify      - Full verification (build + test + bench)
+          task ci          - CI pipeline with coverage
+          task lint        - Check code formatting and vet
+          task watch-test  - Auto-run tests on file changes
+
+        Cleanup:
+          task clean       - Remove test artifacts
+
+        For more details, see TEST_README.md
+        EOF
+    silent: true
