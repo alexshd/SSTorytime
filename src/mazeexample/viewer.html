@@ -262,10 +262,48 @@
           <p style="margin: 20px 0; color: #666">
             Generate JSON output with:
             <code style="background: #f0f0f0; padding: 5px 10px; border-radius: 4px"
+              >task visualize</code
+            >
+            or
+            <code style="background: #f0f0f0; padding: 5px 10px; border-radius: 4px"
               >./mazeexample --json > results.json</code
             >
           </p>
-          <label for="fileInput" class="load-btn">📂 Load JSON File</label>
+
+          <div
+            style="
+              background: #fff3cd;
+              border: 1px solid #ffc107;
+              padding: 15px;
+              border-radius: 8px;
+              margin: 20px 0;
+              text-align: left;
+            ">
+            <strong style="color: #856404"
+              >💡 For best experience, serve with HTTP:</strong
+            >
+            <pre
+              style="
+                background: #f8f9fa;
+                padding: 10px;
+                border-radius: 4px;
+                margin-top: 10px;
+                overflow-x: auto;
+              ">
+python3 -m http.server 8000
+# or
+python -m SimpleHTTPServer 8000
+# or  
+npx serve
+
+Then open: http://localhost:8000/viewer.html</pre
+            >
+            <p style="margin: 10px 0 0 0; color: #856404; font-size: 0.9em">
+              This will auto-load results.json without the file picker.
+            </p>
+          </div>
+
+          <label for="fileInput" class="load-btn">📂 Or Click to Load JSON File</label>
           <input type="file" id="fileInput" class="file-input" accept=".json" />
         </div>
 
@@ -291,6 +329,31 @@
     </div>
 
     <script>
+      // Try to auto-load results.json if it exists in the same directory
+      async function tryAutoLoad() {
+        try {
+          const response = await fetch("results.json");
+          if (response.ok) {
+            const data = await response.json();
+            displayResults(data);
+            return true;
+          }
+        } catch (error) {
+          // File doesn't exist or CORS issue, show load button
+          console.log("Could not auto-load results.json:", error.message);
+        }
+        return false;
+      }
+
+      // Try to auto-load on page load
+      window.addEventListener("DOMContentLoaded", async () => {
+        const loaded = await tryAutoLoad();
+        if (loaded) {
+          console.log("Successfully auto-loaded results.json");
+        }
+      });
+
+      // File input handler
       document.getElementById("fileInput").addEventListener("change", function (e) {
         const file = e.target.files[0];
         if (!file) return;

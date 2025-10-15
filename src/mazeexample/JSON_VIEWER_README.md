@@ -2,16 +2,48 @@
 
 ## Quick Start
 
+### Option 1: Using Task (Recommended)
+
+```bash
+# Generate JSON and get instructions
+task visualize
+
+# Or serve with HTTP server (best experience)
+task serve
+# Then open http://localhost:8000/viewer.html in your browser
+```
+
+### Option 2: Manual
+
 1. **Generate JSON output:**
 
    ```bash
    ./mazeexample --json > results.json
    ```
 
-2. **Open the viewer:**
-   - Simply open `viewer.html` in your web browser (double-click or drag into browser)
+2. **Serve with HTTP (recommended):**
+
+   ```bash
+   # Python 3
+   python3 -m http.server 8000
+   # or Python 2
+   python -m SimpleHTTPServer 8000
+   # or Node.js
+   npx serve
+
+   # Then open http://localhost:8000/viewer.html
+   ```
+
+   The viewer will automatically load `results.json` when served via HTTP.
+
+3. **Or open directly (requires file picker):**
+   - Open `viewer.html` in your web browser (double-click or drag into browser)
    - Click "Load JSON File" button
    - Select the `results.json` file you just generated
+
+## Why Use HTTP Server?
+
+When served via HTTP, the viewer automatically loads `results.json` without requiring manual file selection. This provides a smoother experience, especially when regenerating results multiple times.
 
 ## Features
 

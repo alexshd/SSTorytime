@@ -60,8 +60,15 @@ go test -bench=. -benchmem
 Generate and view results interactively:
 
 ```bash
-# Easy mode - automated script
-./visualize.sh
+# Easy mode - generate JSON and get instructions
+task visualize
+
+# Serve with HTTP server (auto-loads results.json)
+task serve
+# Then open http://localhost:8000/viewer.html in your browser
+
+# Or open directly in browser (requires manual file selection)
+task view
 
 # Manual mode
 ./mazeexample --json > results.json

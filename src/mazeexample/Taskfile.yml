@@ -28,10 +28,82 @@ tasks:
       - "{{.BINARY}}"
 
   run:
-    desc: Build and run the maze solver
+    desc: Build and run the maze solver (text output)
     deps: [build]
     cmds:
       - ./{{.BINARY}}
+
+  run-json:
+    desc: Build and run with JSON output
+    deps: [build]
+    cmds:
+      - ./{{.BINARY}} --json
+
+  visualize:
+    desc: Generate JSON results and prepare for visualization
+    deps: [build]
+    cmds:
+      - echo "🧩 Maze Solver Visualization"
+      - echo ""
+      - echo "Generating JSON output..."
+      - ./{{.BINARY}} --json > results.json
+      - echo "✓ Results generated"
+      - echo ""
+      - |
+        if command -v jq &> /dev/null; then
+          echo "Statistics:"
+          cat results.json | jq '.statistics'
+          echo ""
+          echo "Solution Summary:"
+          cat results.json | jq '.solutions[] | {id, type, total_length}'
+        else
+          echo "Statistics and solutions generated (install 'jq' for pretty output)"
+        fi
+      - echo ""
+      - echo "✓ All files generated successfully!"
+      - echo ""
+      - echo "Next steps:"
+      - echo "  1. Open viewer.html in your web browser"
+      - echo "     Linux - xdg-open viewer.html"
+      - echo "     macOS - open viewer.html"
+      - echo "     Windows - start viewer.html"
+      - echo "  2. Or drag viewer.html into your browser"
+      - echo "  3. The viewer will automatically load results.json"
+      - echo ""
+      - echo "Files generated in current directory"
+
+  view:
+    desc: Open the visualization in the default browser
+    deps: [visualize]
+    cmds:
+      - |
+        if command -v xdg-open &> /dev/null; then
+          xdg-open viewer.html
+        elif command -v open &> /dev/null; then
+          open viewer.html
+        elif command -v start &> /dev/null; then
+          start viewer.html
+        else
+          echo "Please open viewer.html manually in your browser"
+        fi
+
+  serve:
+    desc: Serve visualization with auto-reload (requires Python)
+    deps: [visualize]
+    cmds:
+      - echo "Starting HTTP server on http://localhost:8000"
+      - echo "Open http://localhost:8000/viewer.html in your browser"
+      - echo "Press Ctrl+C to stop"
+      - echo ""
+      - |
+        if command -v python3 &> /dev/null; then
+          python3 -m http.server 8000
+        elif command -v python &> /dev/null; then
+          python -m SimpleHTTPServer 8000
+        else
+          echo "Python not found. Please install Python or use 'task view' instead"
+          exit 1
+        fi
 
   clean:
     desc: Clean build artifacts and test files
@@ -201,8 +273,15 @@ tasks:
 
         Quick Start:
           task build       - Build the package
-          task test        - Run all tests
-          task bench       - Run benchmarks
+          task run         - Run the maze solver (text output)
+          task visualize   - Generate JSON and prepare visualization
+          task serve       - Serve visualization with HTTP server
+
+        Visualization:
+          task visualize   - Generate JSON results with statistics
+          task serve       - Start HTTP server at localhost:8000
+          task view        - Open viewer in default browser
+          task run-json    - Run with JSON output only
 
         Testing:
           task test        - Run tests (quiet mode)

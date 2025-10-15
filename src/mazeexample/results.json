@@ -287,8 +287,8 @@
       "left_depth": 5,
       "right_depth": 5,
       "left_frontier": [
-        "maze_b5",
-        "maze_d7"
+        "maze_d7",
+        "maze_b5"
       ],
       "right_frontier": [
         "maze_g5"
@@ -316,9 +316,9 @@
       "left_depth": 6,
       "right_depth": 6,
       "left_frontier": [
-        "maze_d8",
         "maze_b4",
-        "maze_d6"
+        "maze_d6",
+        "maze_d8"
       ],
       "right_frontier": [
         "maze_g6"
@@ -331,9 +331,9 @@
       "left_depth": 7,
       "right_depth": 6,
       "left_frontier": [
-        "maze_a4",
         "maze_e6",
-        "maze_e8"
+        "maze_e8",
+        "maze_a4"
       ],
       "right_frontier": [
         "maze_g6"
@@ -417,9 +417,9 @@
       "left_depth": 10,
       "right_depth": 9,
       "left_frontier": [
-        "maze_c3",
         "maze_f8",
-        "maze_g7"
+        "maze_g7",
+        "maze_c3"
       ],
       "right_frontier": [
         "maze_e5"
@@ -432,9 +432,9 @@
       "left_depth": 10,
       "right_depth": 10,
       "left_frontier": [
-        "maze_f8",
         "maze_g7",
-        "maze_c3"
+        "maze_c3",
+        "maze_f8"
       ],
       "right_frontier": [
         "maze_e4"
@@ -503,8 +503,8 @@
       "left_depth": 13,
       "right_depth": 12,
       "left_frontier": [
-        "maze_e2",
-        "maze_h7"
+        "maze_h7",
+        "maze_e2"
       ],
       "right_frontier": [
         "maze_f3"
@@ -517,8 +517,8 @@
       "left_depth": 13,
       "right_depth": 13,
       "left_frontier": [
-        "maze_h7",
-        "maze_e2"
+        "maze_e2",
+        "maze_h7"
       ],
       "right_frontier": [
         "maze_e3"
