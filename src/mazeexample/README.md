@@ -37,7 +37,16 @@ task verify
 
 ```bash
 # Build
-go build
+go build -o mazeexample
+
+# Run with text output (default)
+./mazeexample
+
+# Run with JSON output
+./mazeexample --json
+
+# Generate JSON for visualization
+./mazeexample --json > results.json
 
 # Run tests
 go test
@@ -46,16 +55,37 @@ go test
 go test -bench=. -benchmem
 ```
 
+### Visualization
+
+Generate and view results interactively:
+
+```bash
+# Easy mode - automated script
+./visualize.sh
+
+# Manual mode
+./mazeexample --json > results.json
+# Then open viewer.html in your web browser
+```
+
+See [JSON_VIEWER_README.md](JSON_VIEWER_README.md) for details on the web-based visualization.
+
 ## Project Structure
 
 ```
 mazeexample/
+├── main.go               # CLI with text/JSON output modes
 ├── graph.go              # In-memory SST graph implementation
-├── maze.go               # Maze solving algorithm
+├── maze.go               # Maze solving algorithm (text output)
+├── maze_json.go          # JSON output implementation
+├── json_output.go        # JSON types and formatting
 ├── maze_test.go          # Unit tests
 ├── maze_bench_test.go    # Benchmarks
+├── viewer.html           # Interactive web visualization
+├── visualize.sh          # Helper script for visualization
 ├── Taskfile.yml          # Task automation
 ├── TEST_README.md        # Detailed testing documentation
+├── JSON_VIEWER_README.md # Visualization guide
 └── README.md             # This file
 ```
 
@@ -127,34 +157,119 @@ task bench-compare   # Compare with baseline
 
 ## Example Usage
 
+### Command Line
+
+```bash
+# Text output (default) - shows search progress
+./mazeexample
+
+# JSON output - for programmatic use or visualization
+./mazeexample --json
+
+# Save JSON to file
+./mazeexample --json > results.json
+
+# Pretty print statistics
+./mazeexample --json | jq '.statistics'
+
+# Extract solution paths
+./mazeexample --json | jq '.solutions[].path'
+```
+
+### Programmatic Usage
+
 ```go
 package main
 
-import "mazeexample"
+import (
+    "mazeexample"
+    "fmt"
+    "os"
+)
 
 func main() {
-    // Run the maze solving example
-    mazeexample.SolveMaze()
+    // Text output to stdout
+    if err := mazeexample.SolveMaze(); err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
 
-    // Or create your own graph
-    ctx := mazeexample.Open(false)
-    defer mazeexample.Close(ctx)
+    // Text output to custom writer
+    var buf bytes.Buffer
+    if err := mazeexample.SolveMazeWithOutput(&buf); err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+
+    // JSON output
+    result, err := mazeexample.SolveMazeJSON()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+    fmt.Printf("Found %d solutions\n", result.Statistics.TotalSolutions)
+
+    // Create your own graph
+    poSST, err := mazeexample.NewPoSST()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+    defer mazeexample.Close(poSST)
 
     // Add nodes
-    a := mazeexample.Vertex(ctx, "A", "chapter1")
-    b := mazeexample.Vertex(ctx, "B", "chapter1")
+    a, _ := mazeexample.Vertex(poSST, "A", "chapter1")
+    b, _ := mazeexample.Vertex(poSST, "B", "chapter1")
 
     // Connect them
-    mazeexample.Edge(ctx, a, "fwd", b, []string{"path1"}, 1.0)
+    mazeexample.Edge(poSST, a, "fwd", b, []string{"path1"}, 1.0)
 }
 ```
 
+## Output Formats
+
+### Text Output (Default)
+
+Human-readable progress and results:
+
+```
+Solving maze from maze_a7 to maze_i6...
+Turn 1: L:1 R:1 (0 solutions found so far)
+...
+Found solution at turn 25
+Solution found: maze_a7 → ... → maze_i6
+```
+
+### JSON Output (--json flag)
+
+Structured data for UIs and automation:
+
+```json
+{
+  "start_node": "maze_a7",
+  "end_node": "maze_i6",
+  "statistics": {
+    "total_solutions": 1,
+    "total_loops": 0,
+    "max_left_depth": 15,
+    "max_right_depth": 14,
+    "total_search_steps": 29
+  },
+  "solutions": [...],
+  "search_steps": [...]
+}
+```
+
+See [JSON_VIEWER_README.md](JSON_VIEWER_README.md) for complete JSON schema.
+
 ## Dependencies
 
-- Go 1.16+ (for any Go features used)
+- Go 1.21+ (for errors package and modern idioms)
 - No external dependencies for core functionality
 - Optional: `task` for task automation
 - Optional: `benchstat` for benchmark comparison
+- Optional: `jq` for JSON pretty-printing
+- Optional: Modern web browser for visualization
 
 ## Development
 
