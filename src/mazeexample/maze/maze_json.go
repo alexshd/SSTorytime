@@ -37,12 +37,12 @@ func solveJSON(graph *LinkedSST, w io.Writer) (*MazeResult, error) {
 	const maxdepth = 16
 	ldepth, rdepth := 1, 1
 	var Lnum, Rnum int
-	var leftPaths, rightPaths [][]Link
+	var leftPaths, rightPaths [][]*Link
 
-	leftPtrs := GetNodeHandleMatchingName(graph, StartNode, "")
-	rightPtrs := GetNodeHandleMatchingName(graph, EndNode, "")
+	leftNode := GetNodeByName(graph, StartNode, "")
+	rightNode := GetNodeByName(graph, EndNode, "")
 
-	if leftPtrs == nil || rightPtrs == nil {
+	if leftNode == nil || rightNode == nil {
 		return nil, fmt.Errorf("no paths available from end points (start=%s, end=%s)", StartNode, EndNode)
 	}
 
@@ -62,8 +62,8 @@ func solveJSON(graph *LinkedSST, w io.Writer) (*MazeResult, error) {
 	solutionCount := 0
 
 	for turn := 0; ldepth < maxdepth && rdepth < maxdepth; turn++ {
-		leftPaths, Lnum = GetEntireNCConePathsAsLinks(graph, "fwd", leftPtrs[0], ldepth, "", cntx, limit)
-		rightPaths, Rnum = GetEntireNCConePathsAsLinks(graph, "bwd", rightPtrs[0], rdepth, "", cntx, limit)
+		leftPaths, Lnum = GetEntireNCConePathsAsLinks(graph, "fwd", leftNode, ldepth, "", cntx, limit)
+		rightPaths, Rnum = GetEntireNCConePathsAsLinks(graph, "bwd", rightNode, rdepth, "", cntx, limit)
 
 		// Collect search step
 		step := SearchStep{
@@ -127,13 +127,12 @@ func solveJSON(graph *LinkedSST, w io.Writer) (*MazeResult, error) {
 }
 
 // getFrontierNodes extracts the frontier node names from paths.
-func getFrontierNodes(graph *LinkedSST, paths [][]Link, count int) []string {
+func getFrontierNodes(graph *LinkedSST, paths [][]*Link, count int) []string {
 	nodeSet := make(map[string]bool)
 	for i := 0; i < count && i < len(paths); i++ {
 		if len(paths[i]) > 0 {
 			lastLink := paths[i][len(paths[i])-1]
-			node := GetDBNodeByNodeHandle(graph, lastLink.Dst)
-			nodeSet[node.label] = true
+			nodeSet[lastLink.dst.label] = true
 		}
 	}
 
@@ -145,7 +144,7 @@ func getFrontierNodes(graph *LinkedSST, paths [][]Link, count int) []string {
 }
 
 // linksToPathLinks converts internal Link representation to JSON-friendly PathLink format.
-func linksToPathLinks(graph *LinkedSST, links []Link) []PathLink {
+func linksToPathLinks(graph *LinkedSST, links []*Link) []PathLink {
 	if len(links) == 0 {
 		return []PathLink{}
 	}
@@ -155,23 +154,19 @@ func linksToPathLinks(graph *LinkedSST, links []Link) []PathLink {
 	// First node is the starting point
 	var prevNode string
 	if len(links) > 0 {
-		firstNode := GetDBNodeByNodeHandle(graph, links[0].Dst)
-		prevNode = firstNode.label
+		prevNode = links[0].dst.label
 	}
 
 	// Convert each link
 	for _, link := range links {
-		node := GetDBNodeByNodeHandle(graph, link.Dst)
-		arrow := GetDBArrowByHandle(graph, link.Arr)
-
 		pathLinks = append(pathLinks, PathLink{
 			From:   prevNode,
-			To:     node.label,
-			Arrow:  arrow.Long,
-			Weight: link.Wgt,
+			To:     link.dst.label,
+			Arrow:  link.arrow.long,
+			Weight: link.weight,
 		})
 
-		prevNode = node.label
+		prevNode = link.dst.label
 	}
 
 	return pathLinks

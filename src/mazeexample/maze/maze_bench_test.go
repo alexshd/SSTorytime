@@ -50,7 +50,7 @@ func BenchmarkGraphBuilding(b *testing.B) {
 		graph := NewLinkedSST()
 
 		// Build 10 node chain
-		nodes := make([]Node, 10)
+		nodes := make([]*Node, 10)
 		for j := 0; j < 10; j++ {
 			nodes[j] = Vertex(graph, string(rune('A'+j)), "ch1")
 		}
@@ -75,7 +75,7 @@ func BenchmarkGetEntireNCConePathsAsLinks_Depth1(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		GetEntireNCConePathsAsLinks(graph, "fwd", start.NHandle, 1, "ch1", []string{}, 100)
+		GetEntireNCConePathsAsLinks(graph, "fwd", start, 1, "ch1", []string{}, 100)
 	}
 }
 
@@ -84,7 +84,7 @@ func BenchmarkGetEntireNCConePathsAsLinks_Depth5(b *testing.B) {
 	graph := NewLinkedSST()
 
 	// Build a binary tree of depth 5
-	nodes := []Node{Vertex(graph, "root", "ch1")}
+	nodes := []*Node{Vertex(graph, "root", "ch1")}
 	for depth := 0; depth < 5; depth++ {
 		currentLevel := nodes[len(nodes)-(1<<depth):]
 		for _, node := range currentLevel {
@@ -98,7 +98,7 @@ func BenchmarkGetEntireNCConePathsAsLinks_Depth5(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		GetEntireNCConePathsAsLinks(graph, "fwd", nodes[0].NHandle, 5, "ch1", []string{}, 100)
+		GetEntireNCConePathsAsLinks(graph, "fwd", nodes[0], 5, "ch1", []string{}, 100)
 	}
 }
 
@@ -107,18 +107,18 @@ func BenchmarkAdjointLinkPath(b *testing.B) {
 	graph := NewLinkedSST()
 
 	// Create a path of length 10
-	nodes := make([]Node, 11)
+	nodes := make([]*Node, 11)
 	for i := range nodes {
 		nodes[i] = Vertex(graph, string(rune('A'+i)), "ch1")
 	}
 
-	fwdHandle := graph.arrow["fwd"]
-	path := make([]Link, 10)
+	fwdArrow := graph.arrow["fwd"]
+	path := make([]*Link, 10)
 	for i := 0; i < 10; i++ {
-		path[i] = Link{
-			Dst: nodes[i+1].NHandle,
-			Arr: fwdHandle,
-			Wgt: 1.0,
+		path[i] = &Link{
+			dst:    nodes[i+1],
+			arrow:  fwdArrow,
+			weight: 1.0,
 		}
 	}
 
@@ -143,8 +143,8 @@ func BenchmarkWaveFrontsOverlap(b *testing.B) {
 	}
 
 	// Pre-compute wavefronts
-	leftPaths, leftCount := GetEntireNCConePathsAsLinks(graph, "fwd", start.NHandle, 1, "ch1", []string{}, 100)
-	rightPaths, rightCount := GetEntireNCConePathsAsLinks(graph, "bwd", end.NHandle, 1, "ch1", []string{}, 100)
+	leftPaths, leftCount := GetEntireNCConePathsAsLinks(graph, "fwd", start, 1, "ch1", []string{}, 100)
+	rightPaths, rightCount := GetEntireNCConePathsAsLinks(graph, "bwd", end, 1, "ch1", []string{}, 100)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -176,8 +176,8 @@ func BenchmarkNodesOverlap(b *testing.B) {
 	Edge(graph, start1, "fwd", shared, []string{}, 1.0)
 	Edge(graph, start2, "fwd", shared, []string{}, 1.0)
 
-	paths1, count1 := GetEntireNCConePathsAsLinks(graph, "fwd", start1.NHandle, 1, "ch1", []string{}, 100)
-	paths2, count2 := GetEntireNCConePathsAsLinks(graph, "fwd", start2.NHandle, 1, "ch1", []string{}, 100)
+	paths1, count1 := GetEntireNCConePathsAsLinks(graph, "fwd", start1, 1, "ch1", []string{}, 100)
+	paths2, count2 := GetEntireNCConePathsAsLinks(graph, "fwd", start2, 1, "ch1", []string{}, 100)
 
 	// Extract wavefronts
 	front1 := waveFront(paths1, count1)
@@ -193,18 +193,18 @@ func BenchmarkIsDAG(b *testing.B) {
 	graph := NewLinkedSST()
 
 	// Create a path that is a DAG
-	nodes := make([]Node, 10)
+	nodes := make([]*Node, 10)
 	for i := range nodes {
 		nodes[i] = Vertex(graph, string(rune('A'+i)), "ch1")
 	}
 
-	fwdHandle := graph.arrow["fwd"]
-	path := make([]Link, 9)
+	fwdArrow := graph.arrow["fwd"]
+	path := make([]*Link, 9)
 	for i := range 9 {
-		path[i] = Link{
-			Dst: nodes[i+1].NHandle,
-			Arr: fwdHandle,
-			Wgt: 1.0,
+		path[i] = &Link{
+			dst:    nodes[i+1],
+			arrow:  fwdArrow,
+			weight: 1.0,
 		}
 	}
 

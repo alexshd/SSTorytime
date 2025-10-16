@@ -121,12 +121,12 @@ func solve(graph *LinkedSST, w io.Writer) error {
 	ldepth, rdepth := 1, 1
 	var Lnum, Rnum int
 	var count int
-	var leftPaths, rightPaths [][]Link
+	var leftPaths, rightPaths [][]*Link
 
-	leftHandles := GetNodeHandleMatchingName(graph, StartNode, "")
-	rightHandles := GetNodeHandleMatchingName(graph, EndNode, "")
+	leftNode := GetNodeByName(graph, StartNode, "")
+	rightNode := GetNodeByName(graph, EndNode, "")
 
-	if leftHandles == nil || rightHandles == nil {
+	if leftNode == nil || rightNode == nil {
 		return fmt.Errorf("no paths available from end points (start=%s, end=%s)", StartNode, EndNode)
 	}
 
@@ -134,8 +134,8 @@ func solve(graph *LinkedSST, w io.Writer) error {
 	const limit = 10
 
 	for turn := 0; ldepth < maxdepth && rdepth < maxdepth; turn++ {
-		leftPaths, Lnum = GetEntireNCConePathsAsLinks(graph, "fwd", leftHandles[0], ldepth, "", cntx, limit)
-		rightPaths, Rnum = GetEntireNCConePathsAsLinks(graph, "bwd", rightHandles[0], rdepth, "", cntx, limit)
+		leftPaths, Lnum = GetEntireNCConePathsAsLinks(graph, "fwd", leftNode, ldepth, "", cntx, limit)
+		rightPaths, Rnum = GetEntireNCConePathsAsLinks(graph, "bwd", rightNode, rdepth, "", cntx, limit)
 
 		solutions, loopCorrections := waveFrontsOverlap(graph, w, leftPaths, rightPaths, Lnum, Rnum, ldepth, rdepth)
 
@@ -174,9 +174,9 @@ func solve(graph *LinkedSST, w io.Writer) error {
 // detects collisions at common nodes, and splices the respective path segments
 // into full solutions. Non-DAG splices are returned as loop-corrections.
 // Output is written to the provided writer.
-func waveFrontsOverlap(graph *LinkedSST, w io.Writer, leftPaths, rightPaths [][]Link, Lnum, Rnum, ldepth, rdepth int) ([][]Link, [][]Link) {
-	var solutions [][]Link
-	var loops [][]Link
+func waveFrontsOverlap(graph *LinkedSST, w io.Writer, leftPaths, rightPaths [][]*Link, Lnum, Rnum, ldepth, rdepth int) ([][]*Link, [][]*Link) {
+	var solutions [][]*Link
+	var loops [][]*Link
 
 	leftfront := waveFront(leftPaths, Lnum)
 	rightfront := waveFront(rightPaths, Rnum)
@@ -188,7 +188,7 @@ func waveFrontsOverlap(graph *LinkedSST, w io.Writer, leftPaths, rightPaths [][]
 
 	for lp := range incidence {
 		rp := incidence[lp]
-		var LRsplice []Link
+		var LRsplice []*Link
 		LRsplice = leftJoin(LRsplice, leftPaths[lp])
 		adjoint := AdjointLinkPath(graph, rightPaths[rp])
 		LRsplice = rightComplementJoin(LRsplice, adjoint)
@@ -209,10 +209,10 @@ func waveFrontsOverlap(graph *LinkedSST, w io.Writer, leftPaths, rightPaths [][]
 
 // waveFront returns the tip nodes of each path in a set of link paths,
 // representing the current search frontier.
-func waveFront(path [][]Link, num int) []NodeHandle {
-	var front []NodeHandle
+func waveFront(path [][]*Link, num int) []*Node {
+	var front []*Node
 	for l := 0; l < num; l++ {
-		front = append(front, path[l][len(path[l])-1].Dst)
+		front = append(front, path[l][len(path[l])-1].dst)
 	}
 	return front
 }
@@ -221,14 +221,13 @@ func waveFront(path [][]Link, num int) []NodeHandle {
 // returning an index map: left-path-index -> right-path-index.
 // It also logs the names of the touching nodes for visibility.
 // Output is written to the provided writer.
-func nodesOverlap(graph *LinkedSST, w io.Writer, left, right []NodeHandle) map[int]int {
+func nodesOverlap(graph *LinkedSST, w io.Writer, left, right []*Node) map[int]int {
 	LRsplice := make(map[int]int)
 	var list string
 	for l := 0; l < len(left); l++ {
 		for r := 0; r < len(right); r++ {
 			if left[l] == right[r] {
-				node := GetDBNodeByNodeHandle(graph, left[l])
-				list += node.label + ", "
+				list += left[l].label + ", "
 				LRsplice[l] = r
 			}
 		}
@@ -240,7 +239,7 @@ func nodesOverlap(graph *LinkedSST, w io.Writer, left, right []NodeHandle) map[i
 }
 
 // leftJoin appends the left-side path sequence into the splice buffer.
-func leftJoin(LRsplice, seq []Link) []Link {
+func leftJoin(LRsplice, seq []*Link) []*Link {
 	for i := 0; i < len(seq); i++ {
 		LRsplice = append(LRsplice, seq[i])
 	}
@@ -249,7 +248,7 @@ func leftJoin(LRsplice, seq []Link) []Link {
 
 // rightComplementJoin appends the right-side path (already adjointed/reversed)
 // except its first element, to avoid duplicating the meet node.
-func rightComplementJoin(LRsplice, adjoint []Link) []Link {
+func rightComplementJoin(LRsplice, adjoint []*Link) []*Link {
 	for j := 1; j < len(adjoint); j++ {
 		LRsplice = append(LRsplice, adjoint[j])
 	}
@@ -258,10 +257,10 @@ func rightComplementJoin(LRsplice, adjoint []Link) []Link {
 
 // isDAG checks the spliced path for repeated destination nodes, which would
 // imply a loop. Returns true if the path is acyclic.
-func isDAG(seq []Link) bool {
-	freq := make(map[NodeHandle]int)
+func isDAG(seq []*Link) bool {
+	freq := make(map[*Node]int)
 	for i := range seq {
-		freq[seq[i].Dst]++
+		freq[seq[i].dst]++
 	}
 	for n := range freq {
 		if freq[n] > 1 {
@@ -272,23 +271,20 @@ func isDAG(seq []Link) bool {
 }
 
 // showNode renders a comma-separated list of node labels for a frontier set.
-func showNode(graph *LinkedSST, nhandle []NodeHandle) string {
+func showNode(graph *LinkedSST, nodes []*Node) string {
 	var s string
-	for n := range nhandle {
-		node := GetDBNodeByNodeHandle(graph, nhandle[n])
-		s += node.label + ","
+	for n := range nodes {
+		s += nodes[n].label + ","
 	}
 	return s
 }
 
 // showNodePath renders a human-readable representation of a link path with
 // arrows and node labels.
-func showNodePath(graph *LinkedSST, lnk []Link) string {
+func showNodePath(graph *LinkedSST, lnk []*Link) string {
 	var ret string
 	for n := range lnk {
-		node := GetDBNodeByNodeHandle(graph, lnk[n].Dst)
-		arrs := GetDBArrowByHandle(graph, lnk[n].Arr).Long
-		ret += fmt.Sprintf("(%s) -> %s ", arrs, node.label)
+		ret += fmt.Sprintf("(%s) -> %s ", lnk[n].arrow.long, lnk[n].dst.label)
 	}
 	return ret
 }
