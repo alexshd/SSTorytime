@@ -7,7 +7,7 @@ vars:
   BUILD_DIR: ./bin
   WEB_CMD: ./cmd/web
   CLI_CMD: ./cmd/cli
-  MAIN_PORT: 8080
+  MAIN_PORT: 5050
 
 env:
   CGO_ENABLED: 0

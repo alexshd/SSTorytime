@@ -24,4 +24,17 @@
     "*.n4l": "n4l",
     "*.sst": "sst"
   }
+  // VSCode Neovim: disable for N4L/SST files to prevent unwanted diagnostics/underlines
+  "vscode-neovim.disableExt": ["n4l", "sst"],
+  "vscode-neovim.neovimInitVimPaths": [],
+  "vscode-neovim.neovimClean": true,
+  "vscode-neovim.disableNotifications": true,
+  "vscode-neovim.highlightGroups.diagnostic": false,
+  "vscode-neovim.highlightGroups.spell": false,
+  "vscode-neovim.highlightGroups.lsp": false,
+  "vscode-neovim.highlightGroups.underline": false,
+  "vscode-neovim.highlightGroups.error": false,
+  "vscode-neovim.highlightGroups.warn": false,
+  "vscode-neovim.highlightGroups.info": false,
+  "vscode-neovim.highlightGroups.hint": false,
 }

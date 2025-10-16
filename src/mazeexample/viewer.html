@@ -29,28 +29,31 @@
     <style>
       .cell {
         aspect-ratio: 1;
-        transition: all 0.3s ease;
+        transition: all 0.5s ease;
       }
       .path-cell {
         background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
-        animation: fadeIn 0.5s ease-in;
+        animation: fadeIn 1.2s ease-in-out;
       }
       .start-cell {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        animation: pulse 2s ease-in-out infinite;
+        animation: pulse 3s ease-in-out infinite;
       }
       .end-cell {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        animation: glow 2s ease-in-out infinite alternate;
+        animation: glow 3s ease-in-out infinite alternate;
       }
       @keyframes fadeIn {
-        from {
+        0% {
           opacity: 0;
-          transform: scale(0.8);
+          transform: scale(0.5) rotate(-5deg);
         }
-        to {
+        50% {
+          transform: scale(1.1) rotate(2deg);
+        }
+        100% {
           opacity: 1;
-          transform: scale(1);
+          transform: scale(1) rotate(0deg);
         }
       }
       @keyframes pulse {
@@ -60,23 +63,23 @@
           opacity: 1;
         }
         50% {
-          transform: scale(1.05);
-          opacity: 0.9;
+          transform: scale(1.15);
+          opacity: 0.85;
         }
       }
       .stat-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        transition: transform 0.2s;
+        transition: transform 0.3s ease;
       }
       .stat-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-5px) scale(1.02);
       }
       .animate-slide-in {
-        animation: slideIn 0.5s ease-out;
+        animation: slideIn 0.8s ease-out;
       }
       @keyframes slideIn {
         from {
-          transform: translateY(20px);
+          transform: translateY(30px);
           opacity: 0;
         }
         to {
@@ -135,6 +138,9 @@ task serve</pre
         <!-- Stats Grid -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8" id="statsGrid"></div>
 
+        <!-- Solution Picker -->
+        <div id="solutionPicker" class="mb-8 flex justify-center gap-4"></div>
+
         <!-- Main Content Grid -->
         <div class="grid lg:grid-cols-2 gap-8">
           <!-- Maze Visualization -->
@@ -161,11 +167,15 @@ task serve</pre
               <div class="flex items-center gap-2">
                 <div
                   class="w-6 h-6 rounded bg-gradient-to-br from-green-500 to-green-600"></div>
-                <span>Path</span>
+                <span>Solution Path</span>
               </div>
               <div class="flex items-center gap-2">
                 <div class="w-6 h-6 rounded bg-gray-700"></div>
-                <span>Empty</span>
+                <span>Corridor</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded bg-gray-950 border border-gray-800"></div>
+                <span>Wall</span>
               </div>
             </div>
           </div>
@@ -227,19 +237,44 @@ task serve</pre
       });
 
       function parseNodeCoords(nodeName) {
-        // Parse "maze_a7" -> {col: 0, row: 6}
-        const match = nodeName.match(/maze_([a-i])(\d)/);
+        // Parse "b2" -> {row: 1, col: 1}
+        // Format: letter=row (a-i = rows 0-8), number=column (1-9 = cols 0-8)
+        // Also supports old "maze_b2" format for backwards compatibility
+        const match = nodeName.match(/(?:maze_)?([a-i])(\d)/);
         if (!match) return null;
-        const col = match[1].charCodeAt(0) - "a".charCodeAt(0);
-        const row = parseInt(match[2]) - 1;
-        return { col, row };
+        const row = match[1].charCodeAt(0) - "a".charCodeAt(0); // Letter → row
+        const col = parseInt(match[2]) - 1; // Number → col
+        return { row, col };
+      }
+
+      function buildWalkableSet(data) {
+        // Build set of all walkable cells from ALL paths in the maze
+        // Walls are cells that are NOT in this set
+        const walkable = new Set();
+
+        // Add all nodes from all solutions
+        data.solutions.forEach((solution) => {
+          solution.path.forEach((link) => {
+            walkable.add(link.from);
+            walkable.add(link.to);
+          });
+        });
+
+        // Add start and end
+        walkable.add(data.start_node);
+        walkable.add(data.end_node);
+
+        return walkable;
       }
 
       function createMazeGrid(data) {
         const solution = data.solutions[0];
         if (!solution) return;
 
-        // Build path set
+        // Build walkable cells (not walls)
+        const walkable = buildWalkableSet(data);
+
+        // Build solution path
         const pathNodes = new Set();
         const startCoords = parseNodeCoords(data.start_node);
         const endCoords = parseNodeCoords(data.end_node);
@@ -257,11 +292,12 @@ task serve</pre
 
         for (let row = 0; row < 9; row++) {
           for (let col = 0; col < 9; col++) {
-            const nodeName = `maze_${String.fromCharCode("a".charCodeAt(0) + col)}${
-              row + 1
-            }`;
+            // Generate node name: letter=row, number=column (e.g., "b2")
+            const nodeName = `${String.fromCharCode("a".charCodeAt(0) + row)}${col + 1}`;
             const cell = document.createElement("div");
             cell.className = "cell rounded shadow-lg";
+
+            const isWalkable = walkable.has(nodeName);
 
             if (nodeName === data.start_node) {
               cell.className += " start-cell";
@@ -273,9 +309,16 @@ task serve</pre
                 '<div class="w-full h-full flex items-center justify-center text-2xl">🎯</div>';
             } else if (pathNodes.has(nodeName)) {
               cell.className += " path-cell";
-              cell.style.animationDelay = `${Math.random() * 0.5}s`;
-            } else {
+              // Slower, more varied animation delays for playful effect
+              cell.style.animationDelay = `${Math.random() * 1.5}s`;
+            } else if (isWalkable) {
+              // Walkable corridor but not on solution path
               cell.className += " bg-gray-700/50 hover:bg-gray-600/50";
+            } else {
+              // WALL - not walkable!
+              cell.className += " bg-gray-950 border border-gray-800/50";
+              cell.innerHTML =
+                '<div class="w-full h-full opacity-20 flex items-center justify-center">▓</div>';
             }
 
             cell.title = nodeName;
@@ -294,20 +337,44 @@ task serve</pre
         document.getElementById("loadSection").classList.add("hidden");
         document.getElementById("resultsSection").classList.remove("hidden");
 
+        // Store data globally for solution switching
+        window.mazeData = data;
+        window.currentSolution = 0;
+
+        // Solution Picker (if multiple solutions)
+        const picker = document.getElementById("solutionPicker");
+        if (data.solutions.length > 1) {
+          picker.innerHTML = data.solutions
+            .map(
+              (sol, idx) => `
+            <button 
+              onclick="switchSolution(${idx})"
+              id="solBtn${idx}"
+              class="px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 ${
+                idx === 0
+                  ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }">
+              🛤️ Path ${idx + 1} (${sol.total_length} steps)
+            </button>
+          `
+            )
+            .join("");
+        }
+
         // Stats
         const statsGrid = document.getElementById("statsGrid");
+        const currentSol = data.solutions[window.currentSolution];
         statsGrid.innerHTML = `
                 <div class="stat-card rounded-xl p-4 text-center shadow-lg">
                     <div class="text-3xl font-bold">${
                       data.statistics.total_solutions
                     }</div>
-                    <div class="text-xs text-gray-200 mt-1">Solutions</div>
+                    <div class="text-xs text-gray-200 mt-1">Solutions Found</div>
                 </div>
                 <div class="stat-card rounded-xl p-4 text-center shadow-lg">
-                    <div class="text-3xl font-bold">${
-                      data.solutions[0]?.total_length || 0
-                    }</div>
-                    <div class="text-xs text-gray-200 mt-1">Path Length</div>
+                    <div class="text-3xl font-bold">${currentSol?.total_length || 0}</div>
+                    <div class="text-xs text-gray-200 mt-1">Current Path</div>
                 </div>
                 <div class="stat-card rounded-xl p-4 text-center shadow-lg">
                     <div class="text-3xl font-bold">${

@@ -1,0 +1,121 @@
+[
+  {
+    "type": "alias_definition",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "context_block",
+    "named": true,
+    "fields": {
+      "prefix": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "+",
+            "named": false
+          },
+          {
+            "type": "-",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "reference_line",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "relation_line",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "section",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "alias_definition",
+          "named": true
+        },
+        {
+          "type": "context_block",
+          "named": true
+        },
+        {
+          "type": "reference_line",
+          "named": true
+        },
+        {
+          "type": "relation_line",
+          "named": true
+        },
+        {
+          "type": "section",
+          "named": true
+        },
+        {
+          "type": "statement",
+          "named": true
+        },
+        {
+          "type": "todo_block",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "$",
+    "named": false
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": "+",
+    "named": false
+  },
+  {
+    "type": "-",
+    "named": false
+  },
+  {
+    "type": "::",
+    "named": false
+  },
+  {
+    "type": "@",
+    "named": false
+  },
+  {
+    "type": "comment",
+    "named": true
+  },
+  {
+    "type": "statement",
+    "named": true
+  },
+  {
+    "type": "todo_block",
+    "named": true
+  }
+]

@@ -1,168 +1,678 @@
 {
-  "start_node": "maze_a7",
-  "end_node": "maze_i6",
+  "start_node": "b1",
+  "end_node": "i6",
   "max_depth": 16,
   "solutions": [
     {
       "id": 0,
       "type": "tree",
-      "left_depth": 14,
-      "right_depth": 13,
-      "total_length": 26,
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
       "path": [
         {
-          "from": "maze_b7",
-          "to": "maze_b7",
+          "from": "b2",
+          "to": "b2",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_b7",
-          "to": "maze_b6",
+          "from": "b2",
+          "to": "b3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_b6",
-          "to": "maze_c6",
+          "from": "b3",
+          "to": "c3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_c6",
-          "to": "maze_c5",
+          "from": "c3",
+          "to": "d3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_c5",
-          "to": "maze_b5",
+          "from": "d3",
+          "to": "d4",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_b5",
-          "to": "maze_b4",
+          "from": "d4",
+          "to": "d5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_b4",
-          "to": "maze_a4",
+          "from": "d5",
+          "to": "e5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_a4",
-          "to": "maze_a3",
+          "from": "e5",
+          "to": "f5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_a3",
-          "to": "maze_b3",
+          "from": "f5",
+          "to": "g5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_b3",
-          "to": "maze_c3",
+          "from": "g5",
+          "to": "h5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_c3",
-          "to": "maze_d3",
+          "from": "h5",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_d3",
-          "to": "maze_d2",
+          "from": "b2",
+          "to": "b3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_d2",
-          "to": "maze_e2",
+          "from": "b3",
+          "to": "c3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_e2",
-          "to": "maze_e3",
+          "from": "c3",
+          "to": "d3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_e3",
-          "to": "maze_f3",
+          "from": "d3",
+          "to": "e3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_f3",
-          "to": "maze_f4",
+          "from": "e3",
+          "to": "e4",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_f4",
-          "to": "maze_e4",
+          "from": "e4",
+          "to": "e5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_e4",
-          "to": "maze_e5",
+          "from": "e5",
+          "to": "f5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_e5",
-          "to": "maze_f5",
+          "from": "f5",
+          "to": "g5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_f5",
-          "to": "maze_f6",
+          "from": "g5",
+          "to": "h5",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_f6",
-          "to": "maze_g6",
+          "from": "h5",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_g6",
-          "to": "maze_g5",
+          "from": "b2",
+          "to": "b3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_g5",
-          "to": "maze_g4",
+          "from": "b3",
+          "to": "c3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_g4",
-          "to": "maze_h4",
+          "from": "c3",
+          "to": "d3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_h4",
-          "to": "maze_h5",
+          "from": "d3",
+          "to": "e3",
           "arrow": "fwd",
           "weight": 1
         },
         {
-          "from": "maze_h5",
-          "to": "maze_h6",
+          "from": "e3",
+          "to": "f3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f3",
+          "to": "f4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f4",
+          "to": "f5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f5",
+          "to": "g5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g5",
+          "to": "g6",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g6",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "b2",
+          "to": "c2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c2",
+          "to": "c3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c3",
+          "to": "d3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d3",
+          "to": "d4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d4",
+          "to": "e4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e4",
+          "to": "e5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e5",
+          "to": "f5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f5",
+          "to": "g5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g5",
+          "to": "h5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "h5",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "b2",
+          "to": "b3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "b3",
+          "to": "c3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c3",
+          "to": "d3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d3",
+          "to": "d4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d4",
+          "to": "e4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e4",
+          "to": "e5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e5",
+          "to": "f5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f5",
+          "to": "g5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g5",
+          "to": "h5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "h5",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "b2",
+          "to": "c2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c2",
+          "to": "c3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c3",
+          "to": "d3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d3",
+          "to": "d4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d4",
+          "to": "d5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d5",
+          "to": "e5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e5",
+          "to": "f5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f5",
+          "to": "g5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g5",
+          "to": "h5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "h5",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "b2",
+          "to": "c2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c2",
+          "to": "c3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c3",
+          "to": "d3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d3",
+          "to": "e3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e3",
+          "to": "e4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e4",
+          "to": "e5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e5",
+          "to": "f5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f5",
+          "to": "g5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g5",
+          "to": "h5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "h5",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "b2",
+          "to": "c2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c2",
+          "to": "c3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c3",
+          "to": "d3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d3",
+          "to": "e3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e3",
+          "to": "f3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f3",
+          "to": "f4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f4",
+          "to": "f5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f5",
+          "to": "g5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g5",
+          "to": "g6",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g6",
+          "to": "h6",
+          "arrow": "fwd",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "tree",
+      "left_depth": 6,
+      "right_depth": 6,
+      "total_length": 11,
+      "path": [
+        {
+          "from": "b2",
+          "to": "b2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "b2",
+          "to": "c2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "c2",
+          "to": "d2",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d2",
+          "to": "d3",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d3",
+          "to": "d4",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d4",
+          "to": "d5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "d5",
+          "to": "e5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "e5",
+          "to": "f5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "f5",
+          "to": "g5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "g5",
+          "to": "h5",
+          "arrow": "fwd",
+          "weight": 1
+        },
+        {
+          "from": "h5",
+          "to": "h6",
           "arrow": "fwd",
           "weight": 1
         }
@@ -176,10 +686,10 @@
       "left_depth": 1,
       "right_depth": 1,
       "left_frontier": [
-        "maze_b7"
+        "b2"
       ],
       "right_frontier": [
-        "maze_h6"
+        "h6"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -189,11 +699,11 @@
       "left_depth": 2,
       "right_depth": 1,
       "left_frontier": [
-        "maze_b6",
-        "maze_b8"
+        "c2",
+        "b3"
       ],
       "right_frontier": [
-        "maze_h6"
+        "h6"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -203,11 +713,12 @@
       "left_depth": 2,
       "right_depth": 2,
       "left_frontier": [
-        "maze_b6",
-        "maze_b8"
+        "b3",
+        "c2"
       ],
       "right_frontier": [
-        "maze_h5"
+        "g6",
+        "h5"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -217,11 +728,13 @@
       "left_depth": 3,
       "right_depth": 2,
       "left_frontier": [
-        "maze_c6",
-        "maze_c8"
+        "b4",
+        "c3",
+        "d2"
       ],
       "right_frontier": [
-        "maze_h5"
+        "g6",
+        "h5"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -231,11 +744,14 @@
       "left_depth": 3,
       "right_depth": 3,
       "left_frontier": [
-        "maze_c6",
-        "maze_c8"
+        "b4",
+        "c3",
+        "d2"
       ],
       "right_frontier": [
-        "maze_h4"
+        "f6",
+        "g5",
+        "h4"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -245,11 +761,14 @@
       "left_depth": 4,
       "right_depth": 3,
       "left_frontier": [
-        "maze_c5",
-        "maze_c7"
+        "b5",
+        "d3",
+        "e2"
       ],
       "right_frontier": [
-        "maze_h4"
+        "f6",
+        "g5",
+        "h4"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -259,11 +778,13 @@
       "left_depth": 4,
       "right_depth": 4,
       "left_frontier": [
-        "maze_c5",
-        "maze_c7"
+        "e2",
+        "b5",
+        "d3"
       ],
       "right_frontier": [
-        "maze_g4"
+        "f5",
+        "h3"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -273,11 +794,14 @@
       "left_depth": 5,
       "right_depth": 4,
       "left_frontier": [
-        "maze_b5",
-        "maze_d7"
+        "d4",
+        "e3",
+        "f2",
+        "b6"
       ],
       "right_frontier": [
-        "maze_g4"
+        "f5",
+        "h3"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -287,11 +811,15 @@
       "left_depth": 5,
       "right_depth": 5,
       "left_frontier": [
-        "maze_d7",
-        "maze_b5"
+        "b6",
+        "d4",
+        "e3",
+        "f2"
       ],
       "right_frontier": [
-        "maze_g5"
+        "e5",
+        "f4",
+        "h2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -301,12 +829,15 @@
       "left_depth": 6,
       "right_depth": 5,
       "left_frontier": [
-        "maze_b4",
-        "maze_d6",
-        "maze_d8"
+        "b7",
+        "d5",
+        "e4",
+        "f3"
       ],
       "right_frontier": [
-        "maze_g5"
+        "e5",
+        "f4",
+        "h2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -316,14 +847,17 @@
       "left_depth": 6,
       "right_depth": 6,
       "left_frontier": [
-        "maze_b4",
-        "maze_d6",
-        "maze_d8"
+        "b7",
+        "d5",
+        "e4",
+        "f3"
       ],
       "right_frontier": [
-        "maze_g6"
+        "d5",
+        "e4",
+        "f3"
       ],
-      "solutions_found": 0,
+      "solutions_found": 9,
       "loops_found": 0
     },
     {
@@ -331,12 +865,16 @@
       "left_depth": 7,
       "right_depth": 6,
       "left_frontier": [
-        "maze_e6",
-        "maze_e8",
-        "maze_a4"
+        "c7",
+        "d6",
+        "e5",
+        "f4",
+        "b8"
       ],
       "right_frontier": [
-        "maze_g6"
+        "d5",
+        "e4",
+        "f3"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -346,12 +884,16 @@
       "left_depth": 7,
       "right_depth": 7,
       "left_frontier": [
-        "maze_a4",
-        "maze_e6",
-        "maze_e8"
+        "c7",
+        "d6",
+        "e5",
+        "f4",
+        "b8"
       ],
       "right_frontier": [
-        "maze_f6"
+        "f2",
+        "d4",
+        "e3"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -361,11 +903,14 @@
       "left_depth": 8,
       "right_depth": 7,
       "left_frontier": [
-        "maze_a3",
-        "maze_e7"
+        "f5",
+        "c8",
+        "d7"
       ],
       "right_frontier": [
-        "maze_f6"
+        "d4",
+        "e3",
+        "f2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -375,11 +920,13 @@
       "left_depth": 8,
       "right_depth": 8,
       "left_frontier": [
-        "maze_a3",
-        "maze_e7"
+        "c8",
+        "d7",
+        "f5"
       ],
       "right_frontier": [
-        "maze_f5"
+        "e2",
+        "d3"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -389,11 +936,14 @@
       "left_depth": 9,
       "right_depth": 8,
       "left_frontier": [
-        "maze_b3",
-        "maze_f7"
+        "g5",
+        "d8",
+        "e7",
+        "f6"
       ],
       "right_frontier": [
-        "maze_f5"
+        "e2",
+        "d3"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -403,11 +953,14 @@
       "left_depth": 9,
       "right_depth": 9,
       "left_frontier": [
-        "maze_b3",
-        "maze_f7"
+        "f6",
+        "g5",
+        "d8",
+        "e7"
       ],
       "right_frontier": [
-        "maze_e5"
+        "c3",
+        "d2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -417,12 +970,13 @@
       "left_depth": 10,
       "right_depth": 9,
       "left_frontier": [
-        "maze_f8",
-        "maze_g7",
-        "maze_c3"
+        "g6",
+        "h5",
+        "e8"
       ],
       "right_frontier": [
-        "maze_e5"
+        "c3",
+        "d2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -432,12 +986,13 @@
       "left_depth": 10,
       "right_depth": 10,
       "left_frontier": [
-        "maze_g7",
-        "maze_c3",
-        "maze_f8"
+        "e8",
+        "g6",
+        "h5"
       ],
       "right_frontier": [
-        "maze_e4"
+        "b3",
+        "c2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -447,11 +1002,13 @@
       "left_depth": 11,
       "right_depth": 10,
       "left_frontier": [
-        "maze_d3",
-        "maze_g8"
+        "f8",
+        "g7",
+        "h6"
       ],
       "right_frontier": [
-        "maze_e4"
+        "b3",
+        "c2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -461,11 +1018,13 @@
       "left_depth": 11,
       "right_depth": 11,
       "left_frontier": [
-        "maze_d3",
-        "maze_g8"
+        "f8",
+        "g7",
+        "h6"
       ],
       "right_frontier": [
-        "maze_f4"
+        "a3",
+        "b2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -475,11 +1034,12 @@
       "left_depth": 12,
       "right_depth": 11,
       "left_frontier": [
-        "maze_d2",
-        "maze_h8"
+        "h7",
+        "i6"
       ],
       "right_frontier": [
-        "maze_f4"
+        "a3",
+        "b2"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -489,11 +1049,11 @@
       "left_depth": 12,
       "right_depth": 12,
       "left_frontier": [
-        "maze_d2",
-        "maze_h8"
+        "h7",
+        "i6"
       ],
       "right_frontier": [
-        "maze_f3"
+        "b1"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -503,11 +1063,10 @@
       "left_depth": 13,
       "right_depth": 12,
       "left_frontier": [
-        "maze_h7",
-        "maze_e2"
+        "i7"
       ],
       "right_frontier": [
-        "maze_f3"
+        "b1"
       ],
       "solutions_found": 0,
       "loops_found": 0
@@ -517,12 +1076,9 @@
       "left_depth": 13,
       "right_depth": 13,
       "left_frontier": [
-        "maze_e2",
-        "maze_h7"
+        "i7"
       ],
-      "right_frontier": [
-        "maze_e3"
-      ],
+      "right_frontier": [],
       "solutions_found": 0,
       "loops_found": 0
     },
@@ -531,12 +1087,10 @@
       "left_depth": 14,
       "right_depth": 13,
       "left_frontier": [
-        "maze_e3"
+        "i8"
       ],
-      "right_frontier": [
-        "maze_e3"
-      ],
-      "solutions_found": 1,
+      "right_frontier": [],
+      "solutions_found": 0,
       "loops_found": 0
     },
     {
@@ -544,11 +1098,9 @@
       "left_depth": 14,
       "right_depth": 14,
       "left_frontier": [
-        "maze_e3"
+        "i8"
       ],
-      "right_frontier": [
-        "maze_e2"
-      ],
+      "right_frontier": [],
       "solutions_found": 0,
       "loops_found": 0
     },
@@ -556,12 +1108,8 @@
       "turn": 27,
       "left_depth": 15,
       "right_depth": 14,
-      "left_frontier": [
-        "maze_f3"
-      ],
-      "right_frontier": [
-        "maze_e2"
-      ],
+      "left_frontier": [],
+      "right_frontier": [],
       "solutions_found": 0,
       "loops_found": 0
     },
@@ -569,19 +1117,14 @@
       "turn": 28,
       "left_depth": 15,
       "right_depth": 15,
-      "left_frontier": [
-        "maze_f3"
-      ],
-      "right_frontier": [
-        "maze_d2",
-        "maze_f2"
-      ],
+      "left_frontier": [],
+      "right_frontier": [],
       "solutions_found": 0,
       "loops_found": 0
     }
   ],
   "statistics": {
-    "total_solutions": 1,
+    "total_solutions": 9,
     "total_loops": 0,
     "max_left_depth": 15,
     "max_right_depth": 14,

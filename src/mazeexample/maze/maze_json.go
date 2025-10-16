@@ -15,21 +15,12 @@ func SolveMazeJSON() (*MazeResult, error) {
 // The writer w receives human-readable text output (can be io.Discard to suppress).
 // Returns a MazeResult struct that can be marshaled to JSON.
 func SolveMazeJSONWithOutput(w io.Writer) (*MazeResult, error) {
-	graph := NewPoSST()
+	graph := NewLinkedSST()
 	defer Close(graph)
 
-	// Build the maze
-	for p := range path {
-		for leg := 1; leg < len(path[p]); leg++ {
-			chap := "solve maze"
-			context := []string{""}
-			var weight float32 = 1.0
-			nfrom := Vertex(graph, path[p][leg-1], chap)
-			nto := Vertex(graph, path[p][leg], chap)
-			if _, _, err := Edge(graph, nfrom, "fwd", nto, context, weight); err != nil {
-				return nil, err
-			}
-		}
+	// Build the maze from grid
+	if err := buildGraphFromGrid(graph); err != nil {
+		return nil, fmt.Errorf("failed to build maze graph: %w", err)
 	}
 
 	// Solve and collect results
@@ -42,28 +33,25 @@ func SolveMazeJSONWithOutput(w io.Writer) (*MazeResult, error) {
 }
 
 // solveJSON runs bidirectional search and collects results as structured data.
-func solveJSON(graph *PoSST, w io.Writer) (*MazeResult, error) {
+func solveJSON(graph *LinkedSST, w io.Writer) (*MazeResult, error) {
 	const maxdepth = 16
 	ldepth, rdepth := 1, 1
 	var Lnum, Rnum int
 	var leftPaths, rightPaths [][]Link
 
-	startBC := "maze_a7"
-	endBC := "maze_i6"
-
-	leftPtrs := GetDBNodePtrMatchingName(graph, startBC, "")
-	rightPtrs := GetDBNodePtrMatchingName(graph, endBC, "")
+	leftPtrs := GetNodeHandleMatchingName(graph, StartNode, "")
+	rightPtrs := GetNodeHandleMatchingName(graph, EndNode, "")
 
 	if leftPtrs == nil || rightPtrs == nil {
-		return nil, fmt.Errorf("no paths available from end points (start=%s, end=%s)", startBC, endBC)
+		return nil, fmt.Errorf("no paths available from end points (start=%s, end=%s)", StartNode, EndNode)
 	}
 
 	cntx := []string{""}
 	const limit = 10
 
 	result := &MazeResult{
-		StartNode:   startBC,
-		EndNode:     endBC,
+		StartNode:   StartNode,
+		EndNode:     EndNode,
 		MaxDepth:    maxdepth,
 		Solutions:   []Solution{},
 		Loops:       []Solution{},
@@ -139,13 +127,13 @@ func solveJSON(graph *PoSST, w io.Writer) (*MazeResult, error) {
 }
 
 // getFrontierNodes extracts the frontier node names from paths.
-func getFrontierNodes(graph *PoSST, paths [][]Link, count int) []string {
+func getFrontierNodes(graph *LinkedSST, paths [][]Link, count int) []string {
 	nodeSet := make(map[string]bool)
 	for i := 0; i < count && i < len(paths); i++ {
 		if len(paths[i]) > 0 {
 			lastLink := paths[i][len(paths[i])-1]
-			node := GetDBNodeByNodePtr(graph, lastLink.Dst)
-			nodeSet[node.S] = true
+			node := GetDBNodeByNodeHandle(graph, lastLink.Dst)
+			nodeSet[node.label] = true
 		}
 	}
 
@@ -157,7 +145,7 @@ func getFrontierNodes(graph *PoSST, paths [][]Link, count int) []string {
 }
 
 // linksToPathLinks converts internal Link representation to JSON-friendly PathLink format.
-func linksToPathLinks(graph *PoSST, links []Link) []PathLink {
+func linksToPathLinks(graph *LinkedSST, links []Link) []PathLink {
 	if len(links) == 0 {
 		return []PathLink{}
 	}
@@ -167,23 +155,23 @@ func linksToPathLinks(graph *PoSST, links []Link) []PathLink {
 	// First node is the starting point
 	var prevNode string
 	if len(links) > 0 {
-		firstNode := GetDBNodeByNodePtr(graph, links[0].Dst)
-		prevNode = firstNode.S
+		firstNode := GetDBNodeByNodeHandle(graph, links[0].Dst)
+		prevNode = firstNode.label
 	}
 
 	// Convert each link
 	for _, link := range links {
-		node := GetDBNodeByNodePtr(graph, link.Dst)
-		arrow := GetDBArrowByPtr(graph, link.Arr)
+		node := GetDBNodeByNodeHandle(graph, link.Dst)
+		arrow := GetDBArrowByHandle(graph, link.Arr)
 
 		pathLinks = append(pathLinks, PathLink{
 			From:   prevNode,
-			To:     node.S,
+			To:     node.label,
 			Arrow:  arrow.Long,
 			Weight: link.Wgt,
 		})
 
-		prevNode = node.S
+		prevNode = node.label
 	}
 
 	return pathLinks

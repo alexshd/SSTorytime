@@ -5,96 +5,96 @@ import (
 	"testing"
 )
 
-// TestOpen verifies that Open() initializes a PoSST context correctly
+// TestOpen verifies that Open() initializes a LinkedSST context correctly
 func TestOpen(t *testing.T) {
-	ctx := NewPoSST()
-	if ctx == nil {
+	graph := NewLinkedSST()
+	if graph == nil {
 		t.Fatal("Open() returned nil")
 	}
 
-	if ctx.nextID != 1 {
-		t.Errorf("Expected nextID=1, got %d", ctx.nextID)
+	if graph.nextID != 1 {
+		t.Errorf("Expected nextID=1, got %d", graph.nextID)
 	}
 
-	if ctx.name2ptr == nil {
-		t.Error("name2ptr map not initialized")
+	if graph.nameTohandle == nil {
+		t.Error("nameTohandle map not initialized")
 	}
 
-	if ctx.ptr2node == nil {
-		t.Error("ptr2node map not initialized")
+	if graph.handleToNode == nil {
+		t.Error("handleToNode map not initialized")
 	}
 
-	if ctx.inverse == nil {
+	if graph.inverse == nil {
 		t.Error("inverse map not initialized")
 	}
 
 	// Verify forward and backward arrows are configured
-	fwdPtr := ctx.arrowName["fwd"]
-	bwdPtr := ctx.arrowName["bwd"]
-	if ctx.inverse[fwdPtr] != bwdPtr {
+	fwdHandle := graph.arrow["fwd"]
+	bwdHandle := graph.arrow["bwd"]
+	if graph.inverse[fwdHandle] != bwdHandle {
 		t.Error("Expected fwd->bwd inverse mapping")
 	}
-	if ctx.inverse[bwdPtr] != fwdPtr {
+	if graph.inverse[bwdHandle] != fwdHandle {
 		t.Error("Expected bwd->fwd inverse mapping")
 	}
 }
 
 // TestVertex verifies node creation and retrieval
 func TestVertex(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
 	// Create a new vertex
-	node1 := Vertex(ctx, "A", "chapter1")
-	if node1.S != "A" {
-		t.Errorf("Expected name='A', got '%s'", node1.S)
+	node1 := Vertex(graph, "A", "chapter1")
+	if node1.label != "A" {
+		t.Errorf("Expected name='A', got '%s'", node1.label)
 	}
 	if node1.Chap != "chapter1" {
 		t.Errorf("Expected chapter='chapter1', got '%s'", node1.Chap)
 	}
-	if node1.NPtr <= 0 {
-		t.Errorf("Expected positive NodePtr, got %d", node1.NPtr)
+	if node1.NHandle <= 0 {
+		t.Errorf("Expected positive NodeHandle, got %d", node1.NHandle)
 	}
 
 	// Retrieve same vertex (should be idempotent)
-	node2 := Vertex(ctx, "A", "chapter1")
-	if node1.NPtr != node2.NPtr {
-		t.Errorf("Vertex not idempotent: got NodePtrs %d and %d", node1.NPtr, node2.NPtr)
+	node2 := Vertex(graph, "A", "chapter1")
+	if node1.NHandle != node2.NHandle {
+		t.Errorf("Vertex not idempotent: got NodeHandles %d and %d", node1.NHandle, node2.NHandle)
 	}
 
 	// Create different vertex
-	node3 := Vertex(ctx, "B", "chapter1")
-	if node1.NPtr == node3.NPtr {
-		t.Error("Different vertices should have different NodePtrs")
+	node3 := Vertex(graph, "B", "chapter1")
+	if node1.NHandle == node3.NHandle {
+		t.Error("Different vertices should have different NodeHandles")
 	}
 }
 
 // TestEdge verifies link creation between nodes
 func TestEdge(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
-	nodeA := Vertex(ctx, "A", "ch1")
-	nodeB := Vertex(ctx, "B", "ch1")
+	nodeA := Vertex(graph, "A", "ch1")
+	nodeB := Vertex(graph, "B", "ch1")
 
 	// Create edge A -[fwd]-> B
-	if _, _, err := Edge(ctx, nodeA, "fwd", nodeB, []string{"test context"}, 1.0); err != nil {
+	if _, _, err := Edge(graph, nodeA, "fwd", nodeB, []string{"test context"}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
 
 	// Verify forward link exists in out map
-	outLinks, exists := ctx.out[nodeA.NPtr]
+	outLinks, exists := graph.forward[nodeA.NHandle]
 	if !exists || len(outLinks) == 0 {
 		t.Fatal("Forward link not created in out map")
 	}
 
 	foundLink := false
 	for _, link := range outLinks {
-		if link.Dst == nodeB.NPtr {
+		if link.Dst == nodeB.NHandle {
 			foundLink = true
 			if link.Wgt != 1.0 {
 				t.Errorf("Expected weight=1.0, got %f", link.Wgt)
 			}
 			// Verify arrow is fwd
-			arrInfo := GetDBArrowByPtr(ctx, link.Arr)
+			arrInfo := GetDBArrowByHandle(graph, link.Arr)
 			if arrInfo.Short != "fwd" {
 				t.Errorf("Expected arrow 'fwd', got '%s'", arrInfo.Short)
 			}
@@ -106,16 +106,16 @@ func TestEdge(t *testing.T) {
 	}
 
 	// Verify backward link exists in in map (bwd arrow)
-	inLinks, exists := ctx.in[nodeB.NPtr]
+	inLinks, exists := graph.backward[nodeB.NHandle]
 	if !exists || len(inLinks) == 0 {
 		t.Fatal("Backward link not created in in map")
 	}
 
 	foundBackLink := false
 	for _, link := range inLinks {
-		if link.Dst == nodeA.NPtr {
+		if link.Dst == nodeA.NHandle {
 			foundBackLink = true
-			arrInfo := GetDBArrowByPtr(ctx, link.Arr)
+			arrInfo := GetDBArrowByHandle(graph, link.Arr)
 			if arrInfo.Short != "bwd" {
 				t.Errorf("Expected inverse arrow 'bwd', got '%s'", arrInfo.Short)
 			}
@@ -129,22 +129,22 @@ func TestEdge(t *testing.T) {
 
 // TestGetEntireNCConePathsAsLinks verifies BFS path enumeration
 func TestGetEntireNCConePathsAsLinks(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
 	// Create simple linear path: A -> B -> C
-	nodeA := Vertex(ctx, "A", "ch1")
-	nodeB := Vertex(ctx, "B", "ch1")
-	nodeC := Vertex(ctx, "C", "ch1")
+	nodeA := Vertex(graph, "A", "ch1")
+	nodeB := Vertex(graph, "B", "ch1")
+	nodeC := Vertex(graph, "C", "ch1")
 
-	if _, _, err := Edge(ctx, nodeA, "fwd", nodeB, []string{}, 1.0); err != nil {
+	if _, _, err := Edge(graph, nodeA, "fwd", nodeB, []string{}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
-	if _, _, err := Edge(ctx, nodeB, "fwd", nodeC, []string{}, 1.0); err != nil {
+	if _, _, err := Edge(graph, nodeB, "fwd", nodeC, []string{}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
 
 	// Find paths from A with depth 1
-	paths1, count1 := GetEntireNCConePathsAsLinks(ctx, "fwd", nodeA.NPtr, 1, "ch1", []string{}, 100)
+	paths1, count1 := GetEntireNCConePathsAsLinks(graph, "fwd", nodeA.NHandle, 1, "ch1", []string{}, 100)
 	if count1 != 1 {
 		t.Errorf("Expected 1 path at depth 1, got %d", count1)
 	}
@@ -153,7 +153,7 @@ func TestGetEntireNCConePathsAsLinks(t *testing.T) {
 	}
 
 	// Find paths from A with depth 2
-	paths2, count2 := GetEntireNCConePathsAsLinks(ctx, "fwd", nodeA.NPtr, 2, "ch1", []string{}, 100)
+	paths2, count2 := GetEntireNCConePathsAsLinks(graph, "fwd", nodeA.NHandle, 2, "ch1", []string{}, 100)
 	if count2 != 1 {
 		t.Errorf("Expected 1 path at depth 2, got %d", count2)
 	}
@@ -164,24 +164,24 @@ func TestGetEntireNCConePathsAsLinks(t *testing.T) {
 
 // TestAdjointLinkPath verifies path reversal with arrow inversion
 func TestAdjointLinkPath(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
 	// Create nodes A, B, C
-	Vertex(ctx, "A", "ch1") // nodeA - not directly used but establishes context
-	nodeB := Vertex(ctx, "B", "ch1")
-	nodeC := Vertex(ctx, "C", "ch1")
+	Vertex(graph, "A", "ch1") // nodeA - not directly used but establishes context
+	nodeB := Vertex(graph, "B", "ch1")
+	nodeC := Vertex(graph, "C", "ch1")
 
-	// Get arrow pointer for fwd
-	fwdPtr := ctx.arrowName["fwd"]
+	// Get arrow handle for fwd
+	fwdHandle := graph.arrow["fwd"]
 
 	// Create forward path A -> B -> C
 	// In the Link representation, we only store the destination
-	link1 := Link{Dst: nodeB.NPtr, Arr: fwdPtr, Wgt: 1.0} // represents step to B
-	link2 := Link{Dst: nodeC.NPtr, Arr: fwdPtr, Wgt: 1.0} // represents step to C
+	link1 := Link{Dst: nodeB.NHandle, Arr: fwdHandle, Wgt: 1.0} // represents step to B
+	link2 := Link{Dst: nodeC.NHandle, Arr: fwdHandle, Wgt: 1.0} // represents step to C
 	path := []Link{link1, link2}
 
 	// Reverse the path
-	reversed := AdjointLinkPath(ctx, path)
+	reversed := AdjointLinkPath(graph, path)
 
 	if len(reversed) != 2 {
 		t.Fatalf("Expected reversed path length 2, got %d", len(reversed))
@@ -189,52 +189,52 @@ func TestAdjointLinkPath(t *testing.T) {
 
 	// The reversed path should have links in reverse order
 	// Original: [B, C]  -> Reversed: [C, B]
-	if reversed[0].Dst != nodeC.NPtr {
+	if reversed[0].Dst != nodeC.NHandle {
 		t.Errorf("First reversed link should point to C, got %d", reversed[0].Dst)
 	}
-	if reversed[1].Dst != nodeB.NPtr {
+	if reversed[1].Dst != nodeB.NHandle {
 		t.Errorf("Second reversed link should point to B, got %d", reversed[1].Dst)
 	}
 
 	// Check arrows are inverted to bwd
-	bwdPtr := ctx.arrowName["bwd"]
-	if reversed[0].Arr != bwdPtr || reversed[1].Arr != bwdPtr {
+	bwdHandle := graph.arrow["bwd"]
+	if reversed[0].Arr != bwdHandle || reversed[1].Arr != bwdHandle {
 		t.Error("Arrows not properly inverted to bwd")
 	}
 }
 
 // TestWaveFrontsOverlap verifies frontier collision detection
 func TestWaveFrontsOverlap(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
 	// Create diamond pattern: Start -> A, B -> End
-	start := Vertex(ctx, "Start", "ch1")
-	nodeA := Vertex(ctx, "A", "ch1")
-	nodeB := Vertex(ctx, "B", "ch1")
-	end := Vertex(ctx, "End", "ch1")
+	start := Vertex(graph, "Start", "ch1")
+	nodeA := Vertex(graph, "A", "ch1")
+	nodeB := Vertex(graph, "B", "ch1")
+	end := Vertex(graph, "End", "ch1")
 
-	if _, _, err := Edge(ctx, start, "fwd", nodeA, []string{}, 1.0); err != nil {
+	if _, _, err := Edge(graph, start, "fwd", nodeA, []string{}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
-	if _, _, err := Edge(ctx, start, "fwd", nodeB, []string{}, 1.0); err != nil {
+	if _, _, err := Edge(graph, start, "fwd", nodeB, []string{}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
-	if _, _, err := Edge(ctx, nodeA, "fwd", end, []string{}, 1.0); err != nil {
+	if _, _, err := Edge(graph, nodeA, "fwd", end, []string{}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
-	if _, _, err := Edge(ctx, nodeB, "fwd", end, []string{}, 1.0); err != nil {
+	if _, _, err := Edge(graph, nodeB, "fwd", end, []string{}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
 
 	// Get forward paths from start
-	leftPaths, leftCount := GetEntireNCConePathsAsLinks(ctx, "fwd", start.NPtr, 1, "ch1", []string{}, 100)
+	leftPaths, leftCount := GetEntireNCConePathsAsLinks(graph, "fwd", start.NHandle, 1, "ch1", []string{}, 100)
 
 	// Get backward paths from end
-	rightPaths, rightCount := GetEntireNCConePathsAsLinks(ctx, "bwd", end.NPtr, 1, "ch1", []string{}, 100)
+	rightPaths, rightCount := GetEntireNCConePathsAsLinks(graph, "bwd", end.NHandle, 1, "ch1", []string{}, 100)
 
 	// Check overlap - should find connections at A and B
 	// Use io.Discard to suppress output during test
-	dags, cycles := waveFrontsOverlap(ctx, io.Discard, leftPaths, rightPaths, leftCount, rightCount, 1, 1)
+	dags, cycles := waveFrontsOverlap(graph, io.Discard, leftPaths, rightPaths, leftCount, rightCount, 1, 1)
 
 	if len(dags) == 0 {
 		t.Error("Expected to find DAG paths through diamond")
@@ -255,47 +255,47 @@ func TestSolveMaze(t *testing.T) {
 
 // TestGraphIsolation verifies each context is independent
 func TestGraphIsolation(t *testing.T) {
-	ctx1 := NewPoSST()
-	ctx2 := NewPoSST()
+	graph1 := NewLinkedSST()
+	graph2 := NewLinkedSST()
 
-	node1 := Vertex(ctx1, "A", "ch1")
-	node2 := Vertex(ctx2, "A", "ch1")
+	node1 := Vertex(graph1, "A", "ch1")
+	node2 := Vertex(graph2, "A", "ch1")
 
-	// Same name but different contexts should have independent NodePtrs
-	if ctx1.name2ptr == nil || ctx2.name2ptr == nil {
+	// Same name but different contexts should have independent NodeHandles
+	if graph1.nameTohandle == nil || graph2.nameTohandle == nil {
 		t.Fatal("Context maps not initialized")
 	}
 
 	// Each context should have exactly one node
-	if len(ctx1.name2ptr) != 1 {
-		t.Errorf("ctx1 should have 1 node, got %d", len(ctx1.name2ptr))
+	if len(graph1.nameTohandle) != 1 {
+		t.Errorf("graph1 should have 1 node, got %d", len(graph1.nameTohandle))
 	}
-	if len(ctx2.name2ptr) != 1 {
-		t.Errorf("ctx2 should have 1 node, got %d", len(ctx2.name2ptr))
+	if len(graph2.nameTohandle) != 1 {
+		t.Errorf("graph2 should have 1 node, got %d", len(graph2.nameTohandle))
 	}
 
 	// Verify they are distinct in their respective contexts
-	if node1.NPtr == node2.NPtr && ctx1 == ctx2 {
+	if node1.NHandle == node2.NHandle && graph1 == graph2 {
 		t.Error("Contexts are not properly isolated")
 	}
 }
 
 // TestMultipleEdges verifies handling of multiple edges between same nodes
 func TestMultipleEdges(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
-	nodeA := Vertex(ctx, "A", "ch1")
-	nodeB := Vertex(ctx, "B", "ch1")
+	nodeA := Vertex(graph, "A", "ch1")
+	nodeB := Vertex(graph, "B", "ch1")
 
 	// Add multiple edges with same arrow type
-	if _, _, err := Edge(ctx, nodeA, "fwd", nodeB, []string{"context1"}, 1.0); err != nil {
+	if _, _, err := Edge(graph, nodeA, "fwd", nodeB, []string{"context1"}, 1.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
-	if _, _, err := Edge(ctx, nodeA, "fwd", nodeB, []string{"context2"}, 2.0); err != nil {
+	if _, _, err := Edge(graph, nodeA, "fwd", nodeB, []string{"context2"}, 2.0); err != nil {
 		t.Fatalf("Edge creation failed: %v", err)
 	}
 
-	outLinks := ctx.out[nodeA.NPtr]
+	outLinks := graph.forward[nodeA.NHandle]
 	if len(outLinks) != 2 {
 		t.Errorf("Expected 2 outgoing links, got %d", len(outLinks))
 	}
@@ -303,12 +303,12 @@ func TestMultipleEdges(t *testing.T) {
 
 // TestEmptyGraph verifies behavior with no edges
 func TestEmptyGraph(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
-	nodeA := Vertex(ctx, "A", "ch1")
+	nodeA := Vertex(graph, "A", "ch1")
 
 	// Try to find paths in empty graph
-	paths, count := GetEntireNCConePathsAsLinks(ctx, "fwd", nodeA.NPtr, 1, "ch1", []string{}, 100)
+	paths, count := GetEntireNCConePathsAsLinks(graph, "fwd", nodeA.NHandle, 1, "ch1", []string{}, 100)
 
 	if count != 0 {
 		t.Errorf("Expected no paths in empty graph, got %d", count)
@@ -320,19 +320,19 @@ func TestEmptyGraph(t *testing.T) {
 
 // TestPathLimit verifies depth and count limits work
 func TestPathLimit(t *testing.T) {
-	ctx := NewPoSST()
+	graph := NewLinkedSST()
 
 	// Create a node with multiple outgoing edges
-	start := Vertex(ctx, "Start", "ch1")
+	start := Vertex(graph, "Start", "ch1")
 	for i := 0; i < 10; i++ {
-		end := Vertex(ctx, string(rune('A'+i)), "ch1")
-		if _, _, err := Edge(ctx, start, "fwd", end, []string{}, 1.0); err != nil {
+		end := Vertex(graph, string(rune('A'+i)), "ch1")
+		if _, _, err := Edge(graph, start, "fwd", end, []string{}, 1.0); err != nil {
 			t.Fatalf("Edge creation failed: %v", err)
 		}
 	}
 
 	// Request limited number of paths
-	paths, count := GetEntireNCConePathsAsLinks(ctx, "fwd", start.NPtr, 1, "ch1", []string{}, 5)
+	paths, count := GetEntireNCConePathsAsLinks(graph, "fwd", start.NHandle, 1, "ch1", []string{}, 5)
 
 	if count > 5 {
 		t.Errorf("Expected at most 5 paths due to limit, got %d", count)
@@ -344,14 +344,14 @@ func TestPathLimit(t *testing.T) {
 
 // TestEdgeUnknownArrow tests that Edge returns an error for unknown arrow names
 func TestEdgeUnknownArrow(t *testing.T) {
-	ctx := NewPoSST()
-	defer Close(ctx)
+	graph := NewLinkedSST()
+	defer Close(graph)
 
-	start := Vertex(ctx, "node1", "ch1")
-	end := Vertex(ctx, "node2", "ch1")
+	start := Vertex(graph, "node1", "ch1")
+	end := Vertex(graph, "node2", "ch1")
 
 	// Try to create an edge with an unknown arrow name
-	_, _, err := Edge(ctx, start, "unknown_arrow", end, []string{}, 1.0)
+	_, _, err := Edge(graph, start, "unknown_arrow", end, []string{}, 1.0)
 	if err == nil {
 		t.Error("Expected error for unknown arrow, got nil")
 	}

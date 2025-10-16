@@ -45,7 +45,7 @@ func main() {
 	// For goroutine info: curl http://localhost:8080/debug/pprof/goroutine
 	mux.Handle("/debug/", http.DefaultServeMux)
 
-	port := ":8080"
+	port := ":5050"
 	server := &http.Server{
 		Addr:    port,
 		Handler: mux,

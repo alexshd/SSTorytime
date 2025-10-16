@@ -30,7 +30,7 @@ func main() {
 	} else {
 		// Text output mode (default)
 		fmt.Println("=== Maze Solver Example ===")
-		fmt.Println("Solving maze from maze_a7 to maze_i6")
+		fmt.Printf("Solving maze from %s to %s\n", maze.StartNode, maze.EndNode)
 		fmt.Println("Using bidirectional wavefront search")
 		fmt.Println()
 
