@@ -7,8 +7,14 @@ version: "3"
 vars:
   PACKAGE: main/mazeexample/maze
   BINARY: mazeexample
-  BENCHMARK_BASELINE: benchmark_baseline.txt
-  BENCHMARK_NEW: benchmark_new.txt
+  BENCHMARK_BASELINE: benchmarks/benchmark_baseline.txt
+  BENCHMARK_NEW: benchmarks/benchmark_new.txt
+  UI_DIR: ui
+  RESULTS_JSON: ui/results.json
+  VIEWER_HTML: ui/viewer.html
+  DOCS_DIR: docs/godoc
+  COVERAGE_FILE: coverage.out
+  COVERAGE_HTML: coverage.html
 
 tasks:
   default:
@@ -46,16 +52,16 @@ tasks:
       - echo "🧩 Maze Solver Visualization"
       - echo ""
       - echo "Generating JSON output..."
-      - ./{{.BINARY}} --json > results.json
-      - echo "✓ Results generated"
+      - ./{{.BINARY}} --json > {{.RESULTS_JSON}}
+      - echo "✓ Results generated in {{.RESULTS_JSON}}"
       - echo ""
       - |
         if command -v jq &> /dev/null; then
           echo "Statistics:"
-          cat results.json | jq '.statistics'
+          cat {{.RESULTS_JSON}} | jq '.statistics'
           echo ""
           echo "Solution Summary:"
-          cat results.json | jq '.solutions[] | {id, type, total_length}'
+          cat {{.RESULTS_JSON}} | jq '.solutions[] | {id, type, total_length}'
         else
           echo "Statistics and solutions generated (install 'jq' for pretty output)"
         fi
@@ -63,14 +69,14 @@ tasks:
       - echo "✓ All files generated successfully!"
       - echo ""
       - echo "Next steps:"
-      - echo "  1. Open viewer.html in your web browser"
-      - echo "     Linux - xdg-open viewer.html"
-      - echo "     macOS - open viewer.html"
-      - echo "     Windows - start viewer.html"
-      - echo "  2. Or drag viewer.html into your browser"
+      - echo "  1. Open {{.VIEWER_HTML}} in your web browser"
+      - echo "     Linux - xdg-open {{.VIEWER_HTML}}"
+      - echo "     macOS - open {{.VIEWER_HTML}}"
+      - echo "     Windows - start {{.VIEWER_HTML}}"
+      - echo "  2. Or drag {{.VIEWER_HTML}} into your browser"
       - echo "  3. The viewer will automatically load results.json"
       - echo ""
-      - echo "Files generated in current directory"
+      - echo "Files generated in {{.UI_DIR}}/ directory"
 
   view:
     desc: Open the visualization in the default browser
@@ -78,13 +84,13 @@ tasks:
     cmds:
       - |
         if command -v xdg-open &> /dev/null; then
-          xdg-open viewer.html
+          xdg-open {{.VIEWER_HTML}}
         elif command -v open &> /dev/null; then
-          open viewer.html
+          open {{.VIEWER_HTML}}
         elif command -v start &> /dev/null; then
-          start viewer.html
+          start {{.VIEWER_HTML}}
         else
-          echo "Please open viewer.html manually in your browser"
+          echo "Please open {{.VIEWER_HTML}} manually in your browser"
         fi
 
   serve:
@@ -92,7 +98,7 @@ tasks:
     deps: [visualize]
     cmds:
       - echo "Starting HTTP server on http://localhost:8000"
-      - echo "Open http://localhost:8000/viewer.html in your browser"
+      - echo "Open http://localhost:8000/{{.VIEWER_HTML}} in your browser"
       - echo "Press Ctrl+C to stop"
       - echo ""
       - |
@@ -110,7 +116,10 @@ tasks:
     cmds:
       - rm -f {{.BINARY}}
       - rm -f {{.BENCHMARK_NEW}}
+      - rm -f {{.COVERAGE_FILE}} {{.COVERAGE_HTML}}
+      - rm -f cpu.prof mem.prof
       - go clean -testcache
+      - echo "✓ Cleaned build artifacts and test cache"
 
   test:
     desc: Run all tests
@@ -132,16 +141,22 @@ tasks:
   test-coverage:
     desc: Run tests with coverage report
     cmds:
-      - go test -C maze -cover
-      - go test -C maze -coverprofile=coverage.out
-      - go tool cover -html=coverage.out -o coverage.html
-      - echo "Coverage report generated at coverage.html"
+      - go test ./maze -cover
+      - go test ./maze -coverprofile={{.COVERAGE_FILE}}
+      - go tool cover -html={{.COVERAGE_FILE}} -o {{.COVERAGE_HTML}}
+      - echo "✓ Coverage report generated at {{.COVERAGE_HTML}}"
+      - |
+        if command -v xdg-open &> /dev/null; then
+          xdg-open {{.COVERAGE_HTML}} 2>/dev/null &
+        elif command -v open &> /dev/null; then
+          open {{.COVERAGE_HTML}} 2>/dev/null &
+        fi
 
   test-coverage-func:
     desc: Run tests and show coverage by function
     cmds:
-      - go test -C maze -coverprofile=coverage.out
-      - go tool cover -func=coverage.out
+      - go test ./maze -coverprofile={{.COVERAGE_FILE}}
+      - go tool cover -func={{.COVERAGE_FILE}}
 
   bench:
     desc: Run all benchmarks with memory stats
@@ -259,9 +274,77 @@ tasks:
       - |
         echo "Watching for changes... (Ctrl+C to stop)"
         while true; do
-          go test
-          inotifywait -q -e modify *.go 2>/dev/null || sleep 2
+          go test ./maze
+          inotifywait -q -e modify *.go maze/*.go 2>/dev/null || sleep 2
         done
+
+  # Documentation tasks
+  docs:
+    desc: Generate all documentation (godoc + package docs)
+    cmds:
+      - task: docs-godoc
+      - task: docs-serve-info
+
+  docs-godoc:
+    desc: Start godoc server to view package documentation
+    cmds:
+      - echo "📚 Starting godoc server..."
+      - echo ""
+      - echo "View documentation at:"
+      - echo "  http://localhost:6060/pkg/main/mazeexample/maze/"
+      - echo ""
+      - echo "Press Ctrl+C to stop"
+      - echo ""
+      - |
+        if command -v godoc &> /dev/null; then
+          godoc -http=:6060
+        else
+          echo "godoc not found. Installing..."
+          go install golang.org/x/tools/cmd/godoc@latest
+          echo "✓ godoc installed"
+          echo "Starting server..."
+          godoc -http=:6060
+        fi
+
+  docs-serve-info:
+    desc: Show information about viewing documentation
+    cmds:
+      - |
+        echo "📚 Documentation Access"
+        echo ""
+        echo "To view Go documentation:"
+        echo "  1. Run: task docs-godoc"
+        echo "  2. Open: http://localhost:6060/pkg/main/mazeexample/maze/"
+        echo ""
+        echo "To view project documentation:"
+        echo "  - README.md - Main project overview"
+        echo "  - docs/TEST_README.md - Testing guide"
+        echo "  - docs/JSON_VIEWER_README.md - Visualization guide"
+        echo "  - docs/BENCHMARK_COMPARISON.md - Performance analysis"
+        echo ""
+        echo "To generate godoc markdown (requires go-md2man or similar):"
+        echo "  go doc -all ./maze > docs/godoc/API.md"
+    silent: true
+
+  docs-pkg:
+    desc: Generate package documentation (requires go doc)
+    cmds:
+      - mkdir -p {{.DOCS_DIR}}
+      - go doc -all ./maze > {{.DOCS_DIR}}/API.txt
+      - echo "✓ Package documentation saved to {{.DOCS_DIR}}/API.txt"
+      - |
+        if command -v go-md2man &> /dev/null; then
+          go doc -all ./maze | go-md2man > {{.DOCS_DIR}}/API.md
+          echo "✓ Markdown documentation saved to {{.DOCS_DIR}}/API.md"
+        else
+          echo "  (Install go-md2man for markdown format)"
+        fi
+
+  docs-clean:
+    desc: Clean generated documentation
+    cmds:
+      - rm -rf {{.DOCS_DIR}}
+      - echo "✓ Cleaned generated documentation"
 
   help:
     desc: Show detailed help information
@@ -288,6 +371,7 @@ tasks:
           task test-v      - Run tests with verbose output
           task test-run TEST=TestVertex - Run specific test
           task test-coverage - Generate HTML coverage report
+          task test-coverage-func - Show coverage by function
 
         Benchmarking:
           task bench       - Run all benchmarks
@@ -297,15 +381,26 @@ tasks:
           task bench-cpu   - Profile CPU usage
           task bench-mem   - Profile memory usage
 
+        Documentation:
+          task docs        - Show documentation access info
+          task docs-godoc  - Start godoc server (http://localhost:6060)
+          task docs-pkg    - Generate package API documentation
+          task docs-clean  - Clean generated documentation
+
         Development:
           task verify      - Full verification (build + test + bench)
           task ci          - CI pipeline with coverage
           task lint        - Check code formatting and vet
+          task fmt         - Format Go code
+          task vet         - Run go vet
           task watch-test  - Auto-run tests on file changes
 
         Cleanup:
-          task clean       - Remove test artifacts
+          task clean       - Remove build artifacts and test cache
 
-        For more details, see TEST_README.md
+        For more details:
+          - docs/TEST_README.md - Testing guide
+          - docs/BENCHMARK_COMPARISON.md - Performance analysis
+          - task docs-godoc - View Go package documentation
         EOF
     silent: true

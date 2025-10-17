@@ -75,25 +75,36 @@ task view
 # Then open viewer.html in your web browser
 ```
 
-See [JSON_VIEWER_README.md](JSON_VIEWER_README.md) for details on the web-based visualization.
+See [docs/JSON_VIEWER_README.md](docs/JSON_VIEWER_README.md) for details on the web-based visualization.
 
 ## Project Structure
 
 ```
 mazeexample/
 ├── main.go               # CLI with text/JSON output modes
-├── graph.go              # In-memory SST graph implementation
-├── maze.go               # Maze solving algorithm (text output)
-├── maze_json.go          # JSON output implementation
-├── json_output.go        # JSON types and formatting
-├── maze_test.go          # Unit tests
-├── maze_bench_test.go    # Benchmarks
-├── viewer.html           # Interactive web visualization
-├── visualize.sh          # Helper script for visualization
+├── go.mod                # Go module definition
 ├── Taskfile.yml          # Task automation
-├── TEST_README.md        # Detailed testing documentation
-├── JSON_VIEWER_README.md # Visualization guide
-└── README.md             # This file
+├── README.md             # This file
+├── maze/                 # Core package
+│   ├── graph.go          # In-memory SST graph implementation
+│   ├── maze.go           # Maze solving algorithm (text output)
+│   ├── maze_json.go      # JSON output implementation
+│   ├── json_output.go    # JSON types and formatting
+│   ├── maze_test.go      # Unit tests
+│   └── maze_bench_test.go # Benchmarks
+├── ui/                   # Visualization and results
+│   ├── viewer.html       # Interactive web visualization
+│   ├── visualize.sh      # Helper script for visualization
+│   └── results.json      # Example output (generated)
+├── docs/                 # Documentation
+│   ├── TEST_README.md    # Detailed testing documentation
+│   ├── JSON_VIEWER_README.md # Visualization guide
+│   ├── VERIFICATION_REPORT.md # Latest verification results
+│   ├── BENCHMARK_COMPARISON.md # Performance analysis
+│   └── ... (see Documentation section below)
+└── benchmarks/           # Historical benchmark data
+    ├── baseline_benchmark.txt
+    └── pointer_benchmark.txt
 ```
 
 ## Algorithm
@@ -131,7 +142,7 @@ Baseline on Intel Core i7-6500U @ 2.50GHz:
 - Full maze solve: ~53.5 ms
 - Memory: ~6KB for 10-node graph
 
-See [TEST_README.md](TEST_README.md) for detailed benchmark results.
+See [docs/TEST_README.md](docs/TEST_README.md) for detailed benchmark results and [docs/BENCHMARK_COMPARISON.md](docs/BENCHMARK_COMPARISON.md) for performance analysis.
 
 ## Testing
 
@@ -267,7 +278,49 @@ Structured data for UIs and automation:
 }
 ```
 
-See [JSON_VIEWER_README.md](JSON_VIEWER_README.md) for complete JSON schema.
+See [docs/JSON_VIEWER_README.md](docs/JSON_VIEWER_README.md) for complete JSON schema and visualization guide.
+
+## Visualization
+
+Open the interactive web viewer:
+
+```bash
+# Generate results and open viewer
+task visualize
+
+# Or manually:
+./mazeexample --json > ui/results.json
+# Then open ui/viewer.html in your browser
+```
+
+See [docs/VISUALIZATION_GUIDE.md](docs/VISUALIZATION_GUIDE.md) for advanced visualization features.
+
+## Documentation
+
+### Core Documentation
+
+- [docs/TEST_README.md](docs/TEST_README.md) - Comprehensive testing guide
+- [docs/JSON_VIEWER_README.md](docs/JSON_VIEWER_README.md) - Visualization guide
+- [docs/VERIFICATION_REPORT.md](docs/VERIFICATION_REPORT.md) - Latest verification results
+
+### Performance & Benchmarks
+
+- [docs/BENCHMARK_COMPARISON.md](docs/BENCHMARK_COMPARISON.md) - Handle-based vs Pointer-based comparison
+- [docs/BENCHMARK_RESULTS.md](docs/BENCHMARK_RESULTS.md) - Detailed benchmark results
+- [benchmarks/](benchmarks/) - Historical benchmark data files
+
+### Development & Refactoring
+
+- [docs/REFACTORING_COMPLETE.md](docs/REFACTORING_COMPLETE.md) - Refactoring summary
+- [docs/POINTER_REFACTORING_STATUS.md](docs/POINTER_REFACTORING_STATUS.md) - Migration status
+- [docs/ERROR_HANDLING.md](docs/ERROR_HANDLING.md) - Error handling patterns
+- [docs/BUFFER_OUTPUT.md](docs/BUFFER_OUTPUT.md) - Output buffering design
+
+### Research & Publication
+
+- [docs/INNOVATION_ANALYSIS.md](docs/INNOVATION_ANALYSIS.md) - Novel contributions
+- [docs/PHD_ASSESSMENT.md](docs/PHD_ASSESSMENT.md) - Academic assessment
+- [docs/PUBLICATION_STRATEGY.md](docs/PUBLICATION_STRATEGY.md) - Publication roadmap
 
 ## Dependencies
 
@@ -294,11 +347,7 @@ task ci
 task watch-test
 ```
 
-## Documentation
-
-- [TEST_README.md](TEST_README.md) - Comprehensive testing guide
-- [Taskfile.yml](Taskfile.yml) - Task automation definitions
-- Code comments - GoDoc-style documentation on all functions
+See [Taskfile.yml](Taskfile.yml) for all available tasks and [docs/](docs/) for detailed documentation.
 
 ## License
 

@@ -17,7 +17,7 @@ Replaced the handle-based architecture (integer IDs + map lookups) with native G
 text2n4l (baseline)
   ├── baseline_benchmark.txt (Handle-based performance)
   └── graph_handle_based.go.backup
-  
+
 pointer-based-graph (new architecture)
   ├── pointer_benchmark.txt (Pointer-based performance)
   ├── maze/graph.go (pointer-based)
@@ -30,6 +30,7 @@ pointer-based-graph (new architecture)
 ## The Transformation
 
 ### Before (Handle-Based):
+
 ```go
 type LinkedSST struct {
     nextID       int
@@ -46,6 +47,7 @@ links := graph.forward[handle]        // 3
 ```
 
 ### After (Pointer-Based):
+
 ```go
 type LinkedSST struct {
     nodes   map[string]*Node
@@ -68,16 +70,19 @@ links := node.forward        // Direct field access!
 ## Performance Results
 
 ### 🎉 Big Wins (The Goal)
+
 - **Path Finding Depth 1**: 3964ns → 1752ns (**56% faster!**)
 - **Path Finding Depth 5**: 17369ns → 13610ns (**22% faster!**)
 - **Full Maze Solve**: 2.84ms → 2.28ms (**20% faster!**)
 
 ### 💾 Memory Wins
+
 - **Graph Building**: 5832B → 3344B (**43% less!**)
 - **Path Finding Depth 5**: 13800B → 7864B (**43% less!**)
 - **Edge Creation**: 202B → 131B (**35% less!**)
 
 ### ⚖️ Trade-offs
+
 - More allocations (pointers need heap allocation)
 - Small operations slightly slower (creating nodes/edges)
 - BUT: Traversal-heavy operations MUCH faster
@@ -93,19 +98,19 @@ links := node.forward        // Direct field access!
 
 ## Files Modified
 
-| File | Lines | Changes |
-|------|-------|---------|
-| `maze/graph.go` | 311 | Complete rewrite (pointer-based) |
-| `maze/maze.go` | 295 | NodeHandle → *Node throughout |
-| `maze/maze_json.go` | 179 | NodeHandle → *Node throughout |
-| `maze/maze_test.go` | 377 | Updated all 13 tests |
-| `maze/maze_bench_test.go` | 247 | Updated all 11 benchmarks |
-| **TOTAL** | **~1,400** | **Systematic refactoring** |
+| File                      | Lines      | Changes                          |
+| ------------------------- | ---------- | -------------------------------- |
+| `maze/graph.go`           | 311        | Complete rewrite (pointer-based) |
+| `maze/maze.go`            | 295        | NodeHandle → \*Node throughout   |
+| `maze/maze_json.go`       | 179        | NodeHandle → \*Node throughout   |
+| `maze/maze_test.go`       | 377        | Updated all 13 tests             |
+| `maze/maze_bench_test.go` | 247        | Updated all 11 benchmarks        |
+| **TOTAL**                 | **~1,400** | **Systematic refactoring**       |
 
 ## What Got Eliminated
 
 - ❌ `NodeHandle` type (was: `int`)
-- ❌ `ArrowHandle` type (was: `int`) 
+- ❌ `ArrowHandle` type (was: `int`)
 - ❌ `ContextHandle` type (was: `int`)
 - ❌ `nextID` field (no more ID generation)
 - ❌ `nameTohandle` map (collapsed into nodes)
@@ -121,6 +126,7 @@ links := node.forward        // Direct field access!
 ## Architecture Insight
 
 The handle-based design was inherited from a database-backed version where integer IDs made sense. For in-memory graphs, Go's native pointers are:
+
 - Simpler
 - Faster for traversal
 - More memory-efficient
@@ -131,6 +137,7 @@ This is a textbook case of **using the right tool for the job**: integers for da
 ## Testing Validation
 
 All tests pass with identical behavior:
+
 ```bash
 === RUN   TestOpen
 --- PASS: TestOpen (0.00s)
@@ -175,6 +182,7 @@ PASS
 ✅ **Mission Accomplished**
 
 The pointer-based refactoring successfully:
+
 1. Simplified the codebase (removed ~100 lines of indirection)
 2. Improved performance (20% faster end-to-end)
 3. Reduced memory usage (43% less in key operations)
@@ -187,9 +195,11 @@ The trade-off of more small allocations is well worth the gains in lookup perfor
 ---
 
 **Branches:**
+
 - `text2n4l` - Baseline (handle-based)
 - `pointer-based-graph` - New architecture (pointer-based)
 
 **Next Steps:**
+
 - Merge to main branch? ✨
 - Or continue testing/refinement? 🔬

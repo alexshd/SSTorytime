@@ -100,4 +100,6 @@ conceptualize
 
 # Taskfile 
 **/.task
-**/.task.lock
+**/.task.lock# Go workspace (local development only)
+go.work
+go.work.sum

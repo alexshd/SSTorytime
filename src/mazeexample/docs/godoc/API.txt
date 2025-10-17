@@ -1,0 +1,299 @@
+package maze // import "github.com/markburgess/SSTorytime/src/mazeexample/maze"
+
+Package maze provides a minimal in-memory implementation of the SST (Semantic
+Space-Time) graph structure needed for the maze-solving example.
+
+This is a pointer-based implementation using native Go pointers instead of
+handle indirection. Nodes, Links, and Arrows are connected via direct pointer
+references for simplicity and performance.
+
+# Core Concepts
+
+The SST graph represents a semantic network where:
+  - Nodes represent concepts, entities, or locations (e.g., maze cells)
+  - Links represent directed relationships between nodes
+  - Arrows define the type/semantics of relationships (e.g., "fwd", "bwd")
+  - Contexts provide additional metadata for grouping related links
+
+# Typical Usage
+
+    graph := maze.NewLinkedSST()
+    defer maze.Close(graph)
+
+    // Create nodes
+    start := maze.Vertex(graph, "maze_a1", "chapter1")
+    end := maze.Vertex(graph, "maze_b2", "chapter1")
+
+    // Create directed edge
+    maze.Edge(graph, start, "fwd", end, []string{"path"}, 1.0)
+
+    // Find paths
+    paths, count := maze.GetEntireNCConePathsAsLinks(graph, "fwd", start, 3, "", []string{}, 100)
+
+Package maze demonstrates solving a maze using bidirectional wavefronts and LT
+vectors. Extracted and refactored from API_EXAMPLE_3.go
+
+VARIABLES
+
+var (
+	StartNode = "g2"
+	EndNode   = "i6"
+)
+var MazeGrid = [9][9]Cell{
+
+	{0, 0, 1, 0, 0, 0, 0, 0, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{0, 1, 1, 0, 0, 0, 1, 1, 1},
+	{0, 1, 1, 1, 1, 1, 1, 1, 1},
+	{0, 1, 1, 1, 1, 0, 1, 1, 1},
+	{0, 1, 1, 1, 1, 1, 0, 1, 1},
+	{0, 1, 0, 0, 1, 1, 1, 0, 0},
+	{0, 1, 1, 1, 1, 1, 1, 0, 1},
+	{0, 0, 0, 0, 0, 1, 1, 1, 1},
+}
+    MazeGrid defines a 9x9 maze using binary notation (0=wall, 1=path) Rows
+    are A-I (top to bottom), columns are 1-9 (left to right) Human-readable:
+    you can see the maze structure visually!
+
+
+FUNCTIONS
+
+func Close(linkedSST *LinkedSST)
+    Close releases resources associated with the in-memory graph. This is a
+    no-op and exists for API compatibility.
+
+func GetEntireNCConePathsAsLinks(graph *LinkedSST, orientation string, start *Node, depth int, chapter string, context []string, limit int) ([][]*Link, int)
+    GetEntireNCConePathsAsLinks performs bounded breadth-first path enumeration.
+
+    Parameters:
+      - graph: The LinkedSST graph
+      - orientation: "fwd" for outgoing edges, "bwd" for incoming edges
+      - start: Starting node
+      - depth: Exact path length to enumerate (number of hops)
+      - chapter: Chapter filter (ignored)
+      - context: Context filter (ignored)
+      - limit: Maximum number of paths to return
+
+    Returns:
+      - [][]*Link: Slice of paths
+      - int: Number of paths found
+
+    Example:
+
+        paths, count := GetEntireNCConePathsAsLinks(
+            graph, "fwd", startNode, 3, "", []string{}, 100)
+
+func PrintLinkPath(graph *LinkedSST, paths [][]*Link, pathIndex int, prefix string, chapter string, context []string)
+    PrintLinkPath prints a human-readable representation of a path.
+
+    Parameters:
+      - graph: The LinkedSST graph
+      - paths: Slice of paths
+      - pathIndex: Index of the path to print
+      - prefix: String to prepend to output
+      - chapter: Chapter filter (ignored)
+      - context: Context filter (ignored)
+
+    Output format: prefix + node1 -(arrow)-> node2 -(arrow)-> node3 ...
+
+    Example:
+
+        PrintLinkPath(graph, paths, 0, " - story 0: ", "", nil)
+
+func SolveMaze() error
+    SolveMaze builds the maze graph from MazeGrid and solves it using
+    contra-colliding wavefronts (bidirectional search). It prints any discovered
+    solutions and loop-corrections at each step. Output is written to os.Stdout.
+    Returns an error if the maze cannot be built or solved.
+
+func SolveMazeWithOutput(w io.Writer) error
+    SolveMazeWithOutput builds the maze graph from MazeGrid and solves it using
+    bidirectional search. Output is written to the provided writer, allowing for
+    custom output destinations (e.g., buffers for testing, files, or stdout).
+    Returns an error if the maze cannot be built or solved.
+
+
+TYPES
+
+type Arrow struct {
+	// Has unexported fields.
+}
+    Arrow defines a relationship type with its semantic properties.
+
+func Edge(graph *LinkedSST, from *Node, arrowName string, to *Node, context []string, weight float32) (*Arrow, int, error)
+    Edge creates a directed link from 'from' to 'to' with the given arrow type.
+
+    Parameters:
+      - graph: The LinkedSST graph
+      - from: Source node
+      - arrowName: Arrow type name (e.g., "fwd", "bwd")
+      - to: Destination node
+      - context: Optional context labels for this edge
+      - weight: Edge weight
+
+    Returns:
+      - *Arrow: The arrow used for this edge
+      - int: Placeholder (always 0)
+      - error: Error if arrow name not found
+
+    This function creates bidirectional links automatically:
+      - Forward link in from.forward
+      - Backward link in to.backward (with inverse arrow)
+
+    Example:
+
+        start := Vertex(graph, "a1", "ch1")
+        end := Vertex(graph, "a2", "ch1")
+        arrow, _, err := Edge(graph, start, "fwd", end, []string{}, 1.0)
+
+type Cell byte
+    Cell type: 0 = wall (blocked), 1 = path (walkable)
+
+const (
+	Wall Cell = 0
+	Path Cell = 1
+)
+type Link struct {
+	// Has unexported fields.
+}
+    Link represents a directed edge in the graph. All references are direct
+    pointers - no lookups needed.
+
+func AdjointLinkPath(graph *LinkedSST, path []*Link) []*Link
+    AdjointLinkPath returns the reverse traversal of a path with inverted
+    arrows.
+
+    Parameters:
+      - graph: The LinkedSST graph
+      - path: Original path as a slice of *Link
+
+    Returns:
+      - []*Link: Reversed path with inverted arrow directions
+
+    Example:
+
+        // Original: A --fwd--> B --fwd--> C
+        // Adjoint: C --bwd--> B --bwd--> A
+        reversed := AdjointLinkPath(graph, originalPath)
+
+type LinkedSST struct {
+	// Has unexported fields.
+}
+    LinkedSST (Linked Semantic Space-Time) is the main graph structure. It uses
+    direct pointer references throughout - no handle indirection.
+
+func NewLinkedSST() *LinkedSST
+    NewLinkedSST initializes a new in-memory semantic graph. It seeds a minimal
+    arrow vocabulary with two inverse relations: "fwd" and "bwd".
+
+    Returns a new *LinkedSST graph ready for operations.
+
+    Example:
+
+        graph := NewLinkedSST()
+        defer Close(graph)
+
+type MazeResult struct {
+	StartNode   string       `json:"start_node"`
+	EndNode     string       `json:"end_node"`
+	MaxDepth    int          `json:"max_depth"`
+	Solutions   []Solution   `json:"solutions"`
+	Loops       []Solution   `json:"loops"`
+	SearchSteps []SearchStep `json:"search_steps"`
+	Statistics  Statistics   `json:"statistics"`
+}
+    MazeResult represents the complete solution output in JSON format.
+
+func SolveMazeJSON() (*MazeResult, error)
+    SolveMazeJSON solves the maze and returns results as JSON. This is the
+    JSON-output equivalent of SolveMaze().
+
+func SolveMazeJSONWithOutput(w io.Writer) (*MazeResult, error)
+    SolveMazeJSONWithOutput solves the maze and returns results as JSON.
+    The writer w receives human-readable text output (can be io.Discard to
+    suppress). Returns a MazeResult struct that can be marshaled to JSON.
+
+func (mr *MazeResult) ToJSON() ([]byte, error)
+    ToJSON converts MazeResult to JSON bytes.
+
+func (mr *MazeResult) ToJSONCompact() ([]byte, error)
+    ToJSONCompact converts MazeResult to compact JSON bytes.
+
+type Node struct {
+	// Has unexported fields.
+}
+    Node represents a vertex in the semantic graph. Adjacency lists are stored
+    directly in the node for better locality.
+
+func GetNodeByName(graph *LinkedSST, name, chap string) *Node
+    GetNodeByName looks up a node by exact name match.
+
+    Parameters:
+      - graph: The LinkedSST graph
+      - name: Node name to search for
+      - chap: Chapter filter (ignored in this implementation)
+
+    Returns:
+      - *Node: The matching node, or nil if not found
+
+    Example:
+
+        node := GetNodeByName(graph, "a7", "")
+        if node != nil {
+            fmt.Println("Found:", node.label)
+        }
+
+func Vertex(linkedSST *LinkedSST, name, chap string) *Node
+    Vertex returns an existing node by name or creates a new one if not found.
+
+    Parameters:
+      - linkedSST: The LinkedSST graph
+      - name: Unique identifier for the node
+      - chap: Chapter/category metadata
+
+    Returns a *Node pointer (existing or newly created).
+
+    Example:
+
+        start := Vertex(graph, "maze_a7", "chapter1")
+        // Later: same := Vertex(graph, "maze_a7", "chapter2")
+        // start == same (pointer equality)
+
+type PathLink struct {
+	From   string  `json:"from"`
+	To     string  `json:"to"`
+	Arrow  string  `json:"arrow"`
+	Weight float32 `json:"weight"`
+}
+    PathLink represents a single edge in a path.
+
+type SearchStep struct {
+	Turn          int      `json:"turn"`
+	LeftDepth     int      `json:"left_depth"`
+	RightDepth    int      `json:"right_depth"`
+	LeftFrontier  []string `json:"left_frontier"`
+	RightFrontier []string `json:"right_frontier"`
+	Solutions     int      `json:"solutions_found"`
+	Loops         int      `json:"loops_found"`
+}
+    SearchStep represents one iteration of the bidirectional search.
+
+type Solution struct {
+	ID          int        `json:"id"`
+	Type        string     `json:"type"` // "tree" or "loop"
+	LeftDepth   int        `json:"left_depth"`
+	RightDepth  int        `json:"right_depth"`
+	TotalLength int        `json:"total_length"`
+	Path        []PathLink `json:"path"`
+}
+    Solution represents a complete path from start to end.
+
+type Statistics struct {
+	TotalSolutions   int `json:"total_solutions"`
+	TotalLoops       int `json:"total_loops"`
+	MaxLeftDepth     int `json:"max_left_depth"`
+	MaxRightDepth    int `json:"max_right_depth"`
+	TotalSearchSteps int `json:"total_search_steps"`
+}
+    Statistics provides summary information about the search.
+

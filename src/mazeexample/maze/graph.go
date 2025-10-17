@@ -278,7 +278,7 @@ func GetEntireNCConePathsAsLinks(graph *LinkedSST, orientation string, start *No
 	frontier := []path{{last: start, links: nil}}
 	useForward := orientation == "fwd"
 
-	for d := 0; d < depth; d++ {
+	for range depth {
 		var next []path
 		for _, p := range frontier {
 			var adj []*Link

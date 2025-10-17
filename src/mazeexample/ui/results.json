@@ -1,0 +1,277 @@
+{
+  "start_node": "f9",
+  "end_node": "b1",
+  "max_depth": 16,
+  "solutions": [],
+  "loops": [],
+  "search_steps": [
+    {
+      "turn": 0,
+      "left_depth": 1,
+      "right_depth": 1,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 1,
+      "left_depth": 2,
+      "right_depth": 1,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 2,
+      "left_depth": 2,
+      "right_depth": 2,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 3,
+      "left_depth": 3,
+      "right_depth": 2,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 4,
+      "left_depth": 3,
+      "right_depth": 3,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 5,
+      "left_depth": 4,
+      "right_depth": 3,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 6,
+      "left_depth": 4,
+      "right_depth": 4,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 7,
+      "left_depth": 5,
+      "right_depth": 4,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 8,
+      "left_depth": 5,
+      "right_depth": 5,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 9,
+      "left_depth": 6,
+      "right_depth": 5,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 10,
+      "left_depth": 6,
+      "right_depth": 6,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 11,
+      "left_depth": 7,
+      "right_depth": 6,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 12,
+      "left_depth": 7,
+      "right_depth": 7,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 13,
+      "left_depth": 8,
+      "right_depth": 7,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 14,
+      "left_depth": 8,
+      "right_depth": 8,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 15,
+      "left_depth": 9,
+      "right_depth": 8,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 16,
+      "left_depth": 9,
+      "right_depth": 9,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 17,
+      "left_depth": 10,
+      "right_depth": 9,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 18,
+      "left_depth": 10,
+      "right_depth": 10,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 19,
+      "left_depth": 11,
+      "right_depth": 10,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 20,
+      "left_depth": 11,
+      "right_depth": 11,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 21,
+      "left_depth": 12,
+      "right_depth": 11,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 22,
+      "left_depth": 12,
+      "right_depth": 12,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 23,
+      "left_depth": 13,
+      "right_depth": 12,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 24,
+      "left_depth": 13,
+      "right_depth": 13,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 25,
+      "left_depth": 14,
+      "right_depth": 13,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 26,
+      "left_depth": 14,
+      "right_depth": 14,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 27,
+      "left_depth": 15,
+      "right_depth": 14,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    },
+    {
+      "turn": 28,
+      "left_depth": 15,
+      "right_depth": 15,
+      "left_frontier": [],
+      "right_frontier": [],
+      "solutions_found": 0,
+      "loops_found": 0
+    }
+  ],
+  "statistics": {
+    "total_solutions": 0,
+    "total_loops": 0,
+    "max_left_depth": 15,
+    "max_right_depth": 14,
+    "total_search_steps": 29
+  }
+}
