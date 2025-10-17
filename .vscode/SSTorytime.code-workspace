@@ -1,0 +1,27 @@
+{
+  "folders": [
+	{
+		"path": ".."
+	},
+	{
+		"path": "../../shd-sst"
+	}
+],
+  "settings": {
+    "typescript.validate.enable": false,
+    "javascript.validate.enable": false,
+    "yaml.schemas": {
+      "https://taskfile.dev/schema.json": [
+        "**/Taskfile.yml",
+        "**/Taskfile.yaml",
+        "file:///home/alex/SHDProj/SSTorytime/text2n4l-editor/Taskfile.yml"
+      ]
+    },
+    "files.associations": {
+      "*.n4l": "n4l",
+      "*.sst": "sst"
+    },
+    "vscode-neovim.neovimClean": true,
+    "makefile.configureOnOpen": false
+  }
+}
